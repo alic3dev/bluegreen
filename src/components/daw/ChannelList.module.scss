@@ -1,0 +1,96 @@
+.channel-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0.5rem;
+
+  border-bottom: 1px solid #0e0e11;
+}
+
+.channel {
+  display: flex;
+  flex-direction: column;
+
+  padding: 1rem;
+  padding-top: 0.5rem;
+
+  border-bottom: 1px solid #0e0e11;
+
+  label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.channel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 0.5rem 0;
+  margin: 0;
+
+  border: none;
+  background: none;
+
+  cursor: pointer;
+
+  &:hover {
+    box-shadow: none;
+  }
+}
+
+.channel-title {
+  padding: 0;
+  margin: 0;
+}
+
+.channel-caret {
+  display: flex;
+
+  .open & {
+    transform: rotate(180deg);
+  }
+}
+
+.channel-content {
+  height: 0px;
+
+  overflow: hidden;
+
+  &,
+  & label {
+    font-size: 0.75rem;
+  }
+
+  .open & {
+    height: unset;
+  }
+}
+
+.gain-display-wrapper {
+  width: 100%;
+
+  background: rgba(0, 0, 0, 0.1);
+
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
+}
+
+.gain-display {
+  height: 6px;
+  width: 100%;
+  background: linear-gradient(to right, #000, #000);
+
+  transition: all 75ms linear;
+
+  border: 1px solid #000;
+  border-radius: 5px;
+}

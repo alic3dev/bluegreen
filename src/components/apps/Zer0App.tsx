@@ -3,7 +3,13 @@ import { CiPlay1, CiStop1, CiUndo } from 'react-icons/ci'
 
 import { /*SampleKit,*/ Channel, Synth /*utils, Octave, Note*/ } from 'zer0'
 
-import { ChannelList, Track, TrackOptions, SynthList } from '../daw'
+import {
+  ChannelList,
+  ChannelWithOptions,
+  Track,
+  TrackOptions,
+  SynthList,
+} from '../daw'
 
 import styles from './Zer0App.module.scss'
 import { Tabbed } from '../layout/Tabbed'
@@ -32,12 +38,16 @@ const getDefaultAudioRef = (): AudioRef => {
 export function Zer0App() {
   const audioRef = React.useRef<AudioRef>(getDefaultAudioRef())
 
-  const [synths] = React.useState<Synth[]>(() => [
-    new Synth(audioRef.current.context, audioRef.current.gain),
+  const [channels] = React.useState<ChannelWithOptions[]>(() => [
+    {
+      id: `${Math.random()}`,
+      name: 'Main',
+      channel: new Channel(audioRef.current.context, audioRef.current.gain),
+    },
   ])
 
-  const [channels] = React.useState<Channel[]>(() => [
-    new Channel(audioRef.current.context, audioRef.current.gain),
+  const [synths] = React.useState<Synth[]>(() => [
+    new Synth(audioRef.current.context, channels[0].channel.destination),
   ])
 
   const trackInfoRef = React.useRef<{
