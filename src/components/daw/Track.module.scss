@@ -1,0 +1,64 @@
+.track {
+  display: flex;
+  flex-direction: column;
+
+  max-height: 100%;
+  min-width: fit-content;
+  width: fit-content;
+
+  overflow-y: scroll;
+
+  &:not(:last-of-type) {
+    .note {
+      border-right: 1px solid transparent;
+    }
+  }
+}
+
+.info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.title {
+  white-space: nowrap;
+  padding: 0 1rem;
+}
+
+.beats,
+.repeats {
+  min-width: 4rem;
+  width: 4rem;
+  max-width: 4rem;
+}
+
+.beat {
+  display: flex;
+
+  &:last-of-type .note:not(:focus-visible) {
+    border-bottom: 1px solid #000;
+  }
+}
+
+.note {
+  min-width: 2rem;
+  min-height: 2rem;
+
+  padding: 0.25rem;
+
+  border: 1px solid #000;
+
+  border-bottom: 1px solid transparent;
+  border-radius: 0px;
+
+  flex: 1;
+
+  text-align: center;
+}
+
+.bar-seperator {
+  height: 2px;
+  background: #000;
+}
