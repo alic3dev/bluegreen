@@ -5,6 +5,8 @@
   height: 100%;
   width: 100%;
 
+  background: #1e1e25;
+
   &,
   * {
     user-select: none;
@@ -28,16 +30,16 @@
   align-items: center;
 
   padding: 0.5rem 1rem;
+
+  background: #1b1b22;
 }
 
 .title {
-  display: block;
-
   margin: 0;
   padding: 0;
 
-  font-size: 1rem;
-  line-height: 1rem;
+  font-size: 1.25rem;
+  line-height: 1.25rem;
 }
 
 .spacer {
@@ -49,6 +51,30 @@
 .reset,
 .bpm {
   height: 100%;
+  width: 100px;
+}
+
+.bpm-wrapper {
+  position: relative;
+  height: 100%;
+}
+
+.bpm-text {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+
+  color: rgba(255, 255, 255, 0.3);
+
+  font-size: 0.75rem;
+
+  pointer-events: none;
+
+  transform: translateY(-50%);
+}
+
+.bpm {
+  text-align: right;
 }
 
 .play {
@@ -81,8 +107,10 @@
 .content {
   flex: 1;
   display: flex;
+
   width: 100%;
   height: 100%;
+
   overflow: hidden;
 }
 
@@ -96,10 +124,23 @@
   max-width: 100%;
 
   overflow: hidden;
+
+  border: 1px solid #0e0e11;
+  border-left: none;
+  border-bottom: none;
 }
 
-// .track-section-title {
-// }
+.track-section-controls {
+  display: flex;
+
+  padding: 0.5rem;
+}
+
+.track-section-title {
+  margin: 0;
+  padding: 0;
+  padding-right: 1rem;
+}
 
 .track-container {
   display: flex;

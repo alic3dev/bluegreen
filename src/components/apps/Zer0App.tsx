@@ -140,8 +140,6 @@ export function Zer0App() {
 
   return (
     <div className={styles.zer0app}>
-      {/* <h1 className={styles.title}>ZER0</h1> */}
-
       <div className={styles.controls}>
         <h1 className={styles.title}>ZER0</h1>
 
@@ -156,23 +154,24 @@ export function Zer0App() {
         <button onClick={reset} className={styles.reset}>
           <CiUndo />
         </button>
-        <input
-          type="number"
-          min={1}
-          max={999}
-          name="BPM"
-          className={styles.bpm}
-          placeholder="BPM"
-          autoComplete="off"
-          value={bpm}
-          onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-            const newBPM = event.target.valueAsNumber
+        <label className={styles['bpm-wrapper']}>
+          <span className={styles['bpm-text']}>BPM</span>
+          <input
+            type="number"
+            min={1}
+            name="BPM"
+            className={styles.bpm}
+            autoComplete="off"
+            value={bpm}
+            onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+              const newBPM = event.target.valueAsNumber
 
-            if (!isNaN(newBPM) && newBPM > 0) {
-              setBPM(newBPM)
-            }
-          }}
-        />
+              if (!isNaN(newBPM) && newBPM > 0) {
+                setBPM(newBPM)
+              }
+            }}
+          />
+        </label>
 
         <div className={styles.spacer} />
 
@@ -187,14 +186,14 @@ export function Zer0App() {
             (audioRef.current.gain.gain.value =
               event.target.valueAsNumber / 1000)
           }
+          style={{ visibility: 'hidden' }}
         />
       </div>
 
       <div className={styles.content}>
         <div className={styles['track-section']}>
-          <div className={styles['track-section-title']}>Tracks</div>
           <div className={styles['track-section-controls']}>
-            <button onClick={addTrack}>Add</button>
+            <button onClick={addTrack}>New Track</button>
           </div>
 
           <div className={styles['track-container']}>
