@@ -1,8 +1,14 @@
 {
   "name": "bluegreen",
-  "private": true,
-  "version": "0.0.0",
+  "description": "Audio things.",
+  "version": "0.0.1",
   "type": "module",
+  "author": {
+    "email": "alic3dev@gmail.com",
+    "name": "alic3dev",
+    "url": "https://alic3.dev"
+  },
+  "license": "ISC",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
