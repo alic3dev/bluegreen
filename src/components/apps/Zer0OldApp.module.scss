@@ -1,0 +1,46 @@
+.zer0app {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+
+  min-width: 100%;
+  min-height: 100%;
+
+  background-color: #000;
+}
+
+h1 {
+  font-size: 4rem;
+
+  color: #000;
+  text-shadow: 0px 0px 1px #fff;
+}
+
+.frequencies {
+  font-family: 'Fira Code';
+}
+
+.drums {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 2rem 0;
+
+  filter: invert(1);
+}
+
+.drum {
+  padding: 0.5rem 1rem;
+
+  font-size: 2rem;
+
+  border: 1px solid transparent;
+
+  &.active {
+    border: 1px solid rgba(0, 255, 0, 1);
+
+    text-shadow: 0.25rem 0.25rem 0px green;
+  }
+}
