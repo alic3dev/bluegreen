@@ -45,7 +45,7 @@ const generateBeat = (polyphony = 2): number[] =>
 // TODO: Don't generate random - Save states?
 const generateBar = (beats = 4, polyphony = 2): Bar => ({
   notes: new Array<number[]>(beats).fill([]).map(() => generateBeat(polyphony)),
-  repeat: 1,
+  repeat: 0,
 })
 
 export function Track({
@@ -61,15 +61,14 @@ export function Track({
     new Array(4).fill(null).map(() => generateBar(4, polyphony)),
   )
 
-  const position = React.useRef<Position>({
+  const [position, setPosition] = React.useState<Position>({
     bar: 0,
     beat: 0,
     repeated: 0,
   })
 
   const step = React.useCallback(() => {
-    const notes: number[] =
-      bars[position.current.bar].notes[position.current.beat]
+    const notes: number[] = bars[position.bar].notes[position.beat]
 
     // FIXME: Add polyphony
 
@@ -77,27 +76,37 @@ export function Track({
       synths[0].playNote(frequencies[notes[0]])
     }
 
-    position.current.beat++
+    setPosition((prevPosition) => {
+      const newPosition = { ...prevPosition }
 
-    if (position.current.beat >= bars[position.current.bar].notes.length) {
-      position.current.beat = 0
-      position.current.repeated++
-    }
+      newPosition.beat++
 
-    if (position.current.repeated >= bars[position.current.bar].repeat) {
-      position.current.repeated = 0
-      position.current.bar++
-    }
+      if (newPosition.beat >= bars[newPosition.bar].notes.length) {
+        newPosition.beat = 0
+        newPosition.repeated++
+      }
 
-    if (position.current.bar >= bars.length) {
-      position.current.bar = 0
-    }
-  }, [bars, synths])
+      if (bars[newPosition.bar].repeat !== -1) {
+        if (newPosition.repeated > bars[newPosition.bar].repeat) {
+          newPosition.repeated = 0
+          newPosition.bar++
+        }
+
+        if (newPosition.bar >= bars.length) {
+          newPosition.bar = 0
+        }
+      }
+
+      return newPosition
+    })
+  }, [bars, position, synths])
 
   const reset = React.useCallback(() => {
-    position.current.bar = 0
-    position.current.beat = 0
-    position.current.repeated = 0
+    setPosition({
+      bar: 0,
+      beat: 0,
+      repeated: 0,
+    })
   }, [])
 
   React.useEffect(() => {
@@ -136,6 +145,7 @@ export function Track({
               min={1}
               name={`${options.id}-bars`}
               autoComplete="off"
+              className={styles.bars}
               onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
                 const barCount: number = parseInt(event.target.value ?? 0)
 
@@ -158,7 +168,7 @@ export function Track({
       {bars.map((bar, barIndex) => (
         <div className={styles.bar} key={barIndex}>
           <div className={styles.controls}>
-            Bar {barIndex + 1}
+            <div className={styles['bar-title']}>BAR {barIndex + 1}</div>
             <label>
               Beats
               <input
@@ -214,14 +224,36 @@ export function Track({
                 type="number"
                 className={styles.repeats}
                 name={`${barIndex}-repeats`}
-                defaultValue={1}
+                value={bar.repeat}
                 min={-1}
                 autoComplete="off"
+                onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                  setBars((prevBars) => {
+                    const newRepeat: number = event.target.valueAsNumber
+
+                    const newBars: Bar[] = prevBars.map((bar) => ({
+                      ...bar,
+                      notes: bar.notes.map((beat) => [...beat]),
+                    }))
+
+                    newBars[barIndex].repeat =
+                      isNaN(newRepeat) || newRepeat < -1 ? -1 : newRepeat
+
+                    return newBars
+                  })
+                }}
               />
             </label>
           </div>
           {bar.notes.map((beat, beatIndex) => (
-            <div key={`${barIndex}-${beatIndex}`} className={styles.beat}>
+            <div
+              key={`${barIndex}-${beatIndex}`}
+              className={`${styles.beat} ${
+                position.bar === barIndex && position.beat === beatIndex
+                  ? styles.active
+                  : ''
+              }`}
+            >
               {beat.map((note, polyphony) => (
                 <input
                   type="number"
