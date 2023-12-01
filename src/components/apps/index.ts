@@ -1,4 +1,5 @@
 export { CircleApp } from './CircleApp'
 export { EyeGenApp } from './EyeGenApp'
+export { NavigationApp } from './NavigationApp'
 export { VisdioApp } from './VisdioApp'
 export { Zer0App } from './Zer0App'
