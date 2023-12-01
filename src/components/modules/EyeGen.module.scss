@@ -1,0 +1,79 @@
+.content {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+
+  // justify-content: center;
+  align-items: center;
+
+  font-family: 'ヒラギノ角ゴ Pro W3', 'Hiragino Kaku Gothic Pro', Osaka,
+    'メイリオ', Meiryo, 'ＭＳ Ｐゴシック', 'MS PGothic', sans-serif;
+
+  // background-color: #1d1d1d;
+
+  & input[type='number'] {
+    width: 48px;
+  }
+}
+
+.title {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+
+  margin: 0;
+  padding: 0;
+
+  font-size: 120px;
+  font-family: 'ヒラギノ角ゴ Pro W3', 'Hiragino Kaku Gothic Pro', Osaka,
+    'メイリオ', Meiryo, 'ＭＳ Ｐゴシック', 'MS PGothic', sans-serif;
+
+  writing-mode: vertical-rl;
+
+  color: #000;
+  text-shadow: 0.25em 2em rgba(255, 0, 0, 0.4);
+  opacity: 0.25;
+
+  overflow: hidden;
+  text-overflow: clip;
+  white-space: nowrap;
+
+  z-index: -1;
+}
+
+.eye {
+  position: absolute;
+  top: -10%;
+  left: 50%;
+  transform: translateX(-50%);
+
+  z-index: -2;
+}
+
+.controls {
+  position: absolute;
+  bottom: 25%;
+  left: 0;
+  right: 0;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.dual {
+  display: flex;
+
+  & > * {
+    margin-right: 12px;
+
+    &:first-child {
+      margin-left: 0;
+    }
+
+    &:last-child {
+      margin-right: 0;
+    }
+  }
+}
