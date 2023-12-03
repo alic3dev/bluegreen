@@ -10,9 +10,17 @@ export interface ChannelWithOptions {
   channel: Channel
 }
 
-const UPDATE_RATE: number = 100
+const UPDATE_RATE: number = 10
 
-export function ChannelList({ channels }: { channels: ChannelWithOptions[] }) {
+export function ChannelList({
+  channels,
+  addChannel,
+  removeChannel,
+}: {
+  channels: ChannelWithOptions[]
+  addChannel: () => void
+  removeChannel: (id: string) => void
+}) {
   const channelDOMRefs = React.useRef<Record<string, HTMLDivElement>>({})
   const [openChannels, setOpenChannels] = React.useState<
     Record<string, boolean>
@@ -52,6 +60,8 @@ export function ChannelList({ channels }: { channels: ChannelWithOptions[] }) {
         const perc: number =
           buffer.reduce((a, b) => a + Math.abs(b - 128), 0) / buffer.length
 
+        // FIXME: This needs to be smoothed or something
+
         channelGainDOM.style.width = `${perc}%`
         channelGainDOM.style.background = `linear-gradient(to right, #121212, rgb(${
           Math.max((perc - 50) / 50, 0) * 255
@@ -69,9 +79,7 @@ export function ChannelList({ channels }: { channels: ChannelWithOptions[] }) {
   return (
     <div className={styles['channel-list']}>
       <div className={styles['controls']}>
-        <button onClick={() => alert('TODO: Implement this')}>
-          New Channel
-        </button>
+        <button onClick={addChannel}>New Channel</button>
       </div>
 
       {channels.map(
