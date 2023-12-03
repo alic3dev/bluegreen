@@ -35,6 +35,8 @@
 .tab {
   display: none;
 
+  overflow-y: auto;
+
   &.active {
     display: unset;
   }
