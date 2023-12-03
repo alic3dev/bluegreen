@@ -63,7 +63,7 @@ export function EyeGen() {
   const audioContext = React.useRef<AudioContext>()
   const analyser = React.useRef<AnalyserNode>()
   const gainNode = React.useRef<GainNode>()
-  const oscilators = React.useRef<OscillatorNode[]>([])
+  const oscillators = React.useRef<OscillatorNode[]>([])
   const audioDataRef = React.useRef<Uint8Array>(new Uint8Array(1024).fill(128))
 
   const getRandomNoteInScale = React.useCallback(() => {
@@ -102,7 +102,7 @@ export function EyeGen() {
       audioContext.current.currentTime + 2,
     )
 
-    if (!oscilators.current.length) {
+    if (!oscillators.current.length) {
       for (let i = 0; i < 3; i++) {
         const newOscillator: OscillatorNode =
           audioContext.current.createOscillator()
@@ -116,11 +116,11 @@ export function EyeGen() {
         newOscillator.connect(gainNode.current)
         newOscillator.start()
 
-        oscilators.current.push(newOscillator)
+        oscillators.current.push(newOscillator)
       }
     } else {
-      oscilators.current[
-        Math.floor(Math.random() * oscilators.current.length)
+      oscillators.current[
+        Math.floor(Math.random() * oscillators.current.length)
       ].frequency.linearRampToValueAtTime(
         noteTable[Math.floor(Math.random() * 2 + 2)][
           scales[scale][Math.floor(Math.random() * scales[scale].length)]
@@ -141,18 +141,18 @@ export function EyeGen() {
 
   React.useEffect(() => {
     const intervalHandler = window.setInterval(() => {
-      if (!oscilators.current.length) return
+      if (!oscillators.current.length) return
 
       if (Math.random() * 4 > 1) return
 
       if (Math.random() * 10 > 2) {
         if (Math.random() * 4 > 1) {
-          oscilators.current[
-            Math.floor(Math.random() * oscilators.current.length)
+          oscillators.current[
+            Math.floor(Math.random() * oscillators.current.length)
           ].frequency.value = getRandomNoteInScale()
         } else {
-          oscilators.current[
-            Math.floor(Math.random() * oscilators.current.length)
+          oscillators.current[
+            Math.floor(Math.random() * oscillators.current.length)
           ].frequency.linearRampToValueAtTime(
             getRandomNoteInScale(),
             (audioContext.current?.currentTime ?? 0) + 2,
@@ -161,8 +161,8 @@ export function EyeGen() {
       } else {
         const freq = getRandomNoteInScale()
 
-        for (const oscilator of oscilators.current) {
-          oscilator.frequency.value = freq
+        for (const oscillator of oscillators.current) {
+          oscillator.frequency.value = freq
         }
       }
     }, 60000 / bpm)
