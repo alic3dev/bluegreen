@@ -1,18 +1,7 @@
 import React from 'react'
 import { Note, Synth, utils } from 'zer0'
 
-const frequencyRoots: Record<string, number> = {
-  standard: 440,
-  magic: 432,
-  scientific: 430.54,
-}
-
-const scale: Note[] = utils.getScaleInKey('minor', 'E')
-const frequencies: number[] = utils
-  .createNoteTable(1, 2, frequencyRoots.scientific)
-  .map((octave) => scale.map((note) => octave[note]))
-  .flat()
-  .sort((a, b) => a - b)
+import { ChannelWithOptions } from './ChannelList'
 
 import styles from './Track.module.scss'
 
@@ -37,6 +26,19 @@ interface Position {
   repeated: number
 }
 
+const frequencyRoots: Record<string, number> = {
+  standard: 440,
+  magic: 432,
+  scientific: 430.54,
+}
+
+const scale: Note[] = utils.getScaleInKey('minor', 'E')
+const frequencies: number[] = utils
+  .createNoteTable(2, 4, frequencyRoots.scientific)
+  .map((octave) => scale.map((note) => octave[note]))
+  .flat()
+  .sort((a, b) => a - b)
+
 const generateBeat = (polyphony = 2): number[] =>
   new Array<number>(polyphony)
     .fill(-1)
@@ -50,10 +52,14 @@ const generateBar = (beats = 4, polyphony = 2): Bar => ({
 
 export function Track({
   options,
+  channels,
   synths,
+  index, // FIXME: This is a hacky solution, refactor this
 }: {
   options: TrackOptions
+  channels: ChannelWithOptions[]
   synths: Synth[]
+  index: number
 }) {
   const [polyphony] = React.useState<number>(2)
 
@@ -73,7 +79,7 @@ export function Track({
     // FIXME: Add polyphony
 
     if (notes[0] > -1 && notes[0] < frequencies.length) {
-      synths[0].playNote(frequencies[notes[0]])
+      synths[index].playNote(frequencies[notes[0]])
     }
 
     setPosition((prevPosition) => {
@@ -99,7 +105,7 @@ export function Track({
 
       return newPosition
     })
-  }, [bars, position, synths])
+  }, [bars, position, synths, index])
 
   const reset = React.useCallback(() => {
     setPosition({
@@ -126,17 +132,28 @@ export function Track({
       <div className={styles.info}>
         <h3 className={styles.title}>{options.title}</h3>
 
-        <div className={styles.controls}>
+        <div className={styles['header-controls']}>
           <label>
             Synth
             <select name={`${options.id}-synth`} autoComplete="off">
-              {synths.map((synth) => (
-                <option key={synth.name} value={synth.name}>
+              {synths.map((synth, index) => (
+                <option key={`${synth.name}-${index}`} value={synth.name}>
                   {synth.name}
                 </option>
               ))}
             </select>
           </label>
+          <label>
+            Channel
+            <select name={`${options.id}-channel`} autoComplete="off">
+              {channels.map((channel, index) => (
+                <option key={`${channel.name}-${index}`} value={channel.name}>
+                  {channel.name}
+                </option>
+              ))}
+            </select>
+          </label>
+
           <label>
             Bars
             <input
