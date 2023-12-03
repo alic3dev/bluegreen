@@ -1,7 +1,11 @@
 import React from 'react'
 import { CiPlay1, CiStop1, CiUndo } from 'react-icons/ci'
 
-import { /*SampleKit,*/ Channel, Synth /*utils, Octave, Note*/ } from 'zer0'
+import {
+  /*SampleKit,*/ Channel,
+  effects,
+  Synth /*utils, Octave, Note*/,
+} from 'zer0'
 
 import {
   ChannelList,
@@ -25,6 +29,7 @@ const getDefaultAudioRef = (): AudioRef => {
   if (defaultAudioRef) return defaultAudioRef
 
   const context = new AudioContext()
+
   const gain = context.createGain()
   gain.gain.value = 0.75
   gain.connect(context.destination)
@@ -37,17 +42,36 @@ const getDefaultAudioRef = (): AudioRef => {
 
 export function Zer0App() {
   const audioRef = React.useRef<AudioRef>(getDefaultAudioRef())
+  const generatedChannelsRef = React.useRef<number>(1)
 
-  const [channels] = React.useState<ChannelWithOptions[]>(() => [
-    {
+  const generateChannel = React.useCallback(
+    (name?: string) => ({
       id: `${Math.random()}`,
-      name: 'Main',
+      name: name ?? `Channel ${generatedChannelsRef.current++}`,
+
       channel: new Channel(audioRef.current.context, audioRef.current.gain),
-    },
+    }),
+    [],
+  )
+
+  const [channels, setChannels] = React.useState<ChannelWithOptions[]>(() => [
+    generateChannel('Main'),
   ])
 
-  const [synths] = React.useState<Synth[]>(() => [
-    new Synth(audioRef.current.context, channels[0].channel.destination),
+  const delayReverb = React.useRef(
+    new effects.reverb.DelayReverb(
+      audioRef.current.context,
+      channels[0].channel.destination, // FIXME: Routing is getting confusing, refactor how these connect/link
+    ),
+  )
+
+  // TODO: Make a `SynthWithOptions` interface
+  const [synths, setSynths] = React.useState<Synth[]>(() => [
+    new Synth(
+      audioRef.current.context,
+      'Basic',
+      delayReverb.current.input /*channels[0].channel.destination*/,
+    ),
   ])
 
   const trackInfoRef = React.useRef<{
@@ -55,7 +79,7 @@ export function Zer0App() {
     registeredSteps: Record<string, () => void>
     registeredResets: Record<string, () => void>
   }>({
-    numberOfGeneratedTracks: 0,
+    numberOfGeneratedTracks: 1,
     registeredSteps: {},
     registeredResets: {},
   })
@@ -97,8 +121,12 @@ export function Zer0App() {
     generateNewTrack(),
   ])
 
-  const [bpm, setBPM] = React.useState<number>(90)
+  const [bpm, setBPM] = React.useState<number>(60)
   const [playing, setPlaying] = React.useState<boolean>(false)
+
+  synths
+    .filter((synth) => synth.getBPMSync())
+    .forEach((synth) => synth.setBPM(bpm))
 
   // React.useEffect(() => {
   //   if (playing) navigator.mediaSession.playbackState = 'playing'
@@ -117,10 +145,53 @@ export function Zer0App() {
   // }, [playing])
 
   const addTrack = React.useCallback(() => {
-    const newTrack: TrackOptions = generateNewTrack()
+    const originalName: string = 'Basic'
+    let accumulatedName: string = `${originalName}`
+    let accumulator: number = 2
 
+    while (synths.find((synth: Synth) => synth.name === accumulatedName)) {
+      accumulatedName = `${originalName} ${accumulator++}`
+    }
+
+    const newTrack: TrackOptions = generateNewTrack()
+    const newSynth = new Synth(
+      audioRef.current.context,
+      accumulatedName,
+      channels[0].channel.destination,
+    )
+
+    setSynths((prevSynths) => [...prevSynths, newSynth])
     setTracks((prevTracks: TrackOptions[]) => [...prevTracks, newTrack])
-  }, [generateNewTrack])
+  }, [generateNewTrack, channels, synths])
+
+  // FIXME: Implement this and feed into Tracks
+  // const removeTrack = React.useCallback(() => {}, [])
+
+  const addChannel = React.useCallback(() => {
+    const newChannel = generateChannel()
+
+    setChannels((prevChannels: ChannelWithOptions[]): ChannelWithOptions[] => [
+      ...prevChannels,
+      newChannel,
+    ])
+  }, [generateChannel])
+
+  const removeChannel = React.useCallback((id: string): void => {
+    setChannels((prevChannels: ChannelWithOptions[]): ChannelWithOptions[] => {
+      const channelIndex = prevChannels.findIndex(
+        (channel) => channel.id === id,
+      )
+
+      if (channelIndex === -1) return prevChannels
+
+      return [
+        ...prevChannels.slice(0, channelIndex),
+        ...prevChannels.slice(channelIndex + 1),
+      ]
+
+      // FIXME: Will need to update anything dependant on this channel; switch them to the Main channel?
+    })
+  }, [])
 
   React.useEffect(() => {
     if (playing) {
@@ -197,10 +268,12 @@ export function Zer0App() {
           </div>
 
           <div className={styles['track-container']}>
-            {tracks.map((trackOptions) => (
+            {tracks.map((trackOptions, index) => (
               <Track
                 options={trackOptions}
                 key={trackOptions.id}
+                index={index}
+                channels={channels}
                 synths={synths}
               />
             ))}
@@ -215,7 +288,13 @@ export function Zer0App() {
             },
             {
               name: 'Channels',
-              element: <ChannelList channels={channels} />,
+              element: (
+                <ChannelList
+                  channels={channels}
+                  addChannel={addChannel}
+                  removeChannel={removeChannel}
+                />
+              ),
             },
           ]}
         />
