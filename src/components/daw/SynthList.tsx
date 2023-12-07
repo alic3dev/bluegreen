@@ -38,6 +38,7 @@ export function SynthList({ synths }: { synths: Synth[] }) {
               Hold
               <input
                 type="number"
+                name="hold"
                 min={0}
                 step={0.01}
                 value={synth.getHold()}
@@ -53,6 +54,7 @@ export function SynthList({ synths }: { synths: Synth[] }) {
               Portamento
               <input
                 type="number"
+                name="portamento"
                 min={0}
                 step={0.1}
                 value={synth.getPortamento()}
@@ -68,7 +70,8 @@ export function SynthList({ synths }: { synths: Synth[] }) {
               BPM Sync{' '}
               <input
                 type="checkbox"
-                // checked={synth.getBPMSync()}
+                name="bpm-sync"
+                checked={synth.getBPMSync()}
                 onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
                   synth.setBPMSync(event.target.value === 'on')
 
@@ -82,6 +85,7 @@ export function SynthList({ synths }: { synths: Synth[] }) {
               BPM{' '}
               <input
                 type="number"
+                name="bpm"
                 value={synth.getBPM()}
                 min={1}
                 onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
@@ -115,6 +119,7 @@ export function SynthList({ synths }: { synths: Synth[] }) {
                     Type{' '}
                     <select
                       value={oscillator.type}
+                      name="oscillator-type"
                       onChange={(
                         event: React.ChangeEvent<HTMLSelectElement>,
                       ) => {
@@ -140,6 +145,7 @@ export function SynthList({ synths }: { synths: Synth[] }) {
                     Offset
                     <input
                       type="number"
+                      name="offset"
                       value={oscillator.frequency.value}
                       onChange={(
                         event: React.ChangeEvent<HTMLInputElement>,
