@@ -5,9 +5,7 @@ import { Synth } from 'zer0'
 import styles from './SynthList.module.scss'
 
 export function SynthList({ synths }: { synths: Synth[] }) {
-  const [refreshIndex, setRefreshIndex] = React.useState<
-    Record<string, number>
-  >({})
+  const [, setRefreshIndex] = React.useState<Record<string, number>>({}) // May want to change this to a simple incrementor
   // FIXME: This needs to be reactive somehow; this is already reactive..? Ah nvm, only main BPM causes refresh but not internal
 
   const refreshSynth = React.useCallback(
@@ -25,12 +23,7 @@ export function SynthList({ synths }: { synths: Synth[] }) {
   return (
     <div className={styles['synth-list']}>
       {synths.map((synth, index) => (
-        <div
-          key={`${synth.name}-${index}-${
-            refreshIndex[`${synth.name}-${index}`]
-          }`}
-          className={styles.synth}
-        >
+        <div key={`${synth.name}-${index}`} className={styles.synth}>
           <h4 className={styles.name}>{synth.name}</h4>
 
           <div className={styles.controls}>
