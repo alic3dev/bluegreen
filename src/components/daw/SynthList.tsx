@@ -123,7 +123,9 @@ export function SynthList({ synths }: { synths: Synth[] }) {
                       onChange={(
                         event: React.ChangeEvent<HTMLSelectElement>,
                       ) => {
-                        oscillator.type = event.target.value as OscillatorType
+                        synth.modifyOscillator(oscillator, {
+                          type: event.target.value as OscillatorType,
+                        })
 
                         refreshSynth(synth.name, index)
                       }}
