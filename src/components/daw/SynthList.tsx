@@ -97,23 +97,37 @@ export function SynthList({ synths }: { synths: Synth[] }) {
             </label>
 
             <div className={styles.oscillators}>
-              <h4>Oscillators</h4>
-              <button
-                onClick={() => {
-                  synth.addOscillator('sine')
+              <div className={styles['oscillator-header']}>
+                <h4>Oscillators</h4>
 
-                  refreshSynth(synth.name, index)
-                }}
-              >
-                +
-              </button>
+                <button
+                  onClick={() => {
+                    synth.addOscillator('sine')
+
+                    refreshSynth(synth.name, index)
+                  }}
+                >
+                  +
+                </button>
+              </div>
+
               {synth.oscillators.map((oscillator, oscillatorIndex) => (
                 <div className={styles.oscillator} key={oscillatorIndex}>
-                  <h5 className={styles.name}>
-                    Oscillator {oscillatorIndex + 1}
-                  </h5>
+                  <div className={styles['oscillator-header']}>
+                    <h5 className={styles.name}>
+                      Oscillator {oscillatorIndex + 1}
+                    </h5>
 
-                  <button onClick={() => alert('Delete osc')}>-</button>
+                    <button
+                      onClick={() => {
+                        synth.removeOscillator(oscillator)
+
+                        refreshSynth(synth.name, index)
+                      }}
+                    >
+                      -
+                    </button>
+                  </div>
 
                   <label>
                     Type{' '}
