@@ -147,6 +147,8 @@ export function SynthList({ synths }: { synths: Synth[] }) {
                       type="number"
                       name="offset"
                       value={oscillator.frequency.value}
+                      min={-22050}
+                      max={22050}
                       onChange={(
                         event: React.ChangeEvent<HTMLInputElement>,
                       ) => {
