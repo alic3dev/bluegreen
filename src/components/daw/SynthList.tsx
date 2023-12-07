@@ -145,9 +145,43 @@ export function SynthList({ synths }: { synths: Synth[] }) {
                   </label>
 
                   <label>
+                    Curve
+                    <input
+                      type="text"
+                      name="curve"
+                      value={JSON.stringify(synth.getGainCurve())}
+                      onChange={(
+                        event: React.ChangeEvent<HTMLInputElement>,
+                      ) => {
+                        synth.setGainCurve(JSON.parse(event.target.value))
+
+                        refreshSynth(synth.name, index)
+                      }}
+                    />
+                  </label>
+
+                  <label>
                     Volume
-                    <input type="number" />
-                    {/* FIXME: OSCILATORS DONT HAVE GAIN NODES ATTACHED TO THEM */}
+                    <input
+                      type="range"
+                      value={oscillator.gain.gain.value * 1000}
+                      name="volume"
+                      min={0}
+                      max={1000}
+                      onChange={(
+                        event: React.ChangeEvent<HTMLInputElement>,
+                      ) => {
+                        const volume = isNaN(event.target.valueAsNumber)
+                          ? 0
+                          : event.target.valueAsNumber / 1000
+
+                        synth.modifyOscillator(oscillator, {
+                          volume,
+                        })
+
+                        refreshSynth(synth.name, index)
+                      }}
+                    />
                   </label>
 
                   <label>
