@@ -24,6 +24,52 @@
   }
 }
 
+.project-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding-left: 2rem;
+}
+
+.project-control-save,
+.project-control-open,
+.project-control-new {
+  min-width: 0;
+
+  padding: 0rem 1rem;
+  margin: 0;
+
+  font-size: 1rem;
+  line-height: 0;
+
+  background: none;
+
+  border: none;
+
+  &:hover {
+    box-shadow: none;
+  }
+}
+
+.project-control-save {
+  &:hover {
+    color: #0e0;
+  }
+}
+
+.project-control-open {
+  &:hover {
+    color: #ee0;
+  }
+}
+
+.project-control-new {
+  &:hover {
+    color: #0ee;
+  }
+}
+
 .controls {
   display: flex;
   justify-content: center;
@@ -134,6 +180,14 @@
   display: flex;
 
   padding: 0.5rem;
+
+  button {
+    margin-right: 0.5rem;
+
+    &:last-child {
+      margin-right: 0;
+    }
+  }
 }
 
 .track-section-title {
@@ -151,4 +205,23 @@
 
   overflow-x: scroll;
   overflow-y: hidden;
+}
+
+.dialogs {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+
+  background: rgba(0, 0, 0, 0.25);
+}
+
+p.small {
+  margin-top: 0;
+  padding-top: 0;
+
+  font-size: 0.75rem;
+
+  color: rgba(255, 255, 255, 0.3);
 }
