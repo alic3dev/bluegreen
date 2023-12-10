@@ -16,10 +16,12 @@ export interface TrackOptions {
 
   unregisterStep: () => void
   unregisterReset: () => void
+
+  remove: () => void
 }
 
 // FIXME: Make this a context or sumfin
-const scale: Note[] = utils.getScaleInKey('major', 'F')
+const scale: Note[] = utils.getScaleInKey('minor', 'G')
 const frequencies: number[] = utils
   .createNoteTable(2, 4, utils.frequencyRoots.magic)
   .map((octave: Octave): number[] =>
@@ -118,7 +120,12 @@ export function Track({
   return (
     <div className={styles.track}>
       <div className={styles.info}>
-        <h3 className={styles.title}>{options.title}</h3>
+        <div className={styles.title}>
+          <h3>{options.title}</h3>
+          <button onClick={options.remove} title="Remove">
+            -
+          </button>
+        </div>
 
         <div className={styles['controls']}>
           <label>
