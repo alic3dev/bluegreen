@@ -89,6 +89,20 @@ export function SynthList({ synths }: { synths: Synth[] }) {
               />
             </label>
 
+            <label>
+              Curve
+              <input
+                type="text"
+                name="curve"
+                value={JSON.stringify(synth.getGainCurve())}
+                onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                  synth.setGainCurve(JSON.parse(event.target.value))
+
+                  refreshSynth(synth.name, index)
+                }}
+              />
+            </label>
+
             <div className={styles.oscillators}>
               <div className={styles['oscillator-header']}>
                 <h4>Oscillators</h4>
@@ -142,22 +156,6 @@ export function SynthList({ synths }: { synths: Synth[] }) {
                       <option value="square">Square</option>
                       <option value="sawtooth">Sawtooth</option>
                     </select>
-                  </label>
-
-                  <label>
-                    Curve
-                    <input
-                      type="text"
-                      name="curve"
-                      value={JSON.stringify(synth.getGainCurve())}
-                      onChange={(
-                        event: React.ChangeEvent<HTMLInputElement>,
-                      ) => {
-                        synth.setGainCurve(JSON.parse(event.target.value))
-
-                        refreshSynth(synth.name, index)
-                      }}
-                    />
                   </label>
 
                   <label>
