@@ -1,5 +1,12 @@
 import React from 'react'
-import { CiPlay1, CiStop1, CiUndo } from 'react-icons/ci'
+import {
+  CiFolderOn,
+  CiPlay1,
+  CiFloppyDisk,
+  CiStop1,
+  CiSquarePlus,
+  CiUndo,
+} from 'react-icons/ci'
 
 import { Channel, Effect, effects, Synth } from 'zer0'
 
@@ -10,6 +17,8 @@ import {
   TrackOptions,
   SynthList,
 } from '../daw'
+
+import { ConfirmDialog } from '../layout/ConfirmDialog'
 import { Tabbed } from '../layout/Tabbed'
 
 import styles from './Zer0App.module.scss'
@@ -37,6 +46,8 @@ const getDefaultAudioRef = (): AudioRef => {
 }
 
 export function Zer0App(): JSX.Element {
+  const [dialogs, setDialogs] = React.useState<JSX.Element[]>([])
+
   const audioRef = React.useRef<AudioRef>(getDefaultAudioRef())
   const generatedChannelsRef = React.useRef<number>(1)
 
@@ -214,6 +225,39 @@ export function Zer0App(): JSX.Element {
     }
   }, [step, playing, bpm])
 
+  const onSaveClick = () => {
+    alert('save')
+  }
+  const onOpenClick = () => {
+    alert('open')
+  }
+  const onNewClick = () => {
+    const newDialog = (
+      <ConfirmDialog
+        key={crypto.randomUUID()}
+        title="Create a new project"
+        onCancel={() => {
+          setDialogs((prevDialogs) =>
+            prevDialogs.filter((dialog) => dialog !== newDialog),
+          )
+        }}
+        onConfirm={() => {
+          setDialogs((prevDialogs) =>
+            prevDialogs.filter((dialog) => dialog !== newDialog),
+          )
+
+          // TODO: Implement this
+          alert('implement me!!@!')
+        }}
+      >
+        <p>Are you sure you want to make a new project?</p>
+        <p className={styles.small}>(All unsaved changes will be lost.)</p>
+      </ConfirmDialog>
+    )
+
+    setDialogs((prevDialogs) => [...prevDialogs, newDialog])
+  }
+
   const rightSideBarTabsIdLookup = React.useMemo(
     () => ({
       synths: crypto.randomUUID(),
@@ -226,6 +270,32 @@ export function Zer0App(): JSX.Element {
     <div className={styles.zer0app}>
       <div className={styles.controls}>
         <h1 className={styles.title}>ZER0</h1>
+
+        <div className={styles['project-controls']}>
+          <button
+            className={styles['project-control-save']}
+            title="Save"
+            onClick={onSaveClick}
+          >
+            <CiFloppyDisk />
+          </button>
+
+          <button
+            className={styles['project-control-open']}
+            title="Open"
+            onClick={onOpenClick}
+          >
+            <CiFolderOn />
+          </button>
+
+          <button
+            className={styles['project-control-new']}
+            title="New"
+            onClick={onNewClick}
+          >
+            <CiSquarePlus />
+          </button>
+        </div>
 
         <div className={styles.spacer} />
 
@@ -316,6 +386,17 @@ export function Zer0App(): JSX.Element {
             },
           ]}
         />
+      </div>
+
+      <div
+        className={dialogs.length ? styles.dialogs : ''}
+        onClick={(event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+          if (event.target !== event.currentTarget) return
+
+          setDialogs([])
+        }}
+      >
+        {dialogs}
       </div>
     </div>
   )

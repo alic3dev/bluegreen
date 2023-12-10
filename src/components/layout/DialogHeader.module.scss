@@ -1,0 +1,14 @@
+.dialog-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: calc(100% + 4rem);
+
+  margin: -2rem;
+  margin-bottom: 1rem;
+
+  padding: 1rem 2rem;
+
+  background: rgba(0, 0, 0, 0.1);
+}
