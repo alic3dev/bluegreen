@@ -1,0 +1,22 @@
+.dialog-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+
+  background: rgba(0, 0, 0, 0.25);
+
+  pointer-events: none;
+
+  opacity: 0;
+
+  // FIXME: This transition feels weird
+  transition: opacity 250ms ease-in-out;
+
+  &.active {
+    pointer-events: unset;
+
+    opacity: 1;
+  }
+}

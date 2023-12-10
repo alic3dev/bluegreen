@@ -22,6 +22,7 @@ import { ConfirmDialog } from '../layout/ConfirmDialog'
 import { Tabbed } from '../layout/Tabbed'
 
 import styles from './Zer0App.module.scss'
+import { DialogContainer } from '../layout/DialogContainer'
 
 interface AudioRef {
   context: AudioContext
@@ -139,21 +140,25 @@ export function Zer0App(): JSX.Element {
     .filter((synth: Synth): boolean => synth.getBPMSync())
     .forEach((synth: Synth): void => synth.setBPM(bpm))
 
-  // React.useEffect(() => {
-  //   if (playing) navigator.mediaSession.playbackState = 'playing'
-  //   else navigator.mediaSession.playbackState = 'paused'
+  /*
+  // FIXME: Figure out why these don't work, may need to set metadata first?
+  //        Probably not worthwhile to pursue.
 
-  //   // FIXME: Figure out why these don't work, may need to set metadata first?
-  //   navigator.mediaSession.setActionHandler('play', () => {
-  //     console.log('play')
-  //   })
-  //   navigator.mediaSession.setActionHandler('pause', () => {
-  //     console.log('pause')
-  //   })
-  //   navigator.mediaSession.setActionHandler('stop', () => {
-  //     console.log('stop')
-  //   })
-  // }, [playing])
+  React.useEffect(() => {
+    if (playing) navigator.mediaSession.playbackState = 'playing'
+    else navigator.mediaSession.playbackState = 'paused'
+  
+    navigator.mediaSession.setActionHandler('play', () => {
+      console.log('play')
+    })
+    navigator.mediaSession.setActionHandler('pause', () => {
+      console.log('pause')
+    })
+    navigator.mediaSession.setActionHandler('stop', () => {
+      console.log('stop')
+    })
+  }, [playing])
+  */
 
   const addSynthTrack = React.useCallback((): void => {
     const originalName: string = 'Basic'
@@ -388,16 +393,7 @@ export function Zer0App(): JSX.Element {
         />
       </div>
 
-      <div
-        className={dialogs.length ? styles.dialogs : ''}
-        onClick={(event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-          if (event.target !== event.currentTarget) return
-
-          setDialogs([])
-        }}
-      >
-        {dialogs}
-      </div>
+      <DialogContainer dialogs={dialogs} setDialogs={setDialogs} />
     </div>
   )
 }
