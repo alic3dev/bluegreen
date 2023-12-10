@@ -214,6 +214,14 @@ export function Zer0App(): JSX.Element {
     }
   }, [step, playing, bpm])
 
+  const rightSideBarTabsIdLookup = React.useMemo(
+    () => ({
+      synths: crypto.randomUUID(),
+      channels: crypto.randomUUID(),
+    }),
+    [],
+  )
+
   return (
     <div className={styles.zer0app}>
       <div className={styles.controls}>
@@ -291,10 +299,12 @@ export function Zer0App(): JSX.Element {
         <Tabbed
           tabs={[
             {
+              id: rightSideBarTabsIdLookup.synths,
               name: 'Synths',
               element: <SynthList synths={synths} />,
             },
             {
+              id: rightSideBarTabsIdLookup.channels,
               name: 'Channels',
               element: (
                 <ChannelList

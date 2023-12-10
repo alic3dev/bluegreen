@@ -3,24 +3,27 @@ import React from 'react'
 import styles from './Tabbed.module.scss'
 
 export interface Tab {
+  id: string
   name: string
   element: JSX.Element
 }
 
 export function Tabbed({ tabs }: { tabs: Tab[] }): JSX.Element {
-  const [selectedTab, setSelectedTab] = React.useState<number>(0)
+  const [selectedTab, setSelectedTab] = React.useState<string>(
+    () => tabs[0]?.id ?? '',
+  )
 
   return (
     <div className={styles.tabbed}>
       <div className={styles.switcher}>
         {tabs.map(
-          (tab: Tab, index: number): JSX.Element => (
+          (tab: Tab): JSX.Element => (
             <button
-              key={tab.name + index}
+              key={tab.id}
               className={`${styles.header} ${
-                selectedTab === index ? styles.active : ''
+                selectedTab === tab.id ? styles.active : ''
               }`}
-              onClick={(): void => setSelectedTab(index)}
+              onClick={(): void => setSelectedTab(tab.id)}
             >
               {tab.name}
             </button>
@@ -29,11 +32,11 @@ export function Tabbed({ tabs }: { tabs: Tab[] }): JSX.Element {
       </div>
 
       {tabs.map(
-        (tab: Tab, index: number): JSX.Element => (
+        (tab: Tab): JSX.Element => (
           <div
-            key={tab.name + index}
+            key={tab.id}
             className={`${styles.tab} ${
-              index === selectedTab ? styles.active : ''
+              selectedTab === tab.id ? styles.active : ''
             }`}
           >
             {tab.element}
