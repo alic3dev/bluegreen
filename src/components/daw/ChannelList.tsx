@@ -20,15 +20,19 @@ export function ChannelList({
   channels: ChannelWithOptions[]
   addChannel: () => void
   removeChannel: (id: string) => void
-}) {
+}): JSX.Element {
   const channelDOMRefs = React.useRef<Record<string, HTMLDivElement>>({})
   const [openChannels, setOpenChannels] = React.useState<
     Record<string, boolean>
-  >(() => ({
-    [channels[0].id]: true,
-  }))
+  >(
+    (): Record<string, boolean> => ({
+      [channels[0].id]: true,
+    }),
+  )
 
-  React.useEffect(() => {
+  removeChannel.name // FIXME: Remove this - Just to satisfy TS for a bit
+
+  React.useEffect((): undefined | (() => void) => {
     if (Object.values(openChannels).indexOf(true) === -1) return
 
     let animationFrameHandle: number
@@ -44,7 +48,7 @@ export function ChannelList({
       for (const channel of channels) {
         if (!openChannels[channel.id]) continue
 
-        const channelDOM = channelDOMRefs.current[channel.id]
+        const channelDOM: HTMLDivElement = channelDOMRefs.current[channel.id]
 
         if (!channelDOM) continue
 
@@ -55,10 +59,13 @@ export function ChannelList({
 
         if (!channelGainDOM) continue
 
-        const buffer = channel.channel.pollAnalyser()
+        const buffer: Uint8Array = channel.channel.pollAnalyser()
 
         const perc: number =
-          buffer.reduce((a, b) => a + Math.abs(b - 128), 0) / buffer.length
+          buffer.reduce(
+            (a: number, b: number): number => a + Math.abs(b - 128),
+            0,
+          ) / buffer.length
 
         // FIXME: This needs to be smoothed or something
 
@@ -73,7 +80,7 @@ export function ChannelList({
 
     animationFrameHandle = requestAnimationFrame(animationFrame)
 
-    return () => cancelAnimationFrame(animationFrameHandle)
+    return (): void => cancelAnimationFrame(animationFrameHandle)
   }, [channels, openChannels])
 
   return (
@@ -97,7 +104,7 @@ export function ChannelList({
           >
             <button
               className={styles['channel-header']}
-              onClick={() => {
+              onClick={(): void => {
                 setOpenChannels(
                   (
                     prevOpenChannels: typeof openChannels,
@@ -129,7 +136,9 @@ export function ChannelList({
                   min={0}
                   max={1000}
                   defaultValue={channel.channel.gain.gain.value * 1000}
-                  onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                  onChange={(
+                    event: React.ChangeEvent<HTMLInputElement>,
+                  ): void => {
                     channel.channel.gain.gain.value =
                       event.target.valueAsNumber / 1000
                   }}

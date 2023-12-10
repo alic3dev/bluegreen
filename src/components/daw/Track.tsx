@@ -58,7 +58,7 @@ export function Track({
   channels: ChannelWithOptions[]
   synths: Synth[]
   index: number
-}) {
+}): JSX.Element {
   const [bars, setBars] = React.useState<Bar[]>(() =>
     new Array(4)
       .fill(null)
@@ -76,7 +76,7 @@ export function Track({
 
     // FIXME: Add polyphony
 
-    for (let i = 0; i < notes[0].length; i++) {
+    for (let i: number = 0; i < notes[0].length; i++) {
       if (notes[0][i] > -1 && notes[0][i] < frequencies.length) {
         synths[index].playNote(
           frequencies[notes[0][i]],

@@ -1,11 +1,7 @@
 import React from 'react'
 import { CiPlay1, CiStop1, CiUndo } from 'react-icons/ci'
 
-import {
-  /*SampleKit,*/ Channel,
-  effects,
-  Synth /*utils, Octave, Note*/,
-} from 'zer0'
+import { Channel, Effect, effects, Synth } from 'zer0'
 
 import {
   ChannelList,
@@ -14,9 +10,9 @@ import {
   TrackOptions,
   SynthList,
 } from '../daw'
+import { Tabbed } from '../layout/Tabbed'
 
 import styles from './Zer0App.module.scss'
-import { Tabbed } from '../layout/Tabbed'
 
 interface AudioRef {
   context: AudioContext
@@ -28,9 +24,9 @@ let defaultAudioRef: AudioRef
 const getDefaultAudioRef = (): AudioRef => {
   if (defaultAudioRef) return defaultAudioRef
 
-  const context = new AudioContext()
+  const context: AudioContext = new AudioContext()
 
-  const gain = context.createGain()
+  const gain: GainNode = context.createGain()
   gain.gain.value = 0.75
   gain.connect(context.destination)
 
@@ -40,12 +36,12 @@ const getDefaultAudioRef = (): AudioRef => {
   })
 }
 
-export function Zer0App() {
+export function Zer0App(): JSX.Element {
   const audioRef = React.useRef<AudioRef>(getDefaultAudioRef())
   const generatedChannelsRef = React.useRef<number>(1)
 
   const generateChannel = React.useCallback(
-    (name?: string) => ({
+    (name?: string): ChannelWithOptions => ({
       id: `${Math.random()}`,
       name: name ?? `Channel ${generatedChannelsRef.current++}`,
 
@@ -54,11 +50,11 @@ export function Zer0App() {
     [],
   )
 
-  const [channels, setChannels] = React.useState<ChannelWithOptions[]>(() => [
-    generateChannel('Main'),
-  ])
+  const [channels, setChannels] = React.useState<ChannelWithOptions[]>(
+    (): ChannelWithOptions[] => [generateChannel('Main')],
+  )
 
-  const delayReverb = React.useRef(
+  const delayReverb = React.useRef<Effect>(
     new effects.reverb.DelayReverb(
       audioRef.current.context,
       channels[0].channel.destination, // FIXME: Routing is getting confusing, refactor how these connect/link
@@ -66,7 +62,7 @@ export function Zer0App() {
   )
 
   // TODO: Make a `SynthWithOptions` interface
-  const [synths, setSynths] = React.useState<Synth[]>(() => [
+  const [synths, setSynths] = React.useState<Synth[]>((): Synth[] => [
     new Synth(
       audioRef.current.context,
       'Basic',
@@ -105,28 +101,32 @@ export function Zer0App() {
     }
   }, [])
 
-  const step = React.useCallback(() => {
-    Object.values(trackInfoRef.current.registeredSteps).forEach((subStep) =>
-      subStep(),
-    )
-  }, [])
+  const step = React.useCallback(
+    (): void =>
+      Object.values(trackInfoRef.current.registeredSteps).forEach(
+        (subStep: () => void): void => subStep(),
+      ),
+    [],
+  )
 
-  const reset = React.useCallback(() => {
-    Object.values(trackInfoRef.current.registeredResets).forEach((subReset) =>
-      subReset(),
-    )
-  }, [])
+  const reset = React.useCallback(
+    (): void =>
+      Object.values(trackInfoRef.current.registeredResets).forEach(
+        (subReset: () => void): void => subReset(),
+      ),
+    [],
+  )
 
-  const [tracks, setTracks] = React.useState<TrackOptions[]>(() => [
-    generateNewTrack(),
-  ])
+  const [tracks, setTracks] = React.useState<TrackOptions[]>(
+    (): TrackOptions[] => [generateNewTrack()],
+  )
 
-  const [bpm, setBPM] = React.useState<number>(60)
+  const [bpm, setBPM] = React.useState<number>(270)
   const [playing, setPlaying] = React.useState<boolean>(false)
 
   synths
-    .filter((synth) => synth.getBPMSync())
-    .forEach((synth) => synth.setBPM(bpm))
+    .filter((synth: Synth): boolean => synth.getBPMSync())
+    .forEach((synth: Synth): void => synth.setBPM(bpm))
 
   // React.useEffect(() => {
   //   if (playing) navigator.mediaSession.playbackState = 'playing'
@@ -144,31 +144,36 @@ export function Zer0App() {
   //   })
   // }, [playing])
 
-  const addTrack = React.useCallback(() => {
+  const addTrack = React.useCallback((): void => {
     const originalName: string = 'Basic'
     let accumulatedName: string = `${originalName}`
     let accumulator: number = 2
 
-    while (synths.find((synth: Synth) => synth.name === accumulatedName)) {
+    while (
+      synths.find((synth: Synth): boolean => synth.name === accumulatedName)
+    ) {
       accumulatedName = `${originalName} ${accumulator++}`
     }
 
     const newTrack: TrackOptions = generateNewTrack()
-    const newSynth = new Synth(
+    const newSynth: Synth = new Synth(
       audioRef.current.context,
       accumulatedName,
       channels[0].channel.destination,
     )
 
-    setSynths((prevSynths) => [...prevSynths, newSynth])
-    setTracks((prevTracks: TrackOptions[]) => [...prevTracks, newTrack])
+    setSynths((prevSynths: Synth[]): Synth[] => [...prevSynths, newSynth])
+    setTracks((prevTracks: TrackOptions[]): TrackOptions[] => [
+      ...prevTracks,
+      newTrack,
+    ])
   }, [generateNewTrack, channels, synths])
 
   // FIXME: Implement this and feed into Tracks
   // const removeTrack = React.useCallback(() => {}, [])
 
-  const addChannel = React.useCallback(() => {
-    const newChannel = generateChannel()
+  const addChannel = React.useCallback((): void => {
+    const newChannel: ChannelWithOptions = generateChannel()
 
     setChannels((prevChannels: ChannelWithOptions[]): ChannelWithOptions[] => [
       ...prevChannels,
@@ -178,8 +183,8 @@ export function Zer0App() {
 
   const removeChannel = React.useCallback((id: string): void => {
     setChannels((prevChannels: ChannelWithOptions[]): ChannelWithOptions[] => {
-      const channelIndex = prevChannels.findIndex(
-        (channel) => channel.id === id,
+      const channelIndex: number = prevChannels.findIndex(
+        (channel: ChannelWithOptions): boolean => channel.id === id,
       )
 
       if (channelIndex === -1) return prevChannels
@@ -193,11 +198,11 @@ export function Zer0App() {
     })
   }, [])
 
-  React.useEffect(() => {
+  React.useEffect((): undefined | (() => void) => {
     if (playing) {
       let playFunctionTimeout: number
 
-      const playFunction = () => {
+      const playFunction = (): void => {
         step()
 
         playFunctionTimeout = setTimeout(playFunction, (60 / bpm) * 1000)
@@ -205,7 +210,7 @@ export function Zer0App() {
 
       playFunction()
 
-      return () => clearTimeout(playFunctionTimeout)
+      return (): void => clearTimeout(playFunctionTimeout)
     }
   }, [step, playing, bpm])
 
@@ -217,7 +222,9 @@ export function Zer0App() {
         <div className={styles.spacer} />
 
         <button
-          onClick={() => setPlaying((prevPlaying) => !prevPlaying)}
+          onClick={(): void =>
+            setPlaying((prevPlaying: boolean): boolean => !prevPlaying)
+          }
           className={playing ? styles.stop : styles.play}
         >
           {playing ? <CiStop1 /> : <CiPlay1 />}
@@ -234,8 +241,8 @@ export function Zer0App() {
             className={styles.bpm}
             autoComplete="off"
             value={bpm}
-            onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-              const newBPM = event.target.valueAsNumber
+            onChange={(event: React.ChangeEvent<HTMLInputElement>): void => {
+              const newBPM: number = event.target.valueAsNumber
 
               if (!isNaN(newBPM) && newBPM > 0) {
                 setBPM(newBPM)
@@ -253,10 +260,9 @@ export function Zer0App() {
           title="Gain"
           autoComplete="off"
           defaultValue={audioRef.current.gain.gain.value * 1000}
-          onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-            (audioRef.current.gain.gain.value =
-              event.target.valueAsNumber / 1000)
-          }
+          onChange={(event: React.ChangeEvent<HTMLInputElement>): void => {
+            audioRef.current.gain.gain.value = event.target.valueAsNumber / 1000
+          }}
           style={{ visibility: 'hidden' }}
         />
       </div>
@@ -268,15 +274,17 @@ export function Zer0App() {
           </div>
 
           <div className={styles['track-container']}>
-            {tracks.map((trackOptions, index) => (
-              <Track
-                options={trackOptions}
-                key={trackOptions.id}
-                index={index}
-                channels={channels}
-                synths={synths}
-              />
-            ))}
+            {tracks.map(
+              (trackOptions: TrackOptions, index: number): JSX.Element => (
+                <Track
+                  options={trackOptions}
+                  key={trackOptions.id}
+                  index={index}
+                  channels={channels}
+                  synths={synths}
+                />
+              ),
+            )}
           </div>
         </div>
 
