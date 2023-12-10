@@ -34,7 +34,8 @@
 
 .project-control-save,
 .project-control-open,
-.project-control-new {
+.project-control-new,
+.project-control-settings {
   min-width: 0;
 
   padding: 0rem 1rem;
@@ -67,6 +68,12 @@
 .project-control-new {
   &:hover {
     color: #0ee;
+  }
+}
+
+.project-control-settings {
+  &:hover {
+    color: #eee;
   }
 }
 

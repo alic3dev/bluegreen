@@ -1,10 +1,11 @@
 import React from 'react'
 import {
+  CiFloppyDisk,
   CiFolderOn,
   CiPlay1,
-  CiFloppyDisk,
-  CiStop1,
+  CiSettings,
   CiSquarePlus,
+  CiStop1,
   CiUndo,
 } from 'react-icons/ci'
 
@@ -18,7 +19,11 @@ import {
   SynthList,
 } from '../daw'
 
-import { DialogContainer, ConfirmDialog } from '../layout/Dialogs'
+import {
+  DialogContainer,
+  ConfirmDialog,
+  SettingsDialog,
+} from '../layout/Dialogs'
 import { Tabbed } from '../layout/Tabbed'
 
 import styles from './Zer0App.module.scss'
@@ -239,31 +244,47 @@ export function Zer0App(): JSX.Element {
     alert('open')
   }
   const onNewClick = () => {
-    const newDialog = (
+    const newConfirmDialog = (
       <ConfirmDialog
         key={crypto.randomUUID()}
         title="Create a new project"
         onCancel={() => {
           setDialogs((prevDialogs) =>
-            prevDialogs.filter((dialog) => dialog !== newDialog),
+            prevDialogs.filter((dialog) => dialog !== newConfirmDialog),
           )
         }}
         onConfirm={() => {
           setDialogs((prevDialogs) =>
-            prevDialogs.filter((dialog) => dialog !== newDialog),
+            prevDialogs.filter((dialog) => dialog !== newConfirmDialog),
           )
 
           // TODO: Implement this
           alert('implement me!!@!')
         }}
+        // dangerous
       >
         <p>Are you sure you want to make a new project?</p>
         <p className={styles.small}>(All unsaved changes will be lost.)</p>
       </ConfirmDialog>
     )
 
-    setDialogs((prevDialogs) => [...prevDialogs, newDialog])
+    setDialogs((prevDialogs) => [...prevDialogs, newConfirmDialog])
   }
+  const onSettingsClick = () => {
+    const newSettingsDialog = (
+      <SettingsDialog
+        key={crypto.randomUUID()}
+        close={(): void => {
+          setDialogs((prevDialogs) =>
+            prevDialogs.filter((dialog) => dialog !== newSettingsDialog),
+          )
+        }}
+      />
+    )
+
+    setDialogs((prevDialogs) => [...prevDialogs, newSettingsDialog])
+  }
+
 
   const rightSideBarTabsIdLookup = React.useMemo(
     () => ({
@@ -350,6 +371,16 @@ export function Zer0App(): JSX.Element {
           }}
           style={{ visibility: 'hidden' }}
         />
+
+        <div className={styles['project-controls']}>
+          <button
+            className={styles['project-control-settings']}
+            title="Settings"
+            onClick={onSettingsClick}
+          >
+            <CiSettings />
+          </button>
+        </div>
       </div>
 
       <div className={styles.content}>
