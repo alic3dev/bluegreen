@@ -91,27 +91,6 @@ export function Zer0App(): JSX.Element {
     registeredResets: {},
   })
 
-  const generateNewTrack = React.useCallback((): TrackOptions => {
-    const id: string = crypto.randomUUID()
-
-    return {
-      id,
-      title: `Track ${trackInfoRef.current.numberOfGeneratedTracks++}`,
-      registerStep: (subStep: () => void): void => {
-        trackInfoRef.current.registeredSteps[id] = subStep
-      },
-      registerReset: (subReset: () => void): void => {
-        trackInfoRef.current.registeredResets[id] = subReset
-      },
-      unregisterStep: (): void => {
-        delete trackInfoRef.current.registeredSteps[id]
-      },
-      unregisterReset: (): void => {
-        delete trackInfoRef.current.registeredResets[id]
-      },
-    }
-  }, [])
-
   const step = React.useCallback(
     (): void =>
       Object.values(trackInfoRef.current.registeredSteps).forEach(
@@ -127,6 +106,30 @@ export function Zer0App(): JSX.Element {
       ),
     [],
   )
+
+  const generateNewTrack = React.useCallback((): TrackOptions => {
+    const id: string = crypto.randomUUID()
+
+    return {
+      id,
+      title: `Track ${trackInfoRef.current.numberOfGeneratedTracks++}`,
+      registerStep(subStep: () => void): void {
+        trackInfoRef.current.registeredSteps[id] = subStep
+      },
+      registerReset(subReset: () => void): void {
+        trackInfoRef.current.registeredResets[id] = subReset
+      },
+      unregisterStep(): void {
+        delete trackInfoRef.current.registeredSteps[id]
+      },
+      unregisterReset(): void {
+        delete trackInfoRef.current.registeredResets[id]
+      },
+      remove(): void {
+        setTracks((prevTracks) => prevTracks.filter((track) => track.id !== id))
+      },
+    }
+  }, [])
 
   const [tracks, setTracks] = React.useState<TrackOptions[]>(
     (): TrackOptions[] => [generateNewTrack()],
