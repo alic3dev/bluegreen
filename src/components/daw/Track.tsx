@@ -125,8 +125,8 @@ export function Track({
             Synth
             <select name={`${options.id}-synth`} autoComplete="off">
               {synths.map(
-                (synth: Synth, index: number): JSX.Element => (
-                  <option key={`${synth.name}-${index}`} value={synth.name}>
+                (synth: Synth): JSX.Element => (
+                  <option key={synth.id} value={synth.name}>
                     {synth.name}
                   </option>
                 ),
@@ -137,8 +137,8 @@ export function Track({
             Channel
             <select name={`${options.id}-channel`} autoComplete="off">
               {channels.map(
-                (channel: ChannelWithOptions, index: number): JSX.Element => (
-                  <option key={`${channel.name}-${index}`} value={channel.name}>
+                (channel: ChannelWithOptions): JSX.Element => (
+                  <option key={channel.id} value={channel.name}>
                     {channel.name}
                   </option>
                 ),

@@ -53,7 +53,7 @@ export function Zer0App(): JSX.Element {
 
   const generateChannel = React.useCallback(
     (name?: string): ChannelWithOptions => ({
-      id: `${Math.random()}`,
+      id: crypto.randomUUID(),
       name: name ?? `Channel ${generatedChannelsRef.current++}`,
 
       channel: new Channel(audioRef.current.context, audioRef.current.gain),
@@ -92,7 +92,7 @@ export function Zer0App(): JSX.Element {
   })
 
   const generateNewTrack = React.useCallback((): TrackOptions => {
-    const id: string = Math.random().toString()
+    const id: string = crypto.randomUUID()
 
     return {
       id,
@@ -155,7 +155,7 @@ export function Zer0App(): JSX.Element {
   //   })
   // }, [playing])
 
-  const addTrack = React.useCallback((): void => {
+  const addSynthTrack = React.useCallback((): void => {
     const originalName: string = 'Basic'
     let accumulatedName: string = `${originalName}`
     let accumulator: number = 2
@@ -348,7 +348,7 @@ export function Zer0App(): JSX.Element {
       <div className={styles.content}>
         <div className={styles['track-section']}>
           <div className={styles['track-section-controls']}>
-            <button onClick={addTrack}>New Track</button>
+            <button onClick={addSynthTrack}>New Synth Track</button>
           </div>
 
           <div className={styles['track-container']}>
