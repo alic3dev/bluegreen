@@ -1,0 +1,39 @@
+.controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  width: 100%;
+  padding: 0 1rem;
+
+  label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    font-size: 0.75rem;
+
+    margin-left: 0.5rem;
+
+    input,
+    select {
+      margin-left: 0.25rem;
+
+      border: 1px solid #0e0e11;
+
+      &:not(:focus-visible).beats,
+      &:not(:focus-visible).repeats {
+        border-top: 1px solid transparent;
+        border-bottom: 1px solid transparent;
+      }
+    }
+  }
+}
+
+.number-input {
+  min-width: 4rem;
+  width: 4rem;
+  max-width: 4rem;
+
+  text-align: right;
+}
