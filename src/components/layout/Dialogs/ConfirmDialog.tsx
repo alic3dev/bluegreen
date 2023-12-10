@@ -9,10 +9,16 @@ export function ConfirmDialog({
   children,
   onCancel,
   onConfirm,
+  cancelText,
+  confirmText,
+  dangerous,
 }: React.PropsWithChildren<{
   title?: string
   onCancel?: () => void
   onConfirm?: () => void
+  cancelText?: string
+  confirmText?: string
+  dangerous?: boolean
 }>): JSX.Element {
   return (
     <Dialog>
@@ -25,8 +31,25 @@ export function ConfirmDialog({
       {(onCancel || onConfirm) && (
         <DialogFooter>
           <div className={styles['dialog-controls']}>
-            {onCancel && <button onClick={onCancel}>Cancel</button>}
-            {onConfirm && <button onClick={onConfirm}>Confirm</button>}
+            {onCancel && (
+              <button
+                className={`${styles['dialog-control']} ${styles['cancel']}`}
+                onClick={onCancel}
+              >
+                {cancelText ?? 'Cancel'}
+              </button>
+            )}
+            {onConfirm && (
+              <button
+                className={`${styles['dialog-control']} ${styles['confirm']} ${
+                  dangerous ? styles['danger'] : ''
+                }`}
+                onClick={onConfirm}
+                autoFocus
+              >
+                {confirmText ?? 'Confirm'}
+              </button>
+            )}
           </div>
         </DialogFooter>
       )}
