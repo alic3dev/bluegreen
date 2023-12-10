@@ -22,7 +22,7 @@
     "react-router-dom": "^6.20.1"
   },
   "devDependencies": {
-    "@types/react": "^18.2.42",
+    "@types/react": "^18.2.43",
     "@types/react-dom": "^18.2.17",
     "@typescript-eslint/eslint-plugin": "^6.13.2",
     "@typescript-eslint/parser": "^6.13.2",
@@ -32,7 +32,7 @@
     "eslint-plugin-react-refresh": "^0.4.5",
     "sass": "^1.69.5",
     "typescript": "^5.3.3",
-    "vite": "^5.0.6",
+    "vite": "^5.0.7",
     "zer0": "link:../zer0"
   }
 }
