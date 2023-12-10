@@ -2,6 +2,9 @@ import React from 'react'
 import { Note, Octave, Synth, utils } from 'zer0'
 
 import { ChannelWithOptions } from './ChannelList'
+import { Bar, BarData } from './Bar'
+
+import { generateBar, Position } from '../../utils/general'
 
 import styles from './Track.module.scss'
 
@@ -15,17 +18,7 @@ export interface TrackOptions {
   unregisterReset: () => void
 }
 
-interface Bar {
-  notes: number[][][]
-  repeat: number
-}
-
-interface Position {
-  bar: number
-  beat: number
-  repeated: number
-}
-
+// FIXME: Make this a context or sumfin
 const scale: Note[] = utils.getScaleInKey('major', 'F')
 const frequencies: number[] = utils
   .createNoteTable(2, 4, utils.frequencyRoots.magic)
@@ -34,19 +27,6 @@ const frequencies: number[] = utils
   )
   .flat()
   .sort((a: number, b: number): number => a - b)
-
-const generateBeat = (polyphony: number = 2): number[][] =>
-  new Array<number>(polyphony)
-    .fill(-1)
-    .map((): number[] => [Math.floor(Math.random() * frequencies.length)])
-
-// TODO: Don't generate random - Save states?
-const generateBar = (beats: number = 4, polyphony: number = 2): Bar => ({
-  notes: new Array<number[]>(beats)
-    .fill([])
-    .map((): number[][] => generateBeat(polyphony)),
-  repeat: 0,
-})
 
 export function Track({
   options,
@@ -59,10 +39,13 @@ export function Track({
   synths: Synth[]
   index: number
 }): JSX.Element {
-  const [bars, setBars] = React.useState<Bar[]>(() =>
+  const [bars, setBars] = React.useState<BarData[]>(() =>
     new Array(4)
       .fill(null)
-      .map((): Bar => generateBar(4, synths[index].getPolyphony())),
+      .map(
+        (): BarData =>
+          generateBar(frequencies, 4, synths[index].getPolyphony()),
+      ),
   )
 
   const [position, setPosition] = React.useState<Position>({
@@ -138,7 +121,7 @@ export function Track({
       <div className={styles.info}>
         <h3 className={styles.title}>{options.title}</h3>
 
-        <div className={styles['header-controls']}>
+        <div className={styles['controls']}>
           <label>
             Synth
             <select name={`${options.id}-synth`} autoComplete="off">
@@ -172,19 +155,19 @@ export function Track({
               min={1}
               name={`${options.id}-bars`}
               autoComplete="off"
-              className={styles.bars}
+              className={styles['number-input']}
               onChange={(event: React.ChangeEvent<HTMLInputElement>): void => {
                 const barCount: number = parseInt(event.target.value ?? 0)
 
                 if (barCount > bars.length) {
-                  setBars((prevBars: Bar[]): Bar[] => [
+                  setBars((prevBars: BarData[]): BarData[] => [
                     ...prevBars,
                     ...new Array(barCount - bars.length)
                       .fill(null)
-                      .map((): Bar => generateBar()),
+                      .map((): BarData => generateBar(frequencies)),
                   ])
                 } else if (barCount < bars.length) {
-                  setBars((prevBars: Bar[]): Bar[] =>
+                  setBars((prevBars: BarData[]): BarData[] =>
                     prevBars.slice(0, barCount),
                   )
                 }
@@ -195,211 +178,15 @@ export function Track({
       </div>
 
       {bars.map(
-        (bar: Bar, barIndex: number): JSX.Element => (
-          <div className={styles.bar} key={barIndex}>
-            <div className={styles.controls}>
-              <div className={styles['bar-title']}>BAR {barIndex + 1}</div>
-              <label>
-                Beats
-                <input
-                  type="number"
-                  className={styles.beats}
-                  name={`${barIndex}-beats`}
-                  value={bar.notes.length}
-                  min={1}
-                  autoComplete="off"
-                  onChange={(
-                    event: React.ChangeEvent<HTMLInputElement>,
-                  ): void => {
-                    const newBeats: number = event.target.valueAsNumber
-
-                    if (
-                      isNaN(newBeats) ||
-                      newBeats <= 0 ||
-                      newBeats === bar.notes.length
-                    )
-                      return
-
-                    if (newBeats > bar.notes.length) {
-                      setBars((prevBars: Bar[]): Bar[] => {
-                        const newBars: Bar[] = prevBars.map(
-                          (bar: Bar): Bar => ({
-                            ...bar,
-                            notes: bar.notes.map(
-                              (beat: number[][]): number[][] => [...beat],
-                            ),
-                          }),
-                        )
-
-                        for (
-                          let i: number = bar.notes.length;
-                          i < newBeats;
-                          i++
-                        ) {
-                          newBars[barIndex].notes.push(generateBeat())
-                        }
-
-                        return newBars
-                      })
-                    } else {
-                      setBars((prevBars: Bar[]): Bar[] => {
-                        const newBars: Bar[] = prevBars.map(
-                          (bar: Bar): Bar => ({
-                            ...bar,
-                            notes: bar.notes.map(
-                              (beat: number[][]): number[][] => [...beat],
-                            ),
-                          }),
-                        )
-
-                        for (
-                          let i: number = newBeats;
-                          i < bar.notes.length;
-                          i++
-                        ) {
-                          newBars[barIndex].notes.pop()
-                        }
-
-                        return newBars
-                      })
-                    }
-                  }}
-                />
-              </label>
-              <label>
-                Repeats
-                <input
-                  type="number"
-                  className={styles.repeats}
-                  name={`${barIndex}-repeats`}
-                  value={bar.repeat}
-                  min={-1}
-                  autoComplete="off"
-                  onChange={(
-                    event: React.ChangeEvent<HTMLInputElement>,
-                  ): void => {
-                    setBars((prevBars: Bar[]): Bar[] => {
-                      const newRepeat: number = event.target.valueAsNumber
-
-                      const newBars: Bar[] = prevBars.map(
-                        (bar: Bar): Bar => ({
-                          ...bar,
-                          notes: bar.notes.map(
-                            (beat: number[][]): number[][] => [...beat],
-                          ),
-                        }),
-                      )
-
-                      newBars[barIndex].repeat =
-                        isNaN(newRepeat) || newRepeat < -1 ? -1 : newRepeat
-
-                      return newBars
-                    })
-                  }}
-                />
-              </label>
-            </div>
-            {bar.notes.map(
-              (beat: number[][], beatIndex: number): JSX.Element => (
-                <div
-                  key={`${barIndex}-${beatIndex}`}
-                  className={`${styles.beat} ${
-                    position.bar === barIndex && position.beat === beatIndex
-                      ? styles.active
-                      : ''
-                  }`}
-                >
-                  {beat.map((note, polyphony) =>
-                    note.map((subNote, subNoteIndex) => (
-                      <input
-                        type="number"
-                        key={`${barIndex}-${beatIndex}-${polyphony}-${subNoteIndex}`}
-                        name={`${barIndex}-${beatIndex}-${polyphony}-${subNoteIndex}`}
-                        className={styles.note}
-                        min={-1}
-                        max={frequencies.length - 1}
-                        value={subNote}
-                        autoComplete="off"
-                        onKeyDown={(
-                          event: React.KeyboardEvent<HTMLInputElement>,
-                        ): void => {
-                          if (event.key === '/') {
-                            setBars((prevBars: Bar[]): Bar[] => {
-                              const newBars: Bar[] = prevBars.map(
-                                (bar: Bar): Bar => ({
-                                  ...bar,
-                                  notes: bar.notes.map(
-                                    (beat: number[][]): number[][] => [...beat],
-                                  ),
-                                }),
-                              )
-
-                              newBars[barIndex].notes[beatIndex][polyphony] = [
-                                ...note,
-                                note[note.length - 1],
-                              ]
-
-                              return newBars
-                            })
-                          } else if (event.key === '?') {
-                            setBars((prevBars: Bar[]): Bar[] => {
-                              const newBars: Bar[] = prevBars.map(
-                                (bar: Bar): Bar => ({
-                                  ...bar,
-                                  notes: bar.notes.map(
-                                    (beat: number[][]): number[][] => [...beat],
-                                  ),
-                                }),
-                              )
-
-                              // FIXME: Should remove currently selected cell not last
-                              newBars[barIndex].notes[beatIndex][polyphony] =
-                                note.slice(
-                                  0,
-                                  note.length > 1 ? note.length - 1 : 1,
-                                )
-
-                              return newBars
-                            })
-                          }
-                        }}
-                        onChange={(
-                          event: React.ChangeEvent<HTMLInputElement>,
-                        ): void => {
-                          setBars((prevBars: Bar[]): Bar[] => {
-                            const newBars: Bar[] = prevBars.map(
-                              (bar: Bar): Bar => ({
-                                ...bar,
-                                notes: bar.notes.map(
-                                  (beat: number[][]): number[][] => [...beat],
-                                ),
-                              }),
-                            )
-
-                            const newNote: number = event.target.valueAsNumber
-
-                            newBars[barIndex].notes[beatIndex][polyphony] = [
-                              ...note,
-                            ]
-                            newBars[barIndex].notes[beatIndex][polyphony][
-                              subNoteIndex
-                            ] =
-                              isNaN(newNote) || newNote < 0
-                                ? -1
-                                : newNote >= frequencies.length
-                                ? frequencies.length - 1
-                                : newNote
-
-                            return newBars
-                          })
-                        }}
-                      />
-                    )),
-                  )}
-                </div>
-              ),
-            )}
-          </div>
+        (bar: BarData, barIndex: number): JSX.Element => (
+          <Bar
+            bar={bar}
+            barIndex={barIndex}
+            setBars={setBars}
+            frequencies={frequencies}
+            position={position}
+            key={barIndex}
+          />
         ),
       )}
     </div>
