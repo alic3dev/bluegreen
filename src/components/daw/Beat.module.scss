@@ -1,0 +1,30 @@
+.beat {
+  display: flex;
+
+  background: rgba(255, 255, 255, 0);
+
+  transition: all 0s 0s ease-in-out;
+
+  &:last-of-type .note:not(:focus-visible) {
+    border-bottom: 1px solid #0e0e11;
+  }
+
+  &.active {
+    background: rgba(255, 255, 255, 0.1);
+  }
+}
+
+.note {
+  min-width: 2rem;
+  min-height: 2rem;
+
+  padding: 0.25rem;
+
+  border: 1px solid #0e0e11;
+  border-bottom: 1px solid transparent;
+  border-radius: 0px;
+
+  flex: 1;
+
+  text-align: center;
+}

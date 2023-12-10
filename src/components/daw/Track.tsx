@@ -39,13 +39,12 @@ export function Track({
   synths: Synth[]
   index: number
 }): JSX.Element {
+  const polyphony: number = synths[index].getPolyphony()
+
   const [bars, setBars] = React.useState<BarData[]>(() =>
     new Array(4)
       .fill(null)
-      .map(
-        (): BarData =>
-          generateBar(frequencies, 4, synths[index].getPolyphony()),
-      ),
+      .map((): BarData => generateBar(frequencies, 4, polyphony)),
   )
 
   const [position, setPosition] = React.useState<Position>({
@@ -164,7 +163,9 @@ export function Track({
                     ...prevBars,
                     ...new Array(barCount - bars.length)
                       .fill(null)
-                      .map((): BarData => generateBar(frequencies)),
+                      .map(
+                        (): BarData => generateBar(frequencies, 4, polyphony),
+                      ),
                   ])
                 } else if (barCount < bars.length) {
                   setBars((prevBars: BarData[]): BarData[] =>
@@ -185,6 +186,7 @@ export function Track({
             setBars={setBars}
             frequencies={frequencies}
             position={position}
+            polyphony={polyphony}
             key={barIndex}
           />
         ),
