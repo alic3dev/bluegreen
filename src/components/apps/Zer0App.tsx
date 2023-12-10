@@ -18,11 +18,10 @@ import {
   SynthList,
 } from '../daw'
 
-import { ConfirmDialog } from '../layout/ConfirmDialog'
+import { DialogContainer, ConfirmDialog } from '../layout/Dialogs'
 import { Tabbed } from '../layout/Tabbed'
 
 import styles from './Zer0App.module.scss'
-import { DialogContainer } from '../layout/DialogContainer'
 
 interface AudioRef {
   context: AudioContext
