@@ -285,6 +285,39 @@ export function Zer0App(): JSX.Element {
     setDialogs((prevDialogs) => [...prevDialogs, newSettingsDialog])
   }
 
+  React.useEffect((): (() => void) => {
+    const keyboardShortcutListener = (event: KeyboardEvent): void => {
+      if (event.metaKey) {
+        if (event.key === 'o') {
+          event.preventDefault()
+          event.stopPropagation()
+
+          onOpenClick()
+        } else if (event.key === 's') {
+          event.preventDefault()
+          event.stopPropagation()
+
+          onSaveClick()
+        } else if (event.key === 'p') {
+          event.preventDefault()
+          event.stopPropagation()
+
+          onNewClick()
+        } else if (event.key === ',') {
+          event.preventDefault()
+          event.stopPropagation()
+
+          onSettingsClick()
+        }
+      }
+    }
+
+    window.addEventListener('keydown', keyboardShortcutListener)
+
+    return () => {
+      window.removeEventListener('keydown', keyboardShortcutListener)
+    }
+  }, [])
 
   const rightSideBarTabsIdLookup = React.useMemo(
     () => ({
