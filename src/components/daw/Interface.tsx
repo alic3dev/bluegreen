@@ -272,7 +272,7 @@ export function Interface(): JSX.Element {
         // dangerous
       >
         <p>Are you sure you want to make a new project?</p>
-        <p className={styles.small}>(All unsaved changes will be lost.)</p>
+        <p className="small">(All unsaved changes will be lost.)</p>
       </ConfirmDialog>
     )
 
