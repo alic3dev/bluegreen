@@ -52,7 +52,8 @@ export function Track({
 
   const [synth, setSynth] = React.useState<Synth>(() => {
     return (
-      synths.find((synth) => synth.id === options.defaultSynthId) ?? synths[0]
+      synths.find((synth) => synth.id === options.defaultSynthId) ??
+      synths[synths.length - 1]
     )
   })
 
@@ -65,8 +66,8 @@ export function Track({
 
     return savedTrack
       ? savedTrack.bars
-      : new Array<number>(4)
-          .fill(0)
+      : new Array<null>(4)
+          .fill(null)
           .map((): BarData => generateBar(frequencies, 4, polyphony))
   })
 
