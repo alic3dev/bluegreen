@@ -58,11 +58,17 @@ export function Track({
 
   const polyphony: number = synth.getPolyphony()
 
-  const [bars, setBars] = React.useState<BarData[]>(() =>
-    new Array<number>(4)
-      .fill(0)
-      .map((): BarData => generateBar(frequencies, 4, polyphony)),
-  )
+  const [bars, setBars] = React.useState<BarData[]>((): BarData[] => {
+    const savedTrack: ProjectTrack | undefined = project.tracks.find(
+      (track) => track.id === options.id,
+    )
+
+    return savedTrack
+      ? savedTrack.bars
+      : new Array<number>(4)
+          .fill(0)
+          .map((): BarData => generateBar(frequencies, 4, polyphony))
+  })
 
   React.useEffect((): void => {
     // TODO: Defer this
