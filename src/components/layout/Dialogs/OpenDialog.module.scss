@@ -1,0 +1,63 @@
+.dialog-open-project {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  min-width: 100%;
+
+  margin: 0.25rem 0;
+
+  &:first-of-type {
+    margin-top: 0;
+  }
+
+  &:last-of-type {
+    margin-bottom: 0;
+  }
+}
+
+.dialog-open-project-title {
+  display: flex;
+  align-items: center;
+}
+
+.dialog-open-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 2rem;
+
+  text-align: center;
+}
+
+.dialog-open-name {
+  margin: 0;
+  padding: 0;
+  padding-right: 4rem;
+
+  border: 0px;
+
+  background: none;
+
+  &:hover,
+  &:focus-visible {
+    box-shadow: none;
+  }
+}
+
+.dialog-open-project-button-menu {
+  min-width: 0;
+  width: 2rem;
+
+  margin: 0;
+  padding: 0;
+
+  border: none;
+  background: none;
+
+  &:hover,
+  &:focus-visible {
+    box-shadow: none;
+  }
+}
