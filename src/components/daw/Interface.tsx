@@ -9,7 +9,7 @@ import {
   CiUndo,
 } from 'react-icons/ci'
 
-import { Channel, Effect, effects, Synth } from 'zer0'
+import { Channel, Effect, effects, Synth, SynthPresetValues } from 'zer0'
 
 import {
   ChannelList,
@@ -23,15 +23,11 @@ import {
   DialogContainer,
   ConfirmDialog,
   SettingsDialog,
+  OpenDialog,
 } from '../layout/Dialogs'
 import { Tabbed } from '../layout/Tabbed'
 
-import {
-  Project,
-  ProjectContext,
-  // Settings,
-  // SettingsContext,
-} from '../../contexts'
+import { Project, ProjectContext } from '../../contexts'
 
 import styles from './Interface.module.scss'
 
@@ -60,6 +56,9 @@ const getDefaultAudioRef = (): AudioRef => {
 export function Interface(): JSX.Element {
   // const settings: Settings = React.useContext(SettingsContext)
   const project: Project = React.useContext(ProjectContext)
+  const {
+    setProject,
+  }: { setProject: React.Dispatch<React.SetStateAction<Project>> } = project
 
   const [dialogs, setDialogs] = React.useState<JSX.Element[]>([])
 
@@ -88,13 +87,47 @@ export function Interface(): JSX.Element {
   )
 
   // TODO: Make a `SynthWithOptions` interface - Possibly unneeded, will determine in the future
-  const [synths, setSynths] = React.useState<Synth[]>((): Synth[] => [
-    new Synth(
-      audioRef.current.context,
-      'Basic',
-      delayReverb.current.input /*channels[0].channel.destination*/,
-    ),
-  ])
+  const [synths, setSynths] = React.useState<Synth[]>((): Synth[] => {
+    // FIXME: This is loading all synth presets, be more effiecient about it (Only project Synths)
+    const savedSynths: SynthPresetValues[] = []
+    for (let i: number = 0; i < window.localStorage.length; i++) {
+      const synthStorageKey = window.localStorage.key(i)
+
+      if (!synthStorageKey || !synthStorageKey.startsWith('ゼロ：Synth：')) {
+        continue
+      }
+
+      const synthStorageString = window.localStorage.getItem(synthStorageKey)
+
+      if (!synthStorageString) continue
+
+      try {
+        savedSynths.push(JSON.parse(synthStorageString))
+      } catch {
+        window.localStorage.removeItem(synthStorageKey)
+      }
+    }
+
+    // FIXME: Install hook causes two synths to always be generated...
+
+    return savedSynths.length
+      ? savedSynths.map(
+          (savedSynthPreset) =>
+            new Synth(
+              audioRef.current.context,
+              savedSynthPreset.name,
+              delayReverb.current.input,
+              savedSynthPreset,
+            ),
+        )
+      : [
+          new Synth(
+            audioRef.current.context,
+            'Basic',
+            delayReverb.current.input /*channels[0].channel.destination*/,
+          ),
+        ]
+  })
 
   const trackInfoRef = React.useRef<{
     numberOfGeneratedTracks: number
@@ -114,32 +147,67 @@ export function Interface(): JSX.Element {
     [],
   )
 
-  const generateNewTrack = React.useCallback((): TrackOptions => {
-    const id: string = crypto.randomUUID()
+  const generateNewTrack = React.useCallback(
+    ({
+      id = crypto.randomUUID(),
+      title = `Track ${trackInfoRef.current.numberOfGeneratedTracks++}`,
+      defaultChannelId,
+      defaultSynthId,
+    }: {
+      id?: string
+      title?: string
+      defaultChannelId?: string
+      defaultSynthId?: string
+    }): TrackOptions => {
+      return {
+        id,
+        title,
+        defaultChannelId,
+        defaultSynthId,
+        registerStep(subStep: () => void): void {
+          trackInfoRef.current.registeredSteps[id] = subStep
+        },
+        registerReset(subReset: () => void): void {
+          trackInfoRef.current.registeredResets[id] = subReset
+        },
+        unregisterStep(): void {
+          delete trackInfoRef.current.registeredSteps[id]
+        },
+        unregisterReset(): void {
+          delete trackInfoRef.current.registeredResets[id]
+        },
+        remove(): void {
+          setTracks((prevTracks) =>
+            prevTracks.filter((track) => track.id !== id),
+          )
 
-    return {
-      id,
-      title: `Track ${trackInfoRef.current.numberOfGeneratedTracks++}`,
-      registerStep(subStep: () => void): void {
-        trackInfoRef.current.registeredSteps[id] = subStep
-      },
-      registerReset(subReset: () => void): void {
-        trackInfoRef.current.registeredResets[id] = subReset
-      },
-      unregisterStep(): void {
-        delete trackInfoRef.current.registeredSteps[id]
-      },
-      unregisterReset(): void {
-        delete trackInfoRef.current.registeredResets[id]
-      },
-      remove(): void {
-        setTracks((prevTracks) => prevTracks.filter((track) => track.id !== id))
-      },
-    }
-  }, [])
+          setProject((prevProject) => {
+            return {
+              ...prevProject,
+              tracks: prevProject.tracks.filter((track) => track.id !== id),
+            }
+          })
+        },
+      }
+    },
+    [setProject],
+  )
 
   const [tracks, setTracks] = React.useState<TrackOptions[]>(
-    (): TrackOptions[] => [generateNewTrack()],
+    (): TrackOptions[] => {
+      if (project.tracks.length) {
+        return project.tracks.map((track) =>
+          generateNewTrack({
+            id: track.id,
+            title: track.name,
+            defaultChannelId: track.channelId,
+            defaultSynthId: track.synthId,
+          }),
+        )
+      }
+
+      return [generateNewTrack({})]
+    },
   )
 
   const [playing, setPlaying] = React.useState<boolean>(false)
@@ -184,7 +252,7 @@ export function Interface(): JSX.Element {
       accumulatedName = `${originalName} ${accumulator++}`
     }
 
-    const newTrack: TrackOptions = generateNewTrack()
+    const newTrack: TrackOptions = generateNewTrack({})
     const newSynth: Synth = new Synth(
       audioRef.current.context,
       accumulatedName,
@@ -245,14 +313,44 @@ export function Interface(): JSX.Element {
     }
   }, [playing, project.bpm]) // FIXME: BPM updates causes immediate fires
 
-  const onSaveClick = () => {
-    alert('save')
+  const onSaveClick = (): void => {
+    alert(`
+      // TODO: Implement me
+    `)
   }
-  const onOpenClick = () => {
-    alert('open')
-  }
-  const onNewClick = () => {
-    const newConfirmDialog = (
+
+  const onOpenClick = React.useCallback((): void => {
+    // TODO: Modularize this
+    const openDialog: JSX.Element = (
+      <OpenDialog
+        key={crypto.randomUUID()}
+        close={(closeBase: boolean = true, ...dialogs: JSX.Element[]): void => {
+          setDialogs((prevDialogs) =>
+            prevDialogs.filter(
+              (dialog: JSX.Element): boolean =>
+                ![...(closeBase ? [openDialog] : []), ...dialogs].includes(
+                  dialog,
+                ),
+            ),
+          )
+        }}
+        addDialog={(dialog: JSX.Element) =>
+          setDialogs((prevDialogs: JSX.Element[]): JSX.Element[] => [
+            ...prevDialogs,
+            dialog,
+          ])
+        }
+      />
+    )
+
+    setDialogs((prevDialogs: JSX.Element[]): JSX.Element[] => [
+      ...prevDialogs,
+      openDialog,
+    ])
+  }, [])
+
+  const onNewClick = (): void => {
+    const newConfirmDialog: JSX.Element = (
       <ConfirmDialog
         key={crypto.randomUUID()}
         title="Create a new project"
@@ -266,8 +364,10 @@ export function Interface(): JSX.Element {
             prevDialogs.filter((dialog) => dialog !== newConfirmDialog),
           )
 
-          // TODO: Implement this
-          alert('implement me!!@!')
+          window.localStorage.removeItem(`ゼローProject`)
+          window.location.reload()
+
+          // TODO: ('implement me!!@!') in a better way
         }}
         // dangerous
       >
@@ -276,10 +376,13 @@ export function Interface(): JSX.Element {
       </ConfirmDialog>
     )
 
-    setDialogs((prevDialogs) => [...prevDialogs, newConfirmDialog])
+    setDialogs((prevDialogs: JSX.Element[]): JSX.Element[] => [
+      ...prevDialogs,
+      newConfirmDialog,
+    ])
   }
-  const onSettingsClick = () => {
-    const newSettingsDialog = (
+  const onSettingsClick = (): void => {
+    const newSettingsDialog: JSX.Element = (
       <SettingsDialog
         key={crypto.randomUUID()}
         close={(): void => {
@@ -290,7 +393,10 @@ export function Interface(): JSX.Element {
       />
     )
 
-    setDialogs((prevDialogs) => [...prevDialogs, newSettingsDialog])
+    setDialogs((prevDialogs: JSX.Element[]): JSX.Element[] => [
+      ...prevDialogs,
+      newSettingsDialog,
+    ])
   }
 
   React.useEffect((): (() => void) => {
@@ -325,10 +431,11 @@ export function Interface(): JSX.Element {
     return () => {
       window.removeEventListener('keydown', keyboardShortcutListener)
     }
-  }, [])
+  }, [onOpenClick])
 
-  const tabsIdLookup = React.useMemo(
-    () => ({
+  type TabsIdLookup = Record<'synths' | 'channels', string>
+  const tabsIdLookup = React.useMemo<TabsIdLookup>(
+    (): TabsIdLookup => ({
       synths: crypto.randomUUID(),
       channels: crypto.randomUUID(),
     }),
@@ -346,7 +453,7 @@ export function Interface(): JSX.Element {
 
     onProjectNameChangeTimeout.current = setTimeout(
       (): void =>
-        project.setProject(
+        setProject(
           (prevProject: Project): Project => ({
             ...prevProject,
             name: event.target.value,
@@ -421,7 +528,7 @@ export function Interface(): JSX.Element {
               const newBPM: number = event.target.valueAsNumber
 
               if (!isNaN(newBPM) && newBPM > 0) {
-                project.setProject((prevProject) => ({
+                setProject((prevProject) => ({
                   ...prevProject,
                   bpm: newBPM,
                 }))
@@ -467,11 +574,10 @@ export function Interface(): JSX.Element {
 
           <div className={styles['track-container']}>
             {tracks.map(
-              (trackOptions: TrackOptions, index: number): JSX.Element => (
+              (trackOptions: TrackOptions): JSX.Element => (
                 <Track
                   options={trackOptions}
                   key={trackOptions.id}
-                  index={index}
                   channels={channels}
                   synths={synths}
                 />

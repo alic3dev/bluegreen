@@ -7,10 +7,15 @@ import { Bar, BarData } from './Bar'
 import { generateBar, Position } from '../../utils/general'
 
 import styles from './Track.module.scss'
+import { Project, ProjectTrack, ProjectContext } from '../../contexts'
 
 export interface TrackOptions {
   title: string
   id: string
+
+  defaultSynthId?: string
+  defaultChannelId?: string
+
   registerStep: (stepFunc: () => void) => void
   registerReset: (resetFunc: () => void) => void
 
@@ -34,20 +39,58 @@ export function Track({
   options,
   channels,
   synths,
-  index, // FIXME: This is a hacky solution, refactor this
 }: {
   options: TrackOptions
   channels: ChannelWithOptions[]
   synths: Synth[]
-  index: number
 }): JSX.Element {
-  const polyphony: number = synths[index].getPolyphony()
+  const project = React.useContext(ProjectContext)
+
+  const {
+    setProject,
+  }: { setProject: React.Dispatch<React.SetStateAction<Project>> } = project
+
+  const [synth, setSynth] = React.useState<Synth>(() => {
+    return (
+      synths.find((synth) => synth.id === options.defaultSynthId) ?? synths[0]
+    )
+  })
+
+  const polyphony: number = synth.getPolyphony()
 
   const [bars, setBars] = React.useState<BarData[]>(() =>
-    new Array(4)
-      .fill(null)
+    new Array<number>(4)
+      .fill(0)
       .map((): BarData => generateBar(frequencies, 4, polyphony)),
   )
+
+  React.useEffect((): void => {
+    // TODO: Defer this
+    setProject((prevProject) => {
+      const tracks: ProjectTrack[] = prevProject.tracks.map((track) => ({
+        ...track,
+      }))
+      const prevTrackIndex: number = tracks.findIndex(
+        (track) => track.id === options.id,
+      )
+
+      const updatedTrack: ProjectTrack = {
+        id: options.id,
+        name: options.title,
+        channelId: 'FIXME: Impleeeee',
+        synthId: synth.id,
+        bars,
+      }
+
+      if (prevTrackIndex === -1) {
+        tracks.push(updatedTrack)
+      } else {
+        tracks[prevTrackIndex] = updatedTrack
+      }
+
+      return { ...prevProject, tracks }
+    })
+  }, [setProject, bars, options.id, options.title, synth])
 
   const [position, setPosition] = React.useState<Position>({
     bar: 0,
@@ -62,7 +105,7 @@ export function Track({
 
     for (let i: number = 0; i < notes[0].length; i++) {
       if (notes[0][i] > -1 && notes[0][i] < frequencies.length) {
-        synths[index].playNote(
+        synth.playNote(
           frequencies[notes[0][i]],
           i / notes[0].length,
           1 / notes[0].length,
@@ -93,7 +136,7 @@ export function Track({
 
       return newPosition
     })
-  }, [bars, position, synths, index])
+  }, [bars, position, synth])
 
   const reset = React.useCallback(
     (): void =>
@@ -130,10 +173,50 @@ export function Track({
         <div className={styles['controls']}>
           <label>
             Synth
-            <select name={`${options.id}-synth`} autoComplete="off">
+            <select
+              name={`${options.id}-synth`}
+              autoComplete="off"
+              value={synth.id}
+              onChange={(event: React.ChangeEvent<HTMLSelectElement>) => {
+                const newSynth: Synth =
+                  synths.find((synth) => synth.id === event.target.value) ??
+                  synths[0]
+
+                if (newSynth === synth) return
+
+                setSynth(newSynth)
+
+                setProject((prevProject) => {
+                  const tracks: ProjectTrack[] = prevProject.tracks.map(
+                    (track) => ({
+                      ...track,
+                    }),
+                  )
+                  const prevTrackIndex: number = tracks.findIndex(
+                    (track) => track.id === options.id,
+                  )
+
+                  const updatedTrack: ProjectTrack = {
+                    id: options.id,
+                    name: options.title,
+                    channelId: 'FIXME: Impleeeee',
+                    synthId: newSynth.id,
+                    bars,
+                  }
+
+                  if (prevTrackIndex === -1) {
+                    tracks.push(updatedTrack)
+                  } else {
+                    tracks[prevTrackIndex] = updatedTrack
+                  }
+
+                  return { ...prevProject, tracks }
+                })
+              }}
+            >
               {synths.map(
                 (synth: Synth): JSX.Element => (
-                  <option key={synth.id} value={synth.name}>
+                  <option key={synth.id} value={synth.id}>
                     {synth.name}
                   </option>
                 ),
