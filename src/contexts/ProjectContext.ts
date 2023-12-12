@@ -2,13 +2,23 @@ import React from 'react'
 
 import { BarData } from '../utils/general'
 
-export interface ProjectTrack {
+export interface BaseProjectTrack {
   id: string
   name: string
-  channelId: string
-  synthId: string
   bars: BarData[]
 }
+
+export interface ProjectKitTrack extends BaseProjectTrack {
+  channelId: string
+  kitId: string
+}
+
+export interface ProjectSynthTrack extends BaseProjectTrack {
+  channelId: string
+  synthId: string
+}
+
+export type ProjectTrack = ProjectSynthTrack | ProjectKitTrack
 
 export interface Project {
   id: string

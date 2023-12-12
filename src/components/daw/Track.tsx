@@ -7,7 +7,12 @@ import { Bar, BarData } from './Bar'
 import { generateBar, Position } from '../../utils/general'
 
 import styles from './Track.module.scss'
-import { Project, ProjectTrack, ProjectContext } from '../../contexts'
+import {
+  Project,
+  ProjectTrack,
+  ProjectContext,
+  ProjectSynthTrack,
+} from '../../contexts'
 
 export interface TrackOptions {
   title: string
@@ -60,9 +65,9 @@ export function Track({
   const polyphony: number = synth.getPolyphony()
 
   const [bars, setBars] = React.useState<BarData[]>((): BarData[] => {
-    const savedTrack: ProjectTrack | undefined = project.tracks.find(
-      (track) => track.id === options.id,
-    )
+    const savedTrack: ProjectSynthTrack | undefined = project.tracks.find(
+      (track: ProjectTrack): boolean => track.id === options.id,
+    ) as ProjectSynthTrack
 
     return savedTrack
       ? savedTrack.bars
@@ -73,15 +78,17 @@ export function Track({
 
   React.useEffect((): void => {
     // TODO: Defer this
-    setProject((prevProject) => {
-      const tracks: ProjectTrack[] = prevProject.tracks.map((track) => ({
-        ...track,
-      }))
+    setProject((prevProject: Project): Project => {
+      const tracks: ProjectTrack[] = prevProject.tracks.map(
+        (track: ProjectTrack): ProjectTrack => ({
+          ...track,
+        }),
+      )
       const prevTrackIndex: number = tracks.findIndex(
         (track) => track.id === options.id,
       )
 
-      const updatedTrack: ProjectTrack = {
+      const updatedTrack: ProjectSynthTrack = {
         id: options.id,
         name: options.title,
         channelId: 'FIXME: Impleeeee',
@@ -193,9 +200,9 @@ export function Track({
 
                 setSynth(newSynth)
 
-                setProject((prevProject) => {
+                setProject((prevProject: Project): Project => {
                   const tracks: ProjectTrack[] = prevProject.tracks.map(
-                    (track) => ({
+                    (track: ProjectTrack): ProjectTrack => ({
                       ...track,
                     }),
                   )
@@ -203,7 +210,7 @@ export function Track({
                     (track) => track.id === options.id,
                   )
 
-                  const updatedTrack: ProjectTrack = {
+                  const updatedTrack: ProjectSynthTrack = {
                     id: options.id,
                     name: options.title,
                     channelId: 'FIXME: Impleeeee',
