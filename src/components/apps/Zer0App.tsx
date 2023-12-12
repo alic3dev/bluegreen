@@ -59,6 +59,8 @@ export function Zer0App(): JSX.Element {
   )
 
   React.useEffect(() => {
+    // FIXME: Doesn't save the autoSave state when you disable autoSave...
+    //        Which enables autoSave on next load since it wasn't saved...
     if (settings.autoSave) {
       window.localStorage.setItem('ゼローSettings', JSON.stringify(settings))
     }
