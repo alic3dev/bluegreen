@@ -1,0 +1,167 @@
+.fallback {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  width: 100vw;
+  height: 100vh;
+
+  text-align: center;
+
+  font-family: monospace;
+
+  pre {
+    text-align: left;
+  }
+}
+
+.icon {
+  position: relative;
+
+  height: 4rem;
+  width: 4rem;
+
+  font-size: 4rem;
+}
+
+@keyframes spin {
+  from {
+    transform: translate(-50%, -50%) rotateY(0deg) scale(1);
+  }
+  to {
+    transform: translate(-50%, -50%) rotateY(360deg) scale(1.1);
+  }
+}
+
+.iconpart {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+
+  transform: translate(-50%, -50%);
+
+  filter: saturate(10000);
+  mix-blend-mode: difference;
+
+  animation: spin 40s linear infinite alternate;
+}
+
+@keyframes flow-colors {
+  0% {
+    color: rgb(255, 175, 175);
+  }
+  25% {
+    color: rgb(255, 255, 175);
+  }
+  50% {
+    color: rgb(175, 255, 175);
+  }
+  75% {
+    color: rgb(175, 255, 255);
+  }
+  100% {
+    color: rgb(175, 175, 255);
+  }
+}
+
+.app {
+  padding: 0;
+  margin: 0;
+  font-size: 2.5rem;
+
+  animation: flow-colors 40s 0s linear infinite alternate;
+}
+
+.failed {
+  padding: 0;
+  margin: 0;
+  font-size: 2rem;
+}
+
+.error {
+  position: relative;
+
+  max-width: 90%;
+
+  margin: 2rem 0;
+  padding: 1rem;
+
+  background: rgba(0, 0, 0, 0.25);
+
+  border-top-left-radius: 20px;
+  border-top-right-radius: 2px;
+  border-bottom-left-radius: 2px;
+  border-bottom-right-radius: 40px;
+
+  box-shadow: 2px 2px 5px 2px rgba(0, 0, 0, 0.5);
+
+  font-size: 0.75rem;
+
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: -25.5%;
+    left: -25%;
+
+    width: 100%;
+    height: 1rem;
+
+    mix-blend-mode: difference;
+
+    transform: rotate(-25deg);
+
+    background-color: coral;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: -8%;
+    left: -31%;
+
+    width: 100%;
+    height: 1rem;
+
+    mix-blend-mode: difference;
+
+    transform: rotate(-10deg);
+
+    background-color: aqua;
+  }
+}
+
+.name {
+  padding: 0;
+  margin: 0;
+
+  font-size: 1.5rem;
+  font-weight: 700;
+
+  color: #ffaaaa;
+}
+
+.message {
+  color: #fff;
+}
+
+.stack {
+  width: 100%;
+
+  padding: 1rem;
+  margin-bottom: 0;
+
+  overflow: scroll;
+
+  background: rgba(255, 100, 100, 0.1);
+
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-top-left-radius: 2px;
+  border-top-right-radius: 2px;
+  border-bottom-left-radius: 2px;
+  border-bottom-right-radius: 20px;
+
+  box-shadow: inset 0px 0px 5px rgba(0, 0, 0, 0.1);
+}

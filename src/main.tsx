@@ -14,6 +14,8 @@ import {
   Zer0App,
 } from './components/apps'
 
+import { ErrorBoundary } from './components/debug/ErrorBoundry'
+
 import './index.scss'
 
 const getTitleLoader = (title: string): LoaderFunction => {
@@ -24,33 +26,36 @@ const getTitleLoader = (title: string): LoaderFunction => {
   }
 }
 
+const withErrorBoundary = (app: JSX.Element, appName?: string): JSX.Element => (
+  <ErrorBoundary app={appName}>{app}</ErrorBoundary>
+)
+
 const router = createBrowserRouter(
   [
     {
       path: '/',
       loader: getTitleLoader('BLUEGREEN'),
-      element: <NavigationApp />,
+      element: withErrorBoundary(<NavigationApp />, 'BLUEGREEN'),
     },
     {
       path: '/eye-gen',
       loader: getTitleLoader('EYE GEN'),
-      element: <EyeGenApp />,
+      element: withErrorBoundary(<EyeGenApp />, 'EYE GEN'),
     },
     {
       path: '/visdio',
       loader: getTitleLoader('VISDIO'),
-      element: <VisdioApp />,
+      element: withErrorBoundary(<VisdioApp />, 'VISDIO'),
     },
     {
       path: '/zer0',
       loader: getTitleLoader('ZER0'),
-
-      element: <Zer0App />,
+      element: withErrorBoundary(<Zer0App />, 'ZER0'),
     },
     {
       path: '/circle',
       loader: getTitleLoader('CIRCLE'),
-      element: <CircleApp />,
+      element: withErrorBoundary(<CircleApp />, 'CIRCLE'),
     },
   ],
   {
@@ -63,6 +68,6 @@ const router = createBrowserRouter(
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <RouterProvider router={router} />
+    <RouterProvider router={router} future={{ v7_startTransition: true }} />
   </React.StrictMode>,
 )
