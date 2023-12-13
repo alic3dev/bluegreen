@@ -1,23 +1,24 @@
 import React from 'react'
-import { Sample, SampleKit } from 'zer0'
+import { Note, Octave, Synth, utils } from 'zer0'
 
 import { ChannelWithOptions } from './ChannelList'
 import { Bar, BarData } from './Bar'
 
 import { generateBar, Position } from '../../utils/general'
 
+import styles from './Track.module.scss'
 import {
-  ProjectKitTrack,
-  ProjectTrack,
   Project,
+  ProjectTrack,
   ProjectContext,
+  ProjectSynthTrack,
 } from '../../contexts'
 
-export interface KitTrackOptions {
+export interface SynthTrackOptions {
   title: string
   id: string
 
-  defaultKitId?: string
+  defaultSynthId?: string
   defaultChannelId?: string
 
   registerStep: (stepFunc: () => void) => void
@@ -29,59 +30,84 @@ export interface KitTrackOptions {
   remove: () => void
 }
 
-export interface KitTrackProps {
-  options: KitTrackOptions
+export interface SynthTrackProps {
+  options: SynthTrackOptions
   channels: ChannelWithOptions[]
-  kits: SampleKit[]
+  synths: Synth[]
 }
 
-import trackStyles from './Track.module.scss'
+// FIXME: Make this a context or sumfin
+const scale: Note[] = utils.getScaleInKey('minor', 'G')
+const frequencies: number[] = utils
+  .createNoteTable(2, 4, utils.frequencyRoots.magic)
+  .map((octave: Octave): number[] =>
+    scale.map((note: Note): number => octave[note]),
+  )
+  .flat()
+  .sort((a: number, b: number): number => a - b)
 
-export function KitTrack({
+export function SynthTrack({
   options,
   channels,
-  kits,
-}: KitTrackProps): JSX.Element {
-  // FIXME: Need async support for load states
+  synths,
+}: SynthTrackProps): JSX.Element {
+  const project = React.useContext(ProjectContext)
 
-  const project = React.useContext<Project>(ProjectContext)
   const {
     setProject,
   }: { setProject: React.Dispatch<React.SetStateAction<Project>> } = project
 
-  const [kit, setKit] = React.useState<SampleKit>(
-    (): SampleKit =>
-      kits.find((kit: SampleKit): boolean => kit.id === options.defaultKitId) ??
-      kits[kits.length - 1],
-  )
+  const [synth, setSynth] = React.useState<Synth>(() => {
+    return (
+      synths.find((synth) => synth.id === options.defaultSynthId) ??
+      synths[synths.length - 1]
+    )
+  })
 
-  const samples = React.useMemo<[string, Sample][]>(
-    (): [string, Sample][] =>
-      Object.keys(kit.samples).map((sampleKey: string): [string, Sample] => [
-        sampleKey,
-        kit.samples[sampleKey],
-      ]),
-    [kit],
-  )
+  const polyphony: number = synth.getPolyphony()
 
   const [bars, setBars] = React.useState<BarData[]>((): BarData[] => {
-    const savedTrack: ProjectKitTrack | undefined = project.tracks.find(
+    const savedTrack: ProjectSynthTrack | undefined = project.tracks.find(
       (track: ProjectTrack): boolean => track.id === options.id,
-    ) as ProjectKitTrack
+    ) as ProjectSynthTrack
 
     return savedTrack
       ? savedTrack.bars
-      : new Array<null>(4).fill(null).map(
-          (): BarData =>
-            generateBar(
-              new Array(samples.length)
-                .fill(0)
-                .map((v: number, i: number): number => v + i),
-              4,
-              samples.length,
-            ),
-        )
+      : new Array<null>(4)
+          .fill(null)
+          .map((): BarData => generateBar(frequencies, 4, polyphony))
   })
+
+  React.useEffect((): void => {
+    // TODO: Defer this
+    setProject((prevProject: Project): Project => {
+      const tracks: ProjectTrack[] = prevProject.tracks.map(
+        (track: ProjectTrack): ProjectTrack => ({
+          ...track,
+        }),
+      )
+      const prevTrackIndex: number = tracks.findIndex(
+        (track) => track.id === options.id,
+      )
+
+      const updatedTrack: ProjectSynthTrack = {
+        id: options.id,
+        name: options.title,
+        channelId: 'FIXME: Impleeeee',
+        synthId: synth.id,
+        bars,
+      }
+
+      if (prevTrackIndex === -1) {
+        tracks.push(updatedTrack)
+      } else {
+        tracks[prevTrackIndex] = updatedTrack
+      }
+
+      return { ...prevProject, tracks }
+    })
+  }, [setProject, bars, options.id, options.title, synth])
+
   const [position, setPosition] = React.useState<Position>({
     bar: 0,
     beat: 0,
@@ -91,14 +117,15 @@ export function KitTrack({
   const step = React.useCallback((): void => {
     const notes: number[][] = bars[position.bar].notes[position.beat]
 
-    for (let p: number = 0; p < notes.length; p++) {
-      for (let i: number = 0; i < notes[p].length; i++) {
-        if (notes[p][i] > -1 && notes[p][i] < samples.length) {
-          kit.play(
-            (60 / project.bpm) * (i / notes[0].length),
-            samples[notes[p][i]][0],
-          )
-        }
+    // FIXME: Add polyphony
+
+    for (let i: number = 0; i < notes[0].length; i++) {
+      if (notes[0][i] > -1 && notes[0][i] < frequencies.length) {
+        synth.playNote(
+          frequencies[notes[0][i]],
+          i / notes[0].length,
+          1 / notes[0].length,
+        )
       }
     }
 
@@ -125,7 +152,7 @@ export function KitTrack({
 
       return newPosition
     })
-  }, [bars, position, kit, samples, project.bpm])
+  }, [bars, position, synth])
 
   const reset = React.useCallback(
     (): void =>
@@ -150,29 +177,30 @@ export function KitTrack({
   }, [options, reset])
 
   return (
-    <div className={trackStyles.track}>
-      <div className={trackStyles.info}>
-        <div className={trackStyles.title}>
+    <div className={styles.track}>
+      <div className={styles.info}>
+        <div className={styles.title}>
           <h3>{options.title}</h3>
           <button onClick={options.remove} title="Remove">
             -
           </button>
         </div>
 
-        <div className={trackStyles['controls']}>
+        <div className={styles['controls']}>
           <label>
-            Kit
+            Synth
             <select
-              name={`${options.id}-kit`}
+              name={`${options.id}-synth`}
               autoComplete="off"
-              value={kit.id}
+              value={synth.id}
               onChange={(event: React.ChangeEvent<HTMLSelectElement>) => {
-                const newKit: SampleKit =
-                  kits.find((kit) => kit.id === event.target.value) ?? kits[0]
+                const newSynth: Synth =
+                  synths.find((synth) => synth.id === event.target.value) ??
+                  synths[0]
 
-                if (newKit === kit) return
+                if (newSynth === synth) return
 
-                setKit(newKit)
+                setSynth(newSynth)
 
                 setProject((prevProject: Project): Project => {
                   const tracks: ProjectTrack[] = prevProject.tracks.map(
@@ -184,12 +212,12 @@ export function KitTrack({
                     (track) => track.id === options.id,
                   )
 
-                  const updatedTrack: ProjectKitTrack = {
+                  const updatedTrack: ProjectSynthTrack = {
                     id: options.id,
                     name: options.title,
                     channelId: 'FIXME: Impleeeee',
-                    kitId: newKit.id,
-                    bars: tracks[prevTrackIndex].bars,
+                    synthId: newSynth.id,
+                    bars,
                   }
 
                   if (prevTrackIndex === -1) {
@@ -202,10 +230,10 @@ export function KitTrack({
                 })
               }}
             >
-              {kits.map(
-                (kit: SampleKit): JSX.Element => (
-                  <option key={kit.id} value={kit.id}>
-                    {kit.name}
+              {synths.map(
+                (synth: Synth): JSX.Element => (
+                  <option key={synth.id} value={synth.id}>
+                    {synth.name}
                   </option>
                 ),
               )}
@@ -232,20 +260,18 @@ export function KitTrack({
               min={1}
               name={`${options.id}-bars`}
               autoComplete="off"
-              className={trackStyles['number-input']}
+              className={styles['number-input']}
               onChange={(event: React.ChangeEvent<HTMLInputElement>): void => {
                 const barCount: number = parseInt(event.target.value ?? 0)
+
                 if (barCount > bars.length) {
                   setBars((prevBars: BarData[]): BarData[] => [
                     ...prevBars,
-                    ...new Array(barCount - bars.length).fill(null).map(
-                      (): BarData =>
-                        generateBar(
-                          samples.map((_v, i) => i),
-                          4,
-                          samples.length,
-                        ),
-                    ),
+                    ...new Array(barCount - bars.length)
+                      .fill(null)
+                      .map(
+                        (): BarData => generateBar(frequencies, 4, polyphony),
+                      ),
                   ])
                 } else if (barCount < bars.length) {
                   setBars((prevBars: BarData[]): BarData[] =>
@@ -264,9 +290,9 @@ export function KitTrack({
             bar={bar}
             barIndex={barIndex}
             setBars={setBars}
-            frequencies={samples.map((_v, i) => i)}
+            frequencies={frequencies}
             position={position}
-            polyphony={samples.length}
+            polyphony={polyphony}
             key={barIndex}
           />
         ),

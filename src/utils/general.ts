@@ -15,7 +15,9 @@ export const generateBeat = (
 ): number[][] =>
   new Array<number>(polyphony)
     .fill(-1)
-    .map((): number[] => [Math.floor(Math.random() * frequencies.length)])
+    .map((): number[] => [
+      frequencies.length ? Math.floor(Math.random() * frequencies.length) : -1,
+    ])
 
 // TODO: Don't generate random - Save states?
 export const generateBar = (

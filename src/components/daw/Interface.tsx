@@ -9,7 +9,14 @@ import {
   CiUndo,
 } from 'react-icons/ci'
 
-import { Channel, Effect, effects, Synth, SynthPresetValues } from 'zer0'
+import {
+  Channel,
+  Effect,
+  effects,
+  SampleKit,
+  Synth,
+  SynthPresetValues,
+} from 'zer0'
 
 import {
   ChannelList,
@@ -27,9 +34,16 @@ import {
 } from '../layout/Dialogs'
 import { Tabbed } from '../layout/Tabbed'
 
-import { Project, ProjectContext } from '../../contexts'
+import {
+  Project,
+  ProjectContext,
+  ProjectKitTrack,
+  ProjectSynthTrack,
+  ProjectTrack,
+} from '../../contexts'
 
 import styles from './Interface.module.scss'
+import { KitList } from './KitList'
 
 interface AudioRef {
   context: AudioContext
@@ -110,13 +124,16 @@ export function Interface(): JSX.Element {
 
     // FIXME: Install hook causes two synths to always be generated...
 
+    // FIXME: Synths don't save their position/order
     return savedSynths.length
       ? savedSynths.map(
-          (savedSynthPreset) =>
+          (savedSynthPreset, index) =>
             new Synth(
               audioRef.current.context,
               savedSynthPreset.name,
-              delayReverb.current.input,
+              index
+                ? channels[0].channel.destination
+                : delayReverb.current.input,
               savedSynthPreset,
             ),
         )
@@ -128,6 +145,27 @@ export function Interface(): JSX.Element {
           ),
         ]
   })
+
+  const [kits, setKits] = React.useState<SampleKit[]>((): SampleKit[] => {
+    return []
+  })
+
+  React.useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      const newKit = new SampleKit(
+        audioRef.current.context,
+        {
+          kick: '/kits/SwuM Drum Kit/Kicks/kick 1.wav',
+          snare: '/kits/SwuM Drum Kit/Snare/Snare 1.wav',
+        },
+        audioRef.current.gain,
+      )
+
+      setKits((prevKits) => [...prevKits, newKit])
+    })
+
+    return () => clearTimeout(timeoutId)
+  }, [])
 
   const trackInfoRef = React.useRef<{
     numberOfGeneratedTracks: number
@@ -153,17 +191,20 @@ export function Interface(): JSX.Element {
       title = `Track ${trackInfoRef.current.numberOfGeneratedTracks++}`,
       defaultChannelId,
       defaultSynthId,
+      defaultKitId,
     }: {
       id?: string
       title?: string
       defaultChannelId?: string
       defaultSynthId?: string
+      defaultKitId?: string
     }): TrackOptions => {
-      return {
+      const res = {
         id,
         title,
         defaultChannelId,
         defaultSynthId,
+        defaultKitId,
         registerStep(subStep: () => void): void {
           trackInfoRef.current.registeredSteps[id] = subStep
         },
@@ -189,6 +230,11 @@ export function Interface(): JSX.Element {
           })
         },
       }
+
+      if (!res.defaultSynthId) delete res.defaultSynthId
+      if (!res.defaultKitId) delete res.defaultKitId
+
+      return res
     },
     [setProject],
   )
@@ -196,14 +242,25 @@ export function Interface(): JSX.Element {
   const [tracks, setTracks] = React.useState<TrackOptions[]>(
     (): TrackOptions[] => {
       if (project.tracks.length) {
-        return project.tracks.map((track) =>
-          generateNewTrack({
-            id: track.id,
-            title: track.name,
-            defaultChannelId: track.channelId,
-            defaultSynthId: track.synthId,
-          }),
-        )
+        return project.tracks.map((track: ProjectTrack): TrackOptions => {
+          if (Object.hasOwnProperty.call(track, 'synthId')) {
+            return generateNewTrack({
+              id: track.id,
+              title: track.name,
+              defaultChannelId: track.channelId,
+              defaultSynthId: (track as ProjectSynthTrack).synthId,
+            })
+          } else if (Object.hasOwnProperty.call(track, 'kitId')) {
+            return generateNewTrack({
+              id: track.id,
+              title: track.name,
+              defaultChannelId: track.channelId,
+              defaultKitId: (track as ProjectKitTrack).kitId,
+            })
+          }
+
+          throw new Error('Unknown track type in project')
+        })
       }
 
       return [generateNewTrack({})]
@@ -266,7 +323,36 @@ export function Interface(): JSX.Element {
     ])
   }
 
-  const addKitTrack = (): void => alert('// TODO: Implement me :)')
+  const addKitTrack = (): void => {
+    const originalName: string = 'Kit #'
+    let accumulatedName: string = `${originalName} 1`
+    let accumulator: number = 1
+
+    while (
+      kits.find((kit: SampleKit): boolean => kit.name === accumulatedName)
+    ) {
+      accumulatedName = `${originalName} ${accumulator++}`
+    }
+
+    // const newKit: SampleKit = new SampleKit(
+    //   audioRef.current.context,
+    //   {},
+    //   channels[0].channel.destination,
+    // )
+
+    // newKit.name = accumulatedName
+
+    const newTrack: TrackOptions = generateNewTrack({
+      defaultKitId: kits[0].id,
+      // defaultKitId: newKit.id,
+    })
+
+    // setKits((prevKits: SampleKit[]): SampleKit[] => [...prevKits, newKit])
+    setTracks((prevTracks: TrackOptions[]): TrackOptions[] => [
+      ...prevTracks,
+      newTrack,
+    ])
+  }
   const addAutomationTrack = (): void => alert('// TODO: Implement me :)')
 
   const addChannel = React.useCallback((): void => {
@@ -433,9 +519,13 @@ export function Interface(): JSX.Element {
     }
   }, [onOpenClick])
 
-  type TabsIdLookup = Record<'synths' | 'channels', string>
+  type TabsIdLookup = Record<
+    'kits' | 'synths' | 'channels',
+    `${string}-${string}-${string}-${string}-${string}`
+  >
   const tabsIdLookup = React.useMemo<TabsIdLookup>(
     (): TabsIdLookup => ({
+      kits: crypto.randomUUID(),
       synths: crypto.randomUUID(),
       channels: crypto.randomUUID(),
     }),
@@ -474,6 +564,7 @@ export function Interface(): JSX.Element {
           defaultValue={project.name}
           onChange={onProjectNameChange}
           placeholder="Set a project title"
+          name="Project Title"
         />
 
         <div className={styles['project-controls']}>
@@ -574,14 +665,22 @@ export function Interface(): JSX.Element {
 
           <div className={styles['track-container']}>
             {tracks.map(
-              (trackOptions: TrackOptions): JSX.Element => (
-                <Track
-                  options={trackOptions}
-                  key={trackOptions.id}
-                  channels={channels}
-                  synths={synths}
-                />
-              ),
+              (trackOptions: TrackOptions): JSX.Element =>
+                Object.hasOwnProperty.call(trackOptions, 'defaultKitId') ? (
+                  <Track
+                    options={trackOptions}
+                    key={trackOptions.id}
+                    channels={channels}
+                    kits={kits}
+                  />
+                ) : (
+                  <Track
+                    options={trackOptions}
+                    key={trackOptions.id}
+                    channels={channels}
+                    synths={synths}
+                  />
+                ),
             )}
           </div>
         </div>
@@ -592,6 +691,11 @@ export function Interface(): JSX.Element {
               id: tabsIdLookup.synths,
               name: 'Synths',
               element: <SynthList synths={synths} />,
+            },
+            {
+              id: tabsIdLookup.kits,
+              name: 'Kits',
+              element: <KitList kits={kits} />,
             },
             {
               id: tabsIdLookup.channels,
