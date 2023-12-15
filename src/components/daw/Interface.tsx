@@ -44,6 +44,7 @@ import {
 
 import styles from './Interface.module.scss'
 import { KitList } from './KitList'
+import { TapBpm } from './TapBpm'
 
 interface AudioRef {
   context: AudioContext
@@ -553,6 +554,13 @@ export function Interface(): JSX.Element {
     )
   }
 
+  const registerTapBpmStep = React.useCallback((step: () => void): void => {
+    trackInfoRef.current.registeredSteps.TAP_BPM_STEP = step
+  }, [])
+  const unregisterTapBpmStep = React.useCallback((): void => {
+    delete trackInfoRef.current.registeredSteps.TAP_BPM_STEP
+  }, [])
+
   return (
     <div className={styles.interface}>
       <div className={styles.controls}>
@@ -627,6 +635,17 @@ export function Interface(): JSX.Element {
             }}
           />
         </label>
+
+        <TapBpm
+          registerStep={registerTapBpmStep}
+          unregisterStep={unregisterTapBpmStep}
+          onTapped={(bpm: number): void => {
+            setProject((prevProject) => ({
+              ...prevProject,
+              bpm: Math.round(bpm),
+            }))
+          }}
+        />
 
         <div className={styles.spacer} />
         <div className={styles.spacer} />
