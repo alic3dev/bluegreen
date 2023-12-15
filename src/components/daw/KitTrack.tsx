@@ -71,16 +71,17 @@ export function KitTrack({
 
     return savedTrack
       ? savedTrack.bars
-      : new Array<null>(4).fill(null).map(
-          (): BarData =>
-            generateBar(
-              new Array(samples.length)
-                .fill(0)
-                .map((v: number, i: number): number => v + i),
-              4,
-              samples.length,
-            ),
-        )
+      : new Array<null>(4)
+          .fill(null)
+          .map((): BarData => generateBar([0, 1], 4, samples.length))
+          .map(
+            (bar: BarData): BarData => ({
+              ...bar,
+              notes: bar.notes.map((beat) =>
+                beat.map((note) => note.map(() => -1)),
+              ),
+            }),
+          )
   })
   const [position, setPosition] = React.useState<Position>({
     bar: 0,
@@ -94,10 +95,12 @@ export function KitTrack({
     for (let p: number = 0; p < notes.length; p++) {
       for (let i: number = 0; i < notes[p].length; i++) {
         if (notes[p][i] > -1 && notes[p][i] < samples.length) {
-          kit.play(
-            (60 / project.bpm) * (i / notes[0].length),
-            samples[notes[p][i]][0],
-          )
+          console.log()
+
+          kit.play((60 / project.bpm) * (i / notes[p].length), {
+            name: samples[p][0],
+            gain: notes[p][i],
+          })
         }
       }
     }
@@ -238,14 +241,11 @@ export function KitTrack({
                 if (barCount > bars.length) {
                   setBars((prevBars: BarData[]): BarData[] => [
                     ...prevBars,
-                    ...new Array(barCount - bars.length).fill(null).map(
-                      (): BarData =>
-                        generateBar(
-                          samples.map((_v, i) => i),
-                          4,
-                          samples.length,
-                        ),
-                    ),
+                    ...new Array(barCount - bars.length)
+                      .fill(null)
+                      .map(
+                        (): BarData => generateBar([0, 1], 4, samples.length),
+                      ),
                   ])
                 } else if (barCount < bars.length) {
                   setBars((prevBars: BarData[]): BarData[] =>
@@ -264,7 +264,7 @@ export function KitTrack({
             bar={bar}
             barIndex={barIndex}
             setBars={setBars}
-            frequencies={samples.map((_v, i) => i)}
+            frequencies={[0, 1]}
             position={position}
             polyphony={samples.length}
             key={barIndex}

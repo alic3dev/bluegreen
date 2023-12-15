@@ -158,6 +158,8 @@ export function Interface(): JSX.Element {
         {
           kick: '/kits/SwuM Drum Kit/Kicks/kick 1.wav',
           snare: '/kits/SwuM Drum Kit/Snare/Snare 1.wav',
+          hat: '/kits/SwuM Drum Kit/HiHats/Hihat 1.wav',
+          clap: '/kits/SwuM Drum Kit/Claps/Clap 1.wav',
         },
         audioRef.current.gain,
       )

@@ -44,20 +44,24 @@ export function KitList({ kits }: { kits: SampleKit[] }): JSX.Element {
             <h4 className={styles.name}>{kit.name}</h4>
 
             <div className={styles.controls}>
-              <button
-                onClick={(): void => {
-                  kit.addSample(crypto.randomUUID(), '')
+              <div className={styles['samples-header']}>
+                <h4>Samples</h4>
 
-                  refreshKit(kit.name, index)
-                }}
-              >
-                +
-              </button>
+                <button
+                  onClick={(): void => {
+                    kit.addSample(crypto.randomUUID(), '')
+
+                    refreshKit(kit.name, index)
+                  }}
+                >
+                  +
+                </button>
+              </div>
 
               {Object.keys(kit.samples).map((sampleKey) => {
                 return (
-                  <label key={sampleKey}>
-                    {sampleKey}
+                  <label key={sampleKey} className={styles.sample}>
+                    <span>{sampleKey}</span>
 
                     <input
                       type="url"
