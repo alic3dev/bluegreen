@@ -12,3 +12,13 @@
 
   overflow: hidden;
 }
+
+.controls {
+  label {
+    input,
+    select {
+      border-top-color: transparent;
+      border-bottom-color: transparent;
+    }
+  }
+}
