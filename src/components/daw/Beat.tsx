@@ -106,7 +106,10 @@ export function Beat({
       }`}
     >
       {beat.map((note: number[], polyphony: number) => (
-        <div className={styles.poly}>
+        <div
+          className={styles.poly}
+          key={`${barIndex}-${beatIndex}-${polyphony}`}
+        >
           {note.map(
             (subNote: number, subNoteIndex: number): JSX.Element => (
               <input
