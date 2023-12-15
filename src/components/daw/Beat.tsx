@@ -105,24 +105,26 @@ export function Beat({
           : ''
       }`}
     >
-      {beat.map((note: number[], polyphony: number) =>
-        note.map(
-          (subNote: number, subNoteIndex: number): JSX.Element => (
-            <input
-              type="number"
-              key={`${barIndex}-${beatIndex}-${polyphony}-${subNoteIndex}`}
-              name={`${barIndex}-${beatIndex}-${polyphony}-${subNoteIndex}`}
-              className={styles.note}
-              min={-1}
-              max={frequencies.length - 1}
-              value={subNote}
-              autoComplete="off"
-              onKeyDown={getOnSubNoteKeyDown({ note, polyphony })}
-              onChange={getOnSubNoteChange({ note, polyphony, subNoteIndex })}
-            />
-          ),
-        ),
-      )}
+      {beat.map((note: number[], polyphony: number) => (
+        <div className={styles.poly}>
+          {note.map(
+            (subNote: number, subNoteIndex: number): JSX.Element => (
+              <input
+                type="number"
+                key={`${barIndex}-${beatIndex}-${polyphony}-${subNoteIndex}`}
+                name={`${barIndex}-${beatIndex}-${polyphony}-${subNoteIndex}`}
+                className={styles.note}
+                min={-1}
+                max={frequencies.length - 1}
+                value={subNote}
+                autoComplete="off"
+                onKeyDown={getOnSubNoteKeyDown({ note, polyphony })}
+                onChange={getOnSubNoteChange({ note, polyphony, subNoteIndex })}
+              />
+            ),
+          )}
+        </div>
+      ))}
     </div>
   )
 }
