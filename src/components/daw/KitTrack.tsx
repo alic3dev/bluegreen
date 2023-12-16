@@ -83,6 +83,37 @@ export function KitTrack({
             }),
           )
   })
+
+  React.useEffect((): void => {
+    // TODO: Defer this
+    setProject((prevProject: Project): Project => {
+      const tracks: ProjectTrack[] = prevProject.tracks.map(
+        (track: ProjectTrack): ProjectTrack => ({
+          ...track,
+        }),
+      )
+      const prevTrackIndex: number = tracks.findIndex(
+        (track) => track.id === options.id,
+      )
+
+      const updatedTrack: ProjectKitTrack = {
+        id: options.id,
+        name: options.title,
+        channelId: 'FIXME: Impleeeee',
+        kitId: kit.id,
+        bars,
+      }
+
+      if (prevTrackIndex === -1) {
+        tracks.push(updatedTrack)
+      } else {
+        tracks[prevTrackIndex] = updatedTrack
+      }
+
+      return { ...prevProject, tracks }
+    })
+  }, [setProject, bars, options.id, options.title, kit])
+
   const [position, setPosition] = React.useState<Position>({
     bar: 0,
     beat: 0,
@@ -95,8 +126,6 @@ export function KitTrack({
     for (let p: number = 0; p < notes.length; p++) {
       for (let i: number = 0; i < notes[p].length; i++) {
         if (notes[p][i] > -1 && notes[p][i] < samples.length) {
-          console.log()
-
           kit.play((60 / project.bpm) * (i / notes[p].length), {
             name: samples[p][0],
             gain: notes[p][i],

@@ -33,6 +33,8 @@ export function KitList({ kits }: { kits: SampleKit[] }): JSX.Element {
 
       urlChangeTimeoutLookupRef.current[timeoutLookupKey] = setTimeout(() => {
         kit.samples[sampleKey].setUrl(event.target.value)
+
+        kit.savePreset()
       }, 250)
     }
 

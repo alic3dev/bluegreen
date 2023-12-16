@@ -45,6 +45,10 @@ import {
 import styles from './Interface.module.scss'
 import { KitList } from './KitList'
 import { TapBpm } from './TapBpm'
+import {
+  SampleKitPresetValues,
+  SampleKitPresetValuesParsed,
+} from 'zer0/src/SampleKitPreset'
 
 interface AudioRef {
   context: AudioContext
@@ -127,17 +131,18 @@ export function Interface(): JSX.Element {
 
     // FIXME: Synths don't save their position/order
     return savedSynths.length
-      ? savedSynths.map(
-          (savedSynthPreset, index) =>
-            new Synth(
-              audioRef.current.context,
-              savedSynthPreset.name,
-              index
-                ? channels[0].channel.destination
-                : delayReverb.current.input,
-              savedSynthPreset,
-            ),
-        )
+      ? savedSynths.map((savedSynthPreset, index) => {
+          const newSynth = new Synth(
+            audioRef.current.context,
+            savedSynthPreset.name,
+            index ? channels[0].channel.destination : delayReverb.current.input,
+            savedSynthPreset,
+          )
+
+          newSynth.id = savedSynthPreset.id
+
+          return newSynth
+        })
       : [
           new Synth(
             audioRef.current.context,
@@ -147,28 +152,65 @@ export function Interface(): JSX.Element {
         ]
   })
 
-  const [kits, setKits] = React.useState<SampleKit[]>((): SampleKit[] => {
-    return []
+  const [kits /*, setKits*/] = React.useState<SampleKit[]>((): SampleKit[] => {
+    // FIXME: This is loading all synth presets, be more effiecient about it (Only project Synths)
+    const savedKits: SampleKitPresetValues[] = []
+    for (let i: number = 0; i < window.localStorage.length; i++) {
+      const synthStorageKey = window.localStorage.key(i)
+
+      if (
+        !synthStorageKey ||
+        !synthStorageKey.startsWith('ゼロ：Sample＿Kit：')
+      ) {
+        continue
+      }
+
+      const synthStorageString = window.localStorage.getItem(synthStorageKey)
+
+      if (!synthStorageString) continue
+
+      try {
+        savedKits.push(JSON.parse(synthStorageString))
+      } catch {
+        window.localStorage.removeItem(synthStorageKey)
+      }
+    }
+
+    // FIXME: Install hook causes two synths to always be generated...
+
+    // FIXME: Synths don't save their position/order
+    return savedKits.length
+      ? savedKits.map(
+          (savedSampleKitPreset: SampleKitPresetValuesParsed): SampleKit => {
+            const newSampleKit: SampleKit = new SampleKit(
+              audioRef.current.context,
+              {},
+              audioRef.current.gain,
+              {
+                ...savedSampleKitPreset,
+                samples: Object.keys(savedSampleKitPreset.samples).reduce(
+                  (p, c) => ({ ...p, [c]: [savedSampleKitPreset.samples[c]] }),
+                  {},
+                ),
+              },
+            )
+
+            return newSampleKit
+          },
+        )
+      : [
+          new SampleKit(
+            audioRef.current.context,
+            {
+              kick: '/kits/SwuM Drum Kit/Kicks/Vinyl Kick 3.wav',
+              snare: '/kits/SwuM Drum Kit/Snare/Vinyl snare 5.wav',
+              hat: '/kits/SwuM Drum Kit/HiHats/Vinyl Hihat 9.wav',
+              clap: '/kits/SwuM Drum Kit/Claps/Clap 1.wav',
+            },
+            audioRef.current.gain,
+          ),
+        ]
   })
-
-  React.useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      const newKit = new SampleKit(
-        audioRef.current.context,
-        {
-          kick: '/kits/SwuM Drum Kit/Kicks/kick 1.wav',
-          snare: '/kits/SwuM Drum Kit/Snare/Snare 1.wav',
-          hat: '/kits/SwuM Drum Kit/HiHats/Hihat 1.wav',
-          clap: '/kits/SwuM Drum Kit/Claps/Clap 1.wav',
-        },
-        audioRef.current.gain,
-      )
-
-      setKits((prevKits) => [...prevKits, newKit])
-    })
-
-    return () => clearTimeout(timeoutId)
-  }, [])
 
   const trackInfoRef = React.useRef<{
     numberOfGeneratedTracks: number
