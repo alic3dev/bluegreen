@@ -187,13 +187,7 @@ export function Interface(): JSX.Element {
               audioRef.current.context,
               {},
               audioRef.current.gain,
-              {
-                ...savedSampleKitPreset,
-                samples: Object.keys(savedSampleKitPreset.samples).reduce(
-                  (p, c) => ({ ...p, [c]: [savedSampleKitPreset.samples[c]] }),
-                  {},
-                ),
-              },
+              savedSampleKitPreset,
             )
 
             return newSampleKit
