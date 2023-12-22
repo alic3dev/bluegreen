@@ -106,6 +106,19 @@ export function Interface(): JSX.Element {
     ),
   )
 
+  const defaultSynthRef = React.useRef<{ val?: Synth }>({})
+  const generateDefaultSynth = (): Synth => {
+    if (!defaultSynthRef.current.val) {
+      defaultSynthRef.current.val = new Synth(
+        audioRef.current.context,
+        'Basic',
+        delayReverb.current.input,
+      )
+    }
+
+    return defaultSynthRef.current.val
+  }
+
   // TODO: Make a `SynthWithOptions` interface - Possibly unneeded, will determine in the future
   const [synths, setSynths] = React.useState<Synth[]>((): Synth[] => {
     // FIXME: This is loading all synth presets, be more effiecient about it (Only project Synths)
@@ -128,29 +141,21 @@ export function Interface(): JSX.Element {
       }
     }
 
-    // FIXME: Install hook causes two synths to always be generated...
-
     // FIXME: Synths don't save their position/order
     return savedSynths.length
-      ? savedSynths.map((savedSynthPreset, index) => {
-          const newSynth = new Synth(
-            audioRef.current.context,
-            savedSynthPreset.name,
-            index ? channels[0].channel.destination : delayReverb.current.input,
-            savedSynthPreset,
-          )
-
-          newSynth.id = savedSynthPreset.id
-
-          return newSynth
-        })
-      : [
-          new Synth(
-            audioRef.current.context,
-            'Basic',
-            delayReverb.current.input /*channels[0].channel.destination*/,
-          ),
-        ]
+      ? savedSynths.map(
+          (savedSynthPreset: SynthPresetValues, index: number) => {
+            return new Synth(
+              audioRef.current.context,
+              savedSynthPreset.name,
+              index
+                ? channels[0].channel.destination
+                : delayReverb.current.input,
+              savedSynthPreset,
+            )
+          },
+        )
+      : [generateDefaultSynth()]
   })
 
   const [kits /*, setKits*/] = React.useState<SampleKit[]>((): SampleKit[] => {
