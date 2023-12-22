@@ -49,6 +49,7 @@ import {
   SampleKitPresetValues,
   SampleKitPresetValuesParsed,
 } from 'zer0/src/SampleKitPreset'
+import { Link } from 'react-router-dom'
 
 interface AudioRef {
   context: AudioContext
@@ -608,7 +609,11 @@ export function Interface(): JSX.Element {
   return (
     <div className={styles.interface}>
       <div className={styles.controls}>
-        <h1 className={styles.title}>ZER0</h1>
+        <h1 className={styles.title}>
+          <Link to="/">ゼロ</Link>
+        </h1>
+        {/* <h1 className={styles.title}>ZER0</h1> */}
+        {/* ブルーグリーン - ゼロ */}
 
         <input
           className={styles['project-title']}
