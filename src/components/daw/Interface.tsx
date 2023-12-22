@@ -158,8 +158,26 @@ export function Interface(): JSX.Element {
       : [generateDefaultSynth()]
   })
 
+  const defaultKitRef = React.useRef<{ val?: SampleKit }>({})
+  const generateDefaultKit = (): SampleKit => {
+    if (!defaultKitRef.current.val) {
+      defaultKitRef.current.val = new SampleKit(
+        audioRef.current.context,
+        {
+          kick: '/kits/SwuM Drum Kit/Kicks/Vinyl Kick 3.wav',
+          snare: '/kits/SwuM Drum Kit/Snare/Vinyl snare 5.wav',
+          hat: '/kits/SwuM Drum Kit/HiHats/Vinyl Hihat 9.wav',
+          clap: '/kits/SwuM Drum Kit/Claps/Clap 1.wav',
+        },
+        audioRef.current.gain,
+      )
+    }
+
+    return defaultKitRef.current.val
+  }
+
   const [kits /*, setKits*/] = React.useState<SampleKit[]>((): SampleKit[] => {
-    // FIXME: This is loading all synth presets, be more effiecient about it (Only project Synths)
+    // FIXME: This is loading all kit presets, be more effiecient about it (Only project Synths)
     const savedKits: SampleKitPresetValues[] = []
     for (let i: number = 0; i < window.localStorage.length; i++) {
       const synthStorageKey = window.localStorage.key(i)
@@ -182,34 +200,18 @@ export function Interface(): JSX.Element {
       }
     }
 
-    // FIXME: Install hook causes two synths to always be generated...
-
     // FIXME: Synths don't save their position/order
     return savedKits.length
       ? savedKits.map(
-          (savedSampleKitPreset: SampleKitPresetValuesParsed): SampleKit => {
-            const newSampleKit: SampleKit = new SampleKit(
+          (savedSampleKitPreset: SampleKitPresetValuesParsed): SampleKit =>
+            new SampleKit(
               audioRef.current.context,
               {},
               audioRef.current.gain,
               savedSampleKitPreset,
-            )
-
-            return newSampleKit
-          },
+            ),
         )
-      : [
-          new SampleKit(
-            audioRef.current.context,
-            {
-              kick: '/kits/SwuM Drum Kit/Kicks/Vinyl Kick 3.wav',
-              snare: '/kits/SwuM Drum Kit/Snare/Vinyl snare 5.wav',
-              hat: '/kits/SwuM Drum Kit/HiHats/Vinyl Hihat 9.wav',
-              clap: '/kits/SwuM Drum Kit/Claps/Clap 1.wav',
-            },
-            audioRef.current.gain,
-          ),
-        ]
+      : [generateDefaultKit()]
   })
 
   const trackInfoRef = React.useRef<{
