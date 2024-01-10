@@ -11,7 +11,8 @@
   "license": "ISC",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "vite build",
+    "clean": "rm -rf dist",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
   },
@@ -22,17 +23,17 @@
     "react-router-dom": "^6.21.1"
   },
   "devDependencies": {
-    "@types/react": "^18.2.45",
+    "@types/react": "^18.2.47",
     "@types/react-dom": "^18.2.18",
-    "@typescript-eslint/eslint-plugin": "^6.15.0",
-    "@typescript-eslint/parser": "^6.15.0",
+    "@typescript-eslint/eslint-plugin": "^6.18.1",
+    "@typescript-eslint/parser": "^6.18.1",
     "@vitejs/plugin-react-swc": "^3.5.0",
     "eslint": "^8.56.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.5",
-    "sass": "^1.69.5",
+    "sass": "^1.69.7",
     "typescript": "^5.3.3",
-    "vite": "^5.0.10",
-    "zer0": "link:../zer0"
+    "vite": "^5.0.11",
+    "zer0": "github:alic3dev/zer0"
   }
 }
