@@ -52,10 +52,15 @@ export function SynthTrack({
   synths,
 }: SynthTrackProps): JSX.Element {
   const project = React.useContext(ProjectContext)
-
   const {
     setProject,
   }: { setProject: React.Dispatch<React.SetStateAction<Project>> } = project
+
+  const [selectedChannel, setSelectedChannel] =
+    React.useState<ChannelWithOptions>(
+      channels.find((channel) => channel.id === options.defaultChannelId) ??
+        channels[0],
+    )
 
   const [synth, setSynth] = React.useState<Synth>(() => {
     return (
@@ -93,7 +98,7 @@ export function SynthTrack({
       const updatedTrack: ProjectSynthTrack = {
         id: options.id,
         name: options.title,
-        channelId: 'FIXME: Impleeeee',
+        channelId: selectedChannel.id,
         synthId: synth.id,
         bars,
       }
@@ -106,7 +111,7 @@ export function SynthTrack({
 
       return { ...prevProject, tracks }
     })
-  }, [setProject, bars, options.id, options.title, synth])
+  }, [setProject, bars, options.id, options.title, synth, selectedChannel.id])
 
   const [position, setPosition] = React.useState<Position>({
     bar: 0,
@@ -241,10 +246,23 @@ export function SynthTrack({
           </label>
           <label>
             Channel
-            <select name={`${options.id}-channel`} autoComplete="off">
+            <select
+              name={`${options.id}-channel`}
+              autoComplete="off"
+              value={selectedChannel.id}
+              onChange={(event: React.ChangeEvent<HTMLSelectElement>) => {
+                const newlySelectedChannel: ChannelWithOptions =
+                  channels.find(
+                    (channel) => channel.id === event.target.value,
+                  ) ?? channels[0]
+
+                setSelectedChannel(newlySelectedChannel)
+                synth.setOutput(newlySelectedChannel.channel.destination)
+              }}
+            >
               {channels.map(
                 (channel: ChannelWithOptions): JSX.Element => (
-                  <option key={channel.id} value={channel.name}>
+                  <option key={channel.id} value={channel.id}>
                     {channel.name}
                   </option>
                 ),
