@@ -1,13 +1,4 @@
 import React from 'react'
-import {
-  CiFloppyDisk,
-  CiFolderOn,
-  CiPlay1,
-  CiSettings,
-  CiSquarePlus,
-  CiStop1,
-  CiUndo,
-} from 'react-icons/ci'
 
 import {
   Channel,
@@ -42,18 +33,16 @@ import {
   ProjectTrack,
 } from '../../contexts'
 
-import styles from './Interface.module.scss'
 import { KitList } from './KitList'
-import { TapBpm } from './TapBpm'
-import {
-  SampleKitPresetValues,
-  SampleKitPresetValuesParsed,
-} from 'zer0/src/SampleKitPreset'
-import { Link } from 'react-router-dom'
+import { Header } from './Header'
+import { TrackInfo } from './SharedTypes'
+
+import styles from './Interface.module.scss'
+
+import { SampleKitPresetValues } from 'zer0/src/SampleKitPreset'
 
 interface AudioRef {
   context: AudioContext
-  gain: GainNode
 }
 
 let defaultAudioRef: AudioRef
@@ -63,18 +52,19 @@ const getDefaultAudioRef = (): AudioRef => {
 
   const context: AudioContext = new AudioContext()
 
-  const gain: GainNode = context.createGain()
-  gain.gain.value = 0.75
-  gain.connect(context.destination)
-
   return (defaultAudioRef = {
     context,
-    gain,
   })
 }
 
+const defaultSamples: Record<string, string> = {
+  kick: '/kits/SwuM Drum Kit/Kicks/Vinyl Kick 3.wav',
+  snare: '/kits/SwuM Drum Kit/Snare/Vinyl snare 5.wav',
+  hat: '/kits/SwuM Drum Kit/HiHats/Vinyl Hihat 9.wav',
+  clap: '/kits/SwuM Drum Kit/Claps/Clap 1.wav',
+}
+
 export function Interface(): JSX.Element {
-  // const settings: Settings = React.useContext(SettingsContext)
   const project: Project = React.useContext(ProjectContext)
   const {
     setProject,
@@ -85,18 +75,30 @@ export function Interface(): JSX.Element {
   const audioRef = React.useRef<AudioRef>(getDefaultAudioRef())
   const generatedChannelsRef = React.useRef<number>(1)
 
+  const [channels, setChannels] = React.useState<ChannelWithOptions[]>(
+    (): ChannelWithOptions[] => [
+      {
+        id: crypto.randomUUID(),
+        name: `Main`,
+        channel: new Channel(
+          audioRef.current.context,
+          audioRef.current.context.destination,
+        ),
+      },
+    ],
+  )
+
   const generateChannel = React.useCallback(
     (name?: string): ChannelWithOptions => ({
       id: crypto.randomUUID(),
       name: name ?? `Channel ${generatedChannelsRef.current++}`,
 
-      channel: new Channel(audioRef.current.context, audioRef.current.gain),
+      channel: new Channel(
+        audioRef.current.context,
+        channels[0].channel.destination,
+      ),
     }),
-    [],
-  )
-
-  const [channels, setChannels] = React.useState<ChannelWithOptions[]>(
-    (): ChannelWithOptions[] => [generateChannel('Main')],
+    [channels],
   )
 
   const delayReverb = React.useRef<Effect>(
@@ -119,7 +121,6 @@ export function Interface(): JSX.Element {
     return defaultSynthRef.current.val
   }
 
-  // TODO: Make a `SynthWithOptions` interface - Possibly unneeded, will determine in the future
   const [synths, setSynths] = React.useState<Synth[]>((): Synth[] => {
     // FIXME: This is loading all synth presets, be more effiecient about it (Only project Synths)
     const savedSynths: SynthPresetValues[] = []
@@ -163,20 +164,15 @@ export function Interface(): JSX.Element {
     if (!defaultKitRef.current.val) {
       defaultKitRef.current.val = new SampleKit(
         audioRef.current.context,
-        {
-          kick: '/kits/SwuM Drum Kit/Kicks/Vinyl Kick 3.wav',
-          snare: '/kits/SwuM Drum Kit/Snare/Vinyl snare 5.wav',
-          hat: '/kits/SwuM Drum Kit/HiHats/Vinyl Hihat 9.wav',
-          clap: '/kits/SwuM Drum Kit/Claps/Clap 1.wav',
-        },
-        audioRef.current.gain,
+        defaultSamples,
+        channels[0].channel.destination,
       )
     }
 
     return defaultKitRef.current.val
   }
 
-  const [kits /*, setKits*/] = React.useState<SampleKit[]>((): SampleKit[] => {
+  const [kits, setKits] = React.useState<SampleKit[]>((): SampleKit[] => {
     // FIXME: This is loading all kit presets, be more effiecient about it (Only project Synths)
     const savedKits: SampleKitPresetValues[] = []
     for (let i: number = 0; i < window.localStorage.length; i++) {
@@ -200,37 +196,25 @@ export function Interface(): JSX.Element {
       }
     }
 
-    // FIXME: Synths don't save their position/order
+    // FIXME: Kits don't save their position/order
     return savedKits.length
       ? savedKits.map(
-          (savedSampleKitPreset: SampleKitPresetValuesParsed): SampleKit =>
+          (savedSampleKitPreset: SampleKitPresetValues): SampleKit =>
             new SampleKit(
               audioRef.current.context,
               {},
-              audioRef.current.gain,
+              channels[0].channel.destination,
               savedSampleKitPreset,
             ),
         )
       : [generateDefaultKit()]
   })
 
-  const trackInfoRef = React.useRef<{
-    numberOfGeneratedTracks: number
-    registeredSteps: Record<string, () => void>
-    registeredResets: Record<string, () => void>
-  }>({
+  const trackInfoRef = React.useRef<TrackInfo>({
     numberOfGeneratedTracks: 1,
     registeredSteps: {},
     registeredResets: {},
   })
-
-  const reset = React.useCallback(
-    (): void =>
-      Object.values(trackInfoRef.current.registeredResets).forEach(
-        (subReset: () => void): void => subReset(),
-      ),
-    [],
-  )
 
   const generateNewTrack = React.useCallback(
     ({
@@ -316,14 +300,13 @@ export function Interface(): JSX.Element {
 
   const [playing, setPlaying] = React.useState<boolean>(false)
 
-  // TODO: Determine if it's more performant to use the effect or not, assuming it is not.
-  // React.useEffect(
-  //   () =>
-  synths
-    .filter((synth: Synth): boolean => synth.getBPMSync())
-    .forEach((synth: Synth): void => synth.setBPM(project.bpm))
-  //   [synths, bpm],
-  // )
+  React.useEffect(
+    (): void =>
+      synths
+        .filter((synth: Synth): boolean => synth.getBPMSync())
+        .forEach((synth: Synth): void => synth.setBPM(project.bpm)),
+    [synths, project.bpm],
+  )
 
   /*
   // FIXME: Figure out why these don't work, may need to set metadata first?
@@ -381,24 +364,28 @@ export function Interface(): JSX.Element {
       accumulatedName = `${originalName} ${accumulator++}`
     }
 
-    // const newKit: SampleKit = new SampleKit(
-    //   audioRef.current.context,
-    //   {},
-    //   channels[0].channel.destination,
-    // )
+    const newKit: SampleKit = new SampleKit(
+      audioRef.current.context,
+      defaultSamples,
+      channels[0].channel.destination,
+    )
 
-    // newKit.name = accumulatedName
+    newKit.name = accumulatedName
+    newKit.savePreset()
 
-    const newTrack: TrackOptions = generateNewTrack({
-      defaultKitId: kits[0].id,
-      // defaultKitId: newKit.id,
-    })
+    setKits((prevKits: SampleKit[]): SampleKit[] => [...prevKits, newKit])
 
-    // setKits((prevKits: SampleKit[]): SampleKit[] => [...prevKits, newKit])
-    setTracks((prevTracks: TrackOptions[]): TrackOptions[] => [
-      ...prevTracks,
-      newTrack,
-    ])
+    setTimeout(() => {
+      const newTrack: TrackOptions = generateNewTrack({
+        defaultKitId: newKit.id,
+        defaultChannelId: channels[0].id,
+      })
+
+      setTracks((prevTracks: TrackOptions[]): TrackOptions[] => [
+        ...prevTracks,
+        newTrack,
+      ])
+    }, 0)
   }
   const addAutomationTrack = (): void => alert('// TODO: Implement me :)')
 
@@ -446,91 +433,102 @@ export function Interface(): JSX.Element {
     }
   }, [playing, project.bpm]) // FIXME: BPM updates causes immediate fires
 
-  const onSaveClick = (): void => {
-    alert(`
-      // TODO: Implement me
-    `)
-  }
+  const actions = React.useMemo<{
+    new: () => void
+    open: () => void
+    save: () => void
+    settings: () => void
+  }>(
+    () => ({
+      new: (): void => {
+        const newConfirmDialog: JSX.Element = (
+          <ConfirmDialog
+            key={crypto.randomUUID()}
+            title="Create a new project"
+            onCancel={() => {
+              setDialogs((prevDialogs) =>
+                prevDialogs.filter((dialog) => dialog !== newConfirmDialog),
+              )
+            }}
+            onConfirm={() => {
+              setDialogs((prevDialogs) =>
+                prevDialogs.filter((dialog) => dialog !== newConfirmDialog),
+              )
 
-  const onOpenClick = React.useCallback((): void => {
-    // TODO: Modularize this
-    const openDialog: JSX.Element = (
-      <OpenDialog
-        key={crypto.randomUUID()}
-        close={(closeBase: boolean = true, ...dialogs: JSX.Element[]): void => {
-          setDialogs((prevDialogs) =>
-            prevDialogs.filter(
-              (dialog: JSX.Element): boolean =>
-                ![...(closeBase ? [openDialog] : []), ...dialogs].includes(
-                  dialog,
+              window.localStorage.removeItem(`ゼローProject`)
+              window.location.reload()
+
+              // TODO: ('implement me!!@!') in a better way
+            }}
+            // dangerous
+          >
+            <p>Are you sure you want to make a new project?</p>
+            <p className="small">(All unsaved changes will be lost.)</p>
+          </ConfirmDialog>
+        )
+
+        setDialogs((prevDialogs: JSX.Element[]): JSX.Element[] => [
+          ...prevDialogs,
+          newConfirmDialog,
+        ])
+      },
+      open: (): void => {
+        // TODO: Modularize this
+        const openDialog: JSX.Element = (
+          <OpenDialog
+            key={crypto.randomUUID()}
+            close={(
+              closeBase: boolean = true,
+              ...dialogs: JSX.Element[]
+            ): void => {
+              setDialogs((prevDialogs) =>
+                prevDialogs.filter(
+                  (dialog: JSX.Element): boolean =>
+                    ![...(closeBase ? [openDialog] : []), ...dialogs].includes(
+                      dialog,
+                    ),
                 ),
-            ),
-          )
-        }}
-        addDialog={(dialog: JSX.Element) =>
-          setDialogs((prevDialogs: JSX.Element[]): JSX.Element[] => [
-            ...prevDialogs,
-            dialog,
-          ])
-        }
-      />
-    )
+              )
+            }}
+            addDialog={(dialog: JSX.Element) =>
+              setDialogs((prevDialogs: JSX.Element[]): JSX.Element[] => [
+                ...prevDialogs,
+                dialog,
+              ])
+            }
+          />
+        )
 
-    setDialogs((prevDialogs: JSX.Element[]): JSX.Element[] => [
-      ...prevDialogs,
-      openDialog,
-    ])
-  }, [])
+        setDialogs((prevDialogs: JSX.Element[]): JSX.Element[] => [
+          ...prevDialogs,
+          openDialog,
+        ])
+      },
+      save: (): void => {
+        alert(`
+        // TODO: Implement me
+      `)
+      },
+      settings: (): void => {
+        const newSettingsDialog: JSX.Element = (
+          <SettingsDialog
+            key={crypto.randomUUID()}
+            close={(): void => {
+              setDialogs((prevDialogs) =>
+                prevDialogs.filter((dialog) => dialog !== newSettingsDialog),
+              )
+            }}
+          />
+        )
 
-  const onNewClick = (): void => {
-    const newConfirmDialog: JSX.Element = (
-      <ConfirmDialog
-        key={crypto.randomUUID()}
-        title="Create a new project"
-        onCancel={() => {
-          setDialogs((prevDialogs) =>
-            prevDialogs.filter((dialog) => dialog !== newConfirmDialog),
-          )
-        }}
-        onConfirm={() => {
-          setDialogs((prevDialogs) =>
-            prevDialogs.filter((dialog) => dialog !== newConfirmDialog),
-          )
-
-          window.localStorage.removeItem(`ゼローProject`)
-          window.location.reload()
-
-          // TODO: ('implement me!!@!') in a better way
-        }}
-        // dangerous
-      >
-        <p>Are you sure you want to make a new project?</p>
-        <p className="small">(All unsaved changes will be lost.)</p>
-      </ConfirmDialog>
-    )
-
-    setDialogs((prevDialogs: JSX.Element[]): JSX.Element[] => [
-      ...prevDialogs,
-      newConfirmDialog,
-    ])
-  }
-  const onSettingsClick = (): void => {
-    const newSettingsDialog: JSX.Element = (
-      <SettingsDialog
-        key={crypto.randomUUID()}
-        close={(): void => {
-          setDialogs((prevDialogs) =>
-            prevDialogs.filter((dialog) => dialog !== newSettingsDialog),
-          )
-        }}
-      />
-    )
-
-    setDialogs((prevDialogs: JSX.Element[]): JSX.Element[] => [
-      ...prevDialogs,
-      newSettingsDialog,
-    ])
-  }
+        setDialogs((prevDialogs: JSX.Element[]): JSX.Element[] => [
+          ...prevDialogs,
+          newSettingsDialog,
+        ])
+      },
+    }),
+    [],
+  )
 
   React.useEffect((): (() => void) => {
     const keyboardShortcutListener = (event: KeyboardEvent): void => {
@@ -539,22 +537,22 @@ export function Interface(): JSX.Element {
           event.preventDefault()
           event.stopPropagation()
 
-          onOpenClick()
+          actions.open()
         } else if (event.key === 's') {
           event.preventDefault()
           event.stopPropagation()
 
-          onSaveClick()
+          actions.save()
         } else if (event.key === 'p') {
           event.preventDefault()
           event.stopPropagation()
 
-          onNewClick()
+          actions.new()
         } else if (event.key === ',') {
           event.preventDefault()
           event.stopPropagation()
 
-          onSettingsClick()
+          actions.settings()
         }
       }
     }
@@ -564,7 +562,7 @@ export function Interface(): JSX.Element {
     return () => {
       window.removeEventListener('keydown', keyboardShortcutListener)
     }
-  }, [onOpenClick])
+  }, [actions])
 
   type TabsIdLookup = Record<
     'kits' | 'synths' | 'channels',
@@ -579,150 +577,14 @@ export function Interface(): JSX.Element {
     [],
   )
 
-  const onProjectNameChangeTimeout = React.useRef<number | null>(null)
-  const onProjectNameChange = (
-    event: React.ChangeEvent<HTMLInputElement>,
-  ): void => {
-    if (onProjectNameChangeTimeout.current) {
-      clearTimeout(onProjectNameChangeTimeout.current)
-      onProjectNameChangeTimeout.current = null
-    }
-
-    onProjectNameChangeTimeout.current = setTimeout(
-      (): void =>
-        setProject(
-          (prevProject: Project): Project => ({
-            ...prevProject,
-            name: event.target.value,
-          }),
-        ),
-      250,
-    )
-  }
-
-  const registerTapBpmStep = React.useCallback((step: () => void): void => {
-    trackInfoRef.current.registeredSteps.TAP_BPM_STEP = step
-  }, [])
-  const unregisterTapBpmStep = React.useCallback((): void => {
-    delete trackInfoRef.current.registeredSteps.TAP_BPM_STEP
-  }, [])
-
   return (
     <div className={styles.interface}>
-      <div className={styles.controls}>
-        <h1 className={styles.title}>
-          <Link to="/">ゼロ</Link>
-        </h1>
-        {/* <h1 className={styles.title}>ZER0</h1> */}
-        {/* ブルーグリーン - ゼロ */}
-
-        <input
-          className={styles['project-title']}
-          type="text"
-          defaultValue={project.name}
-          onChange={onProjectNameChange}
-          placeholder="Set a project title"
-          name="Project Title"
-        />
-
-        <div className={styles['project-controls']}>
-          <button
-            className={styles['project-control-save']}
-            title="Save"
-            onClick={onSaveClick}
-          >
-            <CiFloppyDisk />
-          </button>
-
-          <button
-            className={styles['project-control-open']}
-            title="Open"
-            onClick={onOpenClick}
-          >
-            <CiFolderOn />
-          </button>
-
-          <button
-            className={styles['project-control-new']}
-            title="New"
-            onClick={onNewClick}
-          >
-            <CiSquarePlus />
-          </button>
-        </div>
-
-        <div className={styles.spacer} />
-
-        <button
-          onClick={(): void =>
-            setPlaying((prevPlaying: boolean): boolean => !prevPlaying)
-          }
-          className={playing ? styles.stop : styles.play}
-        >
-          {playing ? <CiStop1 /> : <CiPlay1 />}
-        </button>
-        <button onClick={reset} className={styles.reset}>
-          <CiUndo />
-        </button>
-        <label className={styles['bpm-wrapper']}>
-          <span className={styles['bpm-text']}>BPM</span>
-          <input
-            type="number"
-            min={1}
-            name="BPM"
-            className={styles.bpm}
-            autoComplete="off"
-            value={project.bpm}
-            onChange={(event: React.ChangeEvent<HTMLInputElement>): void => {
-              const newBPM: number = event.target.valueAsNumber
-
-              if (!isNaN(newBPM) && newBPM > 0) {
-                setProject((prevProject) => ({
-                  ...prevProject,
-                  bpm: newBPM,
-                }))
-              }
-            }}
-          />
-        </label>
-
-        <TapBpm
-          registerStep={registerTapBpmStep}
-          unregisterStep={unregisterTapBpmStep}
-          onTapped={(bpm: number): void => {
-            setProject((prevProject) => ({
-              ...prevProject,
-              bpm: Math.round(bpm),
-            }))
-          }}
-        />
-
-        <div className={styles.spacer} />
-        <div className={styles.spacer} />
-
-        <input
-          type="range"
-          min={0}
-          max={1000}
-          title="Gain"
-          autoComplete="off"
-          defaultValue={audioRef.current.gain.gain.value * 1000}
-          onChange={(event: React.ChangeEvent<HTMLInputElement>): void => {
-            audioRef.current.gain.gain.value = event.target.valueAsNumber / 1000
-          }}
-          style={{ visibility: 'hidden' }}
-        />
-
-        <div className={styles['project-controls']}>
-          <button
-            className={styles['project-control-settings']}
-            title="Settings"
-            onClick={onSettingsClick}
-          >
-            <CiSettings />
-          </button>
-        </div>
-      </div>
+      <Header
+        trackInfo={trackInfoRef.current}
+        playing={playing}
+        setPlaying={setPlaying}
+        actions={actions}
+      />
 
       <div className={styles.content}>
         <div className={styles['track-section']}>
