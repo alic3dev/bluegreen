@@ -67,8 +67,6 @@ export function ChannelList({
             0,
           ) / buffer.length
 
-        // FIXME: This needs to be smoothed or something
-
         channelGainDOM.style.width = `${perc}%`
         channelGainDOM.style.background = `linear-gradient(to right, #121212, rgb(${
           Math.max((perc - 50) / 50, 0) * 255
