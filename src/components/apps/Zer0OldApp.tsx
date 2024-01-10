@@ -34,7 +34,7 @@ export function Zer0App() {
       synthGain.gain.value = 0.2
       synthGain.connect(audioContext.destination)
 
-      synthRef.current = new Synth(audioContext, synthGain)
+      synthRef.current = new Synth(audioContext, 'Basic', synthGain)
 
       const sampleKitGain = audioContext.createGain()
       sampleKitGain.gain.value = 0.6
@@ -167,7 +167,8 @@ export function Zer0App() {
             y = !y
           }
 
-          if (samplesToPlay.length) sampleKitRef.current.play(...samplesToPlay)
+          if (samplesToPlay.length)
+            sampleKitRef.current.play(0, ...samplesToPlay)
 
           if (i % 33 === 0) {
             i = 0
