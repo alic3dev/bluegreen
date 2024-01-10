@@ -42,7 +42,9 @@ export function KitList({ kits }: { kits: SampleKit[] }): JSX.Element {
     }
 
   const loadAndRefresh = (kit: SampleKit): string => {
-    kit.onReady((): void => refreshKit(kit.id))
+    kit.onReady((): void => {
+      window.setTimeout((): void => refreshKit(kit.id), 0)
+    })
 
     return styles.loading
   }
