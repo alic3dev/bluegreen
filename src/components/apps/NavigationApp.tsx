@@ -7,6 +7,7 @@ export function NavigationApp() {
     <div className={styles.navigation}>
       <Link to="/circle">Circle</Link>
       <Link to="/eye-gen">Eye Gen</Link>
+      <Link to="/noise">Noise</Link>
       <Link to="/visdio">Visdio</Link>
       <Link to="/zer0">ゼロ</Link>
     </div>
