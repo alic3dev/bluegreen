@@ -7,6 +7,7 @@ import {
 } from 'react-router-dom'
 
 import {
+  CanviApp,
   CircleApp,
   EyeGenApp,
   NavigationApp,
@@ -62,6 +63,11 @@ const router = createBrowserRouter(
       path: '/noise',
       loader: getTitleLoader('NOISE'),
       element: withErrorBoundary(<NoiseApp />, 'NOISE'),
+    },
+    {
+      path: '/canvi',
+      loader: getTitleLoader('CANVI'),
+      element: withErrorBoundary(<CanviApp />, 'CANVI'),
     },
   ],
   {

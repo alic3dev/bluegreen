@@ -1,3 +1,4 @@
+export { CanviApp } from './CanviApp'
 export { CircleApp } from './CircleApp'
 export { EyeGenApp } from './EyeGenApp'
 export { NavigationApp } from './NavigationApp'
