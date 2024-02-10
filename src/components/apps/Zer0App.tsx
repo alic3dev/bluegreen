@@ -10,6 +10,7 @@ import {
   Settings,
   SettingsContext,
 } from '../../contexts'
+import { ProvidedSettings } from '../../contexts/SettingsContext'
 
 import {
   LOCAL_STORAGE_KEY_SETTINGS,
@@ -65,8 +66,8 @@ export function Zer0App(): JSX.Element {
     return defaultSettings
   })
 
-  const settingsProviderValue = React.useMemo<Settings>(
-    () => ({ ...settings, setSettings }),
+  const settingsProviderValue = React.useMemo<ProvidedSettings>(
+    (): ProvidedSettings => ({ ...settings, setSettings }),
     [settings],
   )
 
