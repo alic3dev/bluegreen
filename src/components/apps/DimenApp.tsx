@@ -39,7 +39,9 @@ export function DimenApp(): JSX.Element {
             window.localStorage.getItem('bluegreen:dimen:overlayHidden') ?? '2',
           ),
         )
-      } catch {}
+      } catch {
+        /* empty */
+      }
 
       return 2
     },

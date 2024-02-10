@@ -63,22 +63,22 @@ function generateResolutionLookup(): Record<
   DisplayRatio,
   Record<DisplayStandard, Resolution2D>
 > {
-  // @ts-expect-error
-  const res: Record<DisplayRatio, Record<DisplayStandard, Resolution2D>> = {}
+  const res: Partial<
+    Record<DisplayRatio, Partial<Record<DisplayStandard, Resolution2D>>>
+  > = {}
 
   for (const displayRatio of displayRatios) {
-    // @ts-expect-error
     res[displayRatio] = {}
 
     for (const displayStandard of displayStandards) {
-      res[displayRatio][displayStandard] = generateResolution(
+      res[displayRatio]![displayStandard] = generateResolution(
         displayRatio,
         displayStandard,
       )
     }
   }
 
-  return res
+  return res as Record<DisplayRatio, Record<DisplayStandard, Resolution2D>>
 }
 
 export const resolutions: Record<

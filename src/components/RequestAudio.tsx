@@ -1,16 +1,8 @@
 import React from 'react'
 
+import { canCreateAudioContext } from '../utils/canCreateAudioContext'
+
 import styles from './RequestAudio.module.scss'
-
-export function canCreateAudioContext(): boolean {
-  try {
-    const audioContext: AudioContext = new AudioContext()
-
-    if (audioContext) return true
-  } catch {}
-
-  return false
-}
 
 export function RequestAudio({
   setCanCreateAudioContext,

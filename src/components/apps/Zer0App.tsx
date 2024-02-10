@@ -1,7 +1,7 @@
 import React from 'react'
 
 import { Interface } from '../daw'
-import { RequestAudio, canCreateAudioContext } from '../RequestAudio'
+import { RequestAudio } from '../RequestAudio'
 
 import {
   defaultProject,
@@ -18,6 +18,7 @@ import {
   LOCAL_STORAGE_KEY_SELECTED_PROJECT,
   LOCAL_STORAGE_KEY_PROJECT_PREFIX,
 } from '../../utils/constants'
+import { canCreateAudioContext } from '../../utils/canCreateAudioContext'
 
 function Zer0Daw(): JSX.Element {
   const [project, setProject] = React.useState<Project>((): Project => {
@@ -104,6 +105,7 @@ function Zer0Daw(): JSX.Element {
         JSON.stringify({ autoSave: settings.autoSave }),
       )
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [settings.autoSave])
 
   React.useEffect((): void => {
