@@ -1,6 +1,7 @@
 import React from 'react'
 
 import { Interface } from '../daw'
+import { RequestAudio, canCreateAudioContext } from '../RequestAudio'
 
 import {
   defaultProject,
@@ -18,7 +19,7 @@ import {
   LOCAL_STORAGE_KEY_PROJECT_PREFIX,
 } from '../../utils/constants'
 
-export function Zer0App(): JSX.Element {
+function Zer0Daw(): JSX.Element {
   const [project, setProject] = React.useState<Project>((): Project => {
     const savedProjectId = window.localStorage.getItem(
       LOCAL_STORAGE_KEY_SELECTED_PROJECT,
@@ -133,5 +134,22 @@ export function Zer0App(): JSX.Element {
         <Interface />
       </SettingsContext.Provider>
     </ProjectContext.Provider>
+  )
+}
+
+export function Zer0App(): JSX.Element {
+  const [_canCreateAudioContext, setCanCreateAudioContext] =
+    React.useState<boolean>(false)
+
+  React.useEffect((): void => {
+    if (!_canCreateAudioContext) {
+      setCanCreateAudioContext(canCreateAudioContext())
+    }
+  }, [_canCreateAudioContext])
+
+  return _canCreateAudioContext ? (
+    <Zer0Daw />
+  ) : (
+    <RequestAudio setCanCreateAudioContext={setCanCreateAudioContext} />
   )
 }
