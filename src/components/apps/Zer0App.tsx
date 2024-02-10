@@ -71,9 +71,41 @@ export function Zer0App(): JSX.Element {
     [settings],
   )
 
-  React.useEffect(() => {
-    // FIXME: Doesn't save the autoSave state when you disable autoSave...
-    //        Which enables autoSave on next load since it wasn't saved...
+  React.useEffect((): void => {
+    window.localStorage.setItem(
+      LOCAL_STORAGE_KEY_SETTINGS,
+      JSON.stringify(settings),
+    )
+
+    const savedSettings = window.localStorage.getItem(
+      LOCAL_STORAGE_KEY_SETTINGS,
+    )
+
+    if (!savedSettings) {
+      window.localStorage.setItem(
+        LOCAL_STORAGE_KEY_SETTINGS,
+        JSON.stringify({ autoSave: settings.autoSave }),
+      )
+
+      return
+    }
+
+    try {
+      const parsedSettings: Partial<Settings> = JSON.parse(savedSettings)
+
+      window.localStorage.setItem(
+        LOCAL_STORAGE_KEY_SETTINGS,
+        JSON.stringify({ ...parsedSettings, autoSave: settings.autoSave }),
+      )
+    } catch {
+      window.localStorage.setItem(
+        LOCAL_STORAGE_KEY_SETTINGS,
+        JSON.stringify({ autoSave: settings.autoSave }),
+      )
+    }
+  }, [settings.autoSave])
+
+  React.useEffect((): void => {
     if (settings.autoSave) {
       window.localStorage.setItem(
         LOCAL_STORAGE_KEY_SETTINGS,
