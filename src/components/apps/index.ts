@@ -1,5 +1,6 @@
 export { CanviApp } from './CanviApp'
 export { CircleApp } from './CircleApp'
+export { DimenApp } from './DimenApp'
 export { EyeGenApp } from './EyeGenApp'
 export { NavigationApp } from './NavigationApp'
 export { NoiseApp } from './NoiseApp'

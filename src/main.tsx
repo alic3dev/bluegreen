@@ -9,6 +9,7 @@ import {
 import {
   CanviApp,
   CircleApp,
+  DimenApp,
   EyeGenApp,
   NavigationApp,
   NoiseApp,
@@ -68,6 +69,11 @@ const router = createBrowserRouter(
       path: '/canvi',
       loader: getTitleLoader('CANVI'),
       element: withErrorBoundary(<CanviApp />, 'CANVI'),
+    },
+    {
+      path: '/dimen',
+      loader: getTitleLoader('DIMEN'),
+      element: withErrorBoundary(<DimenApp />, 'DIMEN'),
     },
   ],
   {
