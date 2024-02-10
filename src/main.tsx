@@ -7,9 +7,12 @@ import {
 } from 'react-router-dom'
 
 import {
+  CanviApp,
   CircleApp,
+  DimenApp,
   EyeGenApp,
   NavigationApp,
+  NoiseApp,
   VisdioApp,
   Zer0App,
 } from './components/apps'
@@ -56,6 +59,21 @@ const router = createBrowserRouter(
       path: '/circle',
       loader: getTitleLoader('CIRCLE'),
       element: withErrorBoundary(<CircleApp />, 'CIRCLE'),
+    },
+    {
+      path: '/noise',
+      loader: getTitleLoader('NOISE'),
+      element: withErrorBoundary(<NoiseApp />, 'NOISE'),
+    },
+    {
+      path: '/canvi',
+      loader: getTitleLoader('CANVI'),
+      element: withErrorBoundary(<CanviApp />, 'CANVI'),
+    },
+    {
+      path: '/dimen',
+      loader: getTitleLoader('DIMEN'),
+      element: withErrorBoundary(<DimenApp />, 'DIMEN'),
     },
   ],
   {
