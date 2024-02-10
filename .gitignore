@@ -26,3 +26,4 @@ vite.config.ts.*
 *.sw?
 
 public/kits
+public/images
