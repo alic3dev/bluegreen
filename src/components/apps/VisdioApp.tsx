@@ -1,15 +1,9 @@
 import React from 'react'
-
 import { mat4 } from 'gl-matrix'
 
+import { Size2D } from '../../utils/visual'
+
 import styles from './VisdioApp.module.scss'
-
-interface Position {
-  x: number
-  y: number
-}
-
-type Size2D = Position
 
 const ASPECT_RATIO: number = 16 / 9
 const RESOLUTION: number = 1080
