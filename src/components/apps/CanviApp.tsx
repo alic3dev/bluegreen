@@ -2,12 +2,9 @@ import React from 'react'
 
 import styles from './CanviApp.module.scss'
 
-interface Position {
-  x: number
-  y: number
-}
+import { Coordinates2D, Resolution2D } from '../../utils/visual'
 
-const VIDEO_RESOLUTION: Position = {
+const VIDEO_RESOLUTION: Resolution2D = {
   x: 2560,
   y: 1440,
 }
@@ -19,8 +16,8 @@ export function CanviApp(): JSX.Element {
   const drawInfoRef = React.useRef<{
     iteration: number
     looped: number
-    lastPos: Position
-    lastInvPos: Position
+    lastPos: Coordinates2D
+    lastInvPos: Coordinates2D
   }>({
     iteration: 0,
     looped: 0,
