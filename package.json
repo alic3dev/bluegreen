@@ -36,6 +36,6 @@
     "sass": "^1.70.0",
     "typescript": "^5.3.3",
     "vite": "^5.1.1",
-    "zer0": "link:../zer0"
+    "zer0": "https://github.com/alic3dev/zer0"
   }
 }
