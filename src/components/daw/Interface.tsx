@@ -8,6 +8,7 @@ import {
   Synth,
   SynthPresetValues,
 } from 'zer0'
+import { SampleKitPresetValues } from 'zer0/src/SampleKitPreset'
 
 import {
   ChannelList,
@@ -32,14 +33,13 @@ import {
   ProjectSynthTrack,
   ProjectTrack,
 } from '../../contexts'
+import { LOCAL_STORAGE_KEY_SELECTED_PROJECT } from '../../utils/constants'
 
 import { KitList } from './KitList'
 import { Header } from './Header'
 import { TrackInfo } from './SharedTypes'
 
 import styles from './Interface.module.scss'
-
-import { SampleKitPresetValues } from 'zer0/src/SampleKitPreset'
 
 interface AudioRef {
   context: AudioContext
@@ -455,7 +455,7 @@ export function Interface(): JSX.Element {
                 prevDialogs.filter((dialog) => dialog !== newConfirmDialog),
               )
 
-              window.localStorage.removeItem(`ゼローProject`)
+              window.localStorage.removeItem(LOCAL_STORAGE_KEY_SELECTED_PROJECT)
               window.location.reload()
 
               // TODO: ('implement me!!@!') in a better way

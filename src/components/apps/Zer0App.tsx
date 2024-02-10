@@ -11,22 +11,32 @@ import {
   SettingsContext,
 } from '../../contexts'
 
+import {
+  LOCAL_STORAGE_KEY_SETTINGS,
+  LOCAL_STORAGE_KEY_SELECTED_PROJECT,
+  LOCAL_STORAGE_KEY_PROJECT_PREFIX,
+} from '../../utils/constants'
+
 export function Zer0App(): JSX.Element {
   const [project, setProject] = React.useState<Project>((): Project => {
-    const savedProjectId = window.localStorage.getItem('ゼローProject')
+    const savedProjectId = window.localStorage.getItem(
+      LOCAL_STORAGE_KEY_SELECTED_PROJECT,
+    )
 
     if (savedProjectId) {
       const savedProject = window.localStorage.getItem(
-        `ゼローProject：${savedProjectId}`,
+        `${LOCAL_STORAGE_KEY_PROJECT_PREFIX}${savedProjectId}`,
       )
 
       if (savedProject) {
         try {
           return JSON.parse(savedProject)
         } catch {
-          window.localStorage.removeItem(`ゼローProject`)
+          window.localStorage.removeItem(LOCAL_STORAGE_KEY_SELECTED_PROJECT)
           // TODO: May not want to remove this, could be recovered if corrupted
-          window.localStorage.removeItem(`ゼローProject：${savedProjectId}`)
+          window.localStorage.removeItem(
+            `${LOCAL_STORAGE_KEY_PROJECT_PREFIX}${savedProjectId}`,
+          )
         }
       }
     }
@@ -40,13 +50,15 @@ export function Zer0App(): JSX.Element {
   )
 
   const [settings, setSettings] = React.useState<Settings>((): Settings => {
-    const savedSettings = window.localStorage.getItem('ゼローSettings')
+    const savedSettings = window.localStorage.getItem(
+      LOCAL_STORAGE_KEY_SETTINGS,
+    )
 
     if (savedSettings) {
       try {
-        return JSON.parse(savedSettings)
+        return { ...defaultSettings, ...JSON.parse(savedSettings) }
       } catch {
-        window.localStorage.removeItem('ゼローSettings')
+        window.localStorage.removeItem(LOCAL_STORAGE_KEY_SETTINGS)
       }
     }
 
@@ -62,15 +74,21 @@ export function Zer0App(): JSX.Element {
     // FIXME: Doesn't save the autoSave state when you disable autoSave...
     //        Which enables autoSave on next load since it wasn't saved...
     if (settings.autoSave) {
-      window.localStorage.setItem('ゼローSettings', JSON.stringify(settings))
+      window.localStorage.setItem(
+        LOCAL_STORAGE_KEY_SETTINGS,
+        JSON.stringify(settings),
+      )
     }
   }, [settings])
 
   React.useEffect(() => {
     if (settings.autoSave) {
-      window.localStorage.setItem(`ゼローProject`, project.id)
       window.localStorage.setItem(
-        `ゼローProject：${project.id}`,
+        LOCAL_STORAGE_KEY_SELECTED_PROJECT,
+        project.id,
+      )
+      window.localStorage.setItem(
+        `${LOCAL_STORAGE_KEY_PROJECT_PREFIX}${project.id}`,
         JSON.stringify(project),
       )
     }

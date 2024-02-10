@@ -3,6 +3,8 @@ import { CiMenuKebab, CiSquareChevRight } from 'react-icons/ci'
 
 import { Project, ProjectContext } from '../../../contexts'
 
+import { LOCAL_STORAGE_KEY_PROJECT_PREFIX } from '../../../utils/constants'
+
 import { ConfirmDialog, Dialog, DialogHeader, DialogFooter } from '.'
 
 import styles from './OpenDialog.module.scss'
@@ -23,7 +25,7 @@ export function OpenDialog({
 
     if (
       currentLocalStorageKey &&
-      currentLocalStorageKey.startsWith('ゼローProject：')
+      currentLocalStorageKey.startsWith(LOCAL_STORAGE_KEY_PROJECT_PREFIX)
     ) {
       savedProjectKeys.push(currentLocalStorageKey)
     }
