@@ -1,3 +1,169 @@
-@use './Interface.module.scss';
+.header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 
-// TODO: Don't just @use lol
+  padding: 0.5rem 1rem;
+
+  background: rgba(0, 0, 0, 0.1);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.project-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.project-control-save,
+.project-control-open,
+.project-control-new,
+.project-control-settings {
+  min-width: 0;
+
+  padding: 0rem 1rem;
+  margin: 0;
+
+  font-size: 1rem;
+  line-height: 0;
+
+  background: none;
+
+  border: none;
+
+  &:hover {
+    box-shadow: none;
+  }
+}
+
+.project-control-save {
+  &:hover {
+    color: #0e0;
+  }
+}
+
+.project-control-open {
+  &:hover {
+    color: #ee0;
+  }
+}
+
+.project-control-new {
+  &:hover {
+    color: #0ee;
+  }
+}
+
+.project-control-settings {
+  &:hover {
+    color: #eee;
+  }
+}
+
+.spacer {
+  flex: 1;
+}
+
+.play,
+.stop,
+.reset,
+.bpm {
+  height: 100%;
+  width: 100px;
+
+  background: rgba(0, 0, 0, 0.1);
+
+  &:hover {
+    box-shadow: none;
+  }
+}
+
+.bpm-wrapper {
+  position: relative;
+  height: 100%;
+}
+
+.bpm-text {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+
+  color: rgba(255, 255, 255, 0.3);
+
+  font-size: 0.75rem;
+
+  pointer-events: none;
+
+  transform: translateY(-50%);
+}
+
+.bpm {
+  text-align: right;
+}
+
+.play {
+  color: #6e6;
+
+  &:hover,
+  &:focus-visible {
+    color: #0e0;
+  }
+}
+
+.stop {
+  color: #e66;
+
+  &:hover,
+  &:focus-visible {
+    color: #e00;
+  }
+}
+
+.reset {
+  color: #ee6;
+
+  &:hover,
+  &:focus-visible {
+    color: #ee0;
+  }
+}
+
+.title {
+  margin: 0;
+  padding: 0;
+
+  font-size: 1.25rem;
+  line-height: 1.25rem;
+
+  a {
+    text-decoration: none;
+  }
+}
+
+input.project-title {
+  margin: 0;
+  margin-left: 1rem;
+
+  padding: 5px;
+
+  font-size: 1rem;
+  line-height: 1rem;
+
+  border: none;
+  border-radius: 2000px;
+
+  text-overflow: ellipsis;
+
+  background-color: rgba(0, 0, 0, 0);
+  box-shadow: 0px 0px 5px 0px rgba(0, 255, 255, 0);
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.025);
+    box-shadow: 0px 0px 5px 0px rgba(0, 255, 255, 0.025);
+  }
+
+  &:focus-visible {
+    background-color: rgba(0, 0, 0, 0.05);
+    box-shadow: 0px 0px 5px 0px rgba(0, 255, 255, 0.05);
+  }
+}
