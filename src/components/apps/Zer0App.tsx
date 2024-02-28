@@ -141,13 +141,7 @@ function Zer0Daw(): JSX.Element {
 
 export function Zer0App(): JSX.Element {
   const [_canCreateAudioContext, setCanCreateAudioContext] =
-    React.useState<boolean>(false)
-
-  React.useEffect((): void => {
-    if (!_canCreateAudioContext) {
-      setCanCreateAudioContext(canCreateAudioContext())
-    }
-  }, [_canCreateAudioContext])
+    React.useState<boolean>(canCreateAudioContext())
 
   return _canCreateAudioContext ? (
     <Zer0Daw />

@@ -1,4 +1,7 @@
 import React from 'react'
+import { MdPiano } from 'react-icons/md'
+import { IoGrid } from 'react-icons/io5'
+import { TbEaseInOutControlPoints } from 'react-icons/tb'
 
 import {
   Channel,
@@ -589,9 +592,15 @@ export function Interface(): JSX.Element {
       <div className={styles.content}>
         <div className={styles['track-section']}>
           <div className={styles['track-section-controls']}>
-            <button onClick={addSynthTrack}>New Synth Track</button>
-            <button onClick={addKitTrack}>New Kit Track</button>
-            <button onClick={addAutomationTrack}>New Automation</button>
+            <button title="New Synth Track" onClick={addSynthTrack}>
+              <MdPiano />
+            </button>
+            <button title="New Kit Track" onClick={addKitTrack}>
+              <IoGrid />
+            </button>
+            <button title="New Automation Track" onClick={addAutomationTrack}>
+              <TbEaseInOutControlPoints />
+            </button>
           </div>
 
           <div className={styles['track-container']}>

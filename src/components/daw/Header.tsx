@@ -76,7 +76,7 @@ export function Header({
   }
 
   return (
-    <div className={styles.controls}>
+    <div className={styles.header}>
       <h1 className={styles.title}>
         <Link to="/">ゼロ</Link>
       </h1>

@@ -5,7 +5,13 @@
   font-size: 0.75rem;
 
   &:nth-child(even) {
-    background: rgba(0, 0, 0, 0.05);
+    background: linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0.05) 0%,
+      rgba(0, 0, 0, 0.025) 10%,
+      rgba(0, 0, 0, 0.025) 90%,
+      rgba(0, 0, 0, 0.05) 100%
+    );
   }
 }
 

@@ -1,5 +1,9 @@
 @use './shared.module.scss';
 
+.bar {
+  margin-top: 0.25rem;
+}
+
 .title {
   min-width: 0px;
 
@@ -14,11 +18,13 @@
 }
 
 .controls {
+  margin-bottom: 0.25rem;
+
   label {
     input,
     select {
-      border-top-color: transparent;
-      border-bottom-color: transparent;
+      border: 1px solid rgba(0, 0, 0, 0.125);
+      border-radius: 5px;
     }
   }
 }
