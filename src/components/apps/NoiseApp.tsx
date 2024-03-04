@@ -27,7 +27,10 @@ const getDefaultAudioRef = (): AudioRef => {
 
   const channel = new Channel(context, context.destination, true)
   channel.gain.gain.value = 0.666
-  channel.gain.connect(channel.gain)
+
+  const dc = context.createDynamicsCompressor()
+  dc.connect(channel.gain)
+  channel.gain.connect(dc)
 
   const bf = context.createBiquadFilter()
   bf.type = 'lowpass'

@@ -1,0 +1,29 @@
+import styles from './Alic3.module.scss'
+
+export function Alic3(): React.ReactNode {
+  return (
+    <h1 className={styles.title}>
+      <a className={styles['title-header']} href="https://www.alic3.dev/">
+        <div className={styles['title-main']}>
+          <span className={styles['title-main-start']}>A</span>
+          <div className={styles['title-main-part']}>l</div>
+          <div
+            className={`${styles['title-main-middle']} ${styles['title-main-part']}`}
+          >
+            i
+          </div>
+          <div
+            className={`${styles['title-main-c']} ${styles['title-main-part']}`}
+          >
+            c
+          </div>
+          <div
+            className={`${styles['title-main-end']} ${styles['title-main-part']}`}
+          >
+            3
+          </div>
+        </div>
+      </a>
+    </h1>
+  )
+}
