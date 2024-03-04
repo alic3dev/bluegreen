@@ -14,6 +14,7 @@ import {
   NavigationApp,
   NoiseApp,
   VisdioApp,
+  SApp,
   Zer0App,
 } from './components/apps'
 
@@ -74,6 +75,11 @@ const router = createBrowserRouter(
       path: '/dimen',
       loader: getTitleLoader('DIMEN'),
       element: withErrorBoundary(<DimenApp />, 'DIMEN'),
+    },
+    {
+      path: '/s',
+      loader: getTitleLoader('S'),
+      element: withErrorBoundary(<SApp />, 'S'),
     },
   ],
   {

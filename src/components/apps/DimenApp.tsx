@@ -30,6 +30,24 @@ export function DimenApp(): JSX.Element {
   const canvasRef = React.useRef<HTMLCanvasElement>(null)
   const frameRef = React.useRef<HTMLSpanElement>(null)
   const fpsRef = React.useRef<HTMLSpanElement>(null)
+  const imageRef = React.useRef<HTMLImageElement>(null)
+  const [imageLoaded, setImageLoaded] = React.useState<boolean>(false)
+
+  React.useEffect((): (() => void) | void => {
+    const imageElement: HTMLImageElement | null = imageRef.current
+
+    if (!imageElement) return
+
+    const loadListener = (): void => {
+      setImageLoaded(true)
+    }
+
+    imageElement.addEventListener('load', loadListener)
+
+    return (): void => {
+      imageElement.removeEventListener('load', loadListener)
+    }
+  }, [])
 
   const [overlayHidden, setOverlayHidden] = React.useState<number>(
     (): number => {
@@ -80,6 +98,8 @@ export function DimenApp(): JSX.Element {
   }, [])
 
   React.useEffect((): (() => void) | void => {
+    if (!imageLoaded) return
+
     let animationFrameHandle: number
 
     if (!canvasRef.current) return
@@ -113,7 +133,10 @@ export function DimenApp(): JSX.Element {
       const y: number = Math.floor(normalizedIterator / imageData.width)
       const x: number = normalizedIterator % (y * imageData.width)
 
-      if (x === Math.floor(ctx.canvas.width / 4) - 1 && y === 1) {
+      if (
+        x === Math.floor(ctx.canvas.width / 2) - 3 &&
+        y === Math.floor(ctx.canvas.height / 2) + 1
+      ) {
         imageData.data[i + RED_CHANNEL] = 255
         imageData.data[i + GREEN_CHANNEL] = 0
         imageData.data[i + BLUE_CHANNEL] = 0
@@ -121,25 +144,56 @@ export function DimenApp(): JSX.Element {
         continue
       } else if (
         x === Math.floor(ctx.canvas.width / 2) - 1 &&
-        y === Math.floor(ctx.canvas.height / 2) - 1
+        y === Math.floor(ctx.canvas.height / 2) - 3
+      ) {
+        imageData.data[i + RED_CHANNEL] = 0
+        imageData.data[i + GREEN_CHANNEL] = 255
+        imageData.data[i + BLUE_CHANNEL] = 0
+        imageData.data[i + ALPHA_CHANNEL] = 255
+        continue
+      } else if (
+        x === Math.floor(ctx.canvas.width / 2) + 3 &&
+        y === Math.floor(ctx.canvas.height / 2) + 1
       ) {
         imageData.data[i + RED_CHANNEL] = 0
         imageData.data[i + GREEN_CHANNEL] = 0
         imageData.data[i + BLUE_CHANNEL] = 255
         imageData.data[i + ALPHA_CHANNEL] = 255
         continue
-      } else if (x === 1 && y === Math.floor(ctx.canvas.height / 2) - 1) {
-        imageData.data[i + RED_CHANNEL] = 0
-        imageData.data[i + GREEN_CHANNEL] = 255
-        imageData.data[i + BLUE_CHANNEL] = 0
-        imageData.data[i + ALPHA_CHANNEL] = 255
-        continue
       } else {
-        imageData.data[i + RED_CHANNEL] = 0
-        imageData.data[i + GREEN_CHANNEL] = 0
-        imageData.data[i + BLUE_CHANNEL] = 0
+        imageData.data[i + RED_CHANNEL] = 255
+        imageData.data[i + GREEN_CHANNEL] = 255
+        imageData.data[i + BLUE_CHANNEL] = 255
         imageData.data[i + ALPHA_CHANNEL] = 255
       }
+
+      // if (x === Math.floor(ctx.canvas.width / 4) - 1 && y === 1) {
+      //   imageData.data[i + RED_CHANNEL] = 255
+      //   imageData.data[i + GREEN_CHANNEL] = 0
+      //   imageData.data[i + BLUE_CHANNEL] = 0
+      //   imageData.data[i + ALPHA_CHANNEL] = 255
+      //   continue
+      // } else if (
+      //   x === Math.floor(ctx.canvas.width / 2) - 1 &&
+      //   y === Math.floor(ctx.canvas.height / 2) - 1
+      // ) {
+      //   imageData.data[i + RED_CHANNEL] = 0
+      //   imageData.data[i + GREEN_CHANNEL] = 0
+      //   imageData.data[i + BLUE_CHANNEL] = 255
+      //   imageData.data[i + ALPHA_CHANNEL] = 255
+      //   continue
+      // } else if (x === 1 && y === Math.floor(ctx.canvas.height / 2) - 1) {
+      //   imageData.data[i + RED_CHANNEL] = 0
+      //   imageData.data[i + GREEN_CHANNEL] = 255
+      //   imageData.data[i + BLUE_CHANNEL] = 0
+      //   imageData.data[i + ALPHA_CHANNEL] = 255
+      //   continue
+      // } else {
+      //   imageData.data[i + RED_CHANNEL] = 0
+      //   imageData.data[i + GREEN_CHANNEL] = 0
+      //   imageData.data[i + BLUE_CHANNEL] = 0
+      //   imageData.data[i + ALPHA_CHANNEL] = 255
+      // }
 
       // imageData.data[i] =
       //   Math.random() *
@@ -159,6 +213,15 @@ export function DimenApp(): JSX.Element {
       // )
       // imageData.data[i + 3] = 255
     }
+
+    // ctx.drawImage(imageRef.current!, 0, 0)
+
+    // const imageData = ctx.getImageData(
+    //   0,
+    //   0,
+    //   ctx.canvas.width,
+    //   ctx.canvas.height,
+    // )
 
     ctx.putImageData(imageData, 0, 0)
 
@@ -335,10 +398,12 @@ export function DimenApp(): JSX.Element {
     animationFrameHandle = window.requestAnimationFrame(animationFrame)
 
     return (): void => window.cancelAnimationFrame(animationFrameHandle)
-  }, [])
+  }, [imageLoaded])
 
   return (
     <main className={styles.main}>
+      <img src="/images/01.jpeg" style={{ display: 'none' }} ref={imageRef} />
+
       <canvas
         ref={canvasRef}
         width={VIDEO_RESOLUTION.x}

@@ -20,6 +20,32 @@ export function KitList({ kits }: { kits: SampleKit[] }): JSX.Element {
     )
   }, [])
 
+  // const [loadingKits, setLoadingKits] = React.useState<Record<string, boolean>>(
+  //   (): Record<string, boolean> => {
+  //     const res: Record<string, boolean> = {};
+
+  //       for (const kit of kits) {
+  //         res[kit.id] = !kit.isReadySync;
+  //       }
+
+  //       return res;
+  //   },
+  // )
+
+  // React.useEffect(() => {
+  //   setLoadingKits(
+  //     (prevLoadingKits: Record<string, boolean>): Record<string, boolean> => {
+  //       const res: Record<string, boolean> = {};
+
+  //       for (const kit of kits) {
+  //         res[kit.id] = prevLoadingKits[kit.id] ?? true;
+  //       }
+
+  //       return res;
+  //     },
+  //   )
+  // }, [kits])
+
   const urlChangeTimeoutLookupRef = React.useRef<Record<string, number>>({})
   const getOnUrlChange =
     (kit: SampleKit, sampleKey: string) =>
