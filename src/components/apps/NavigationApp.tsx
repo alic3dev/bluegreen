@@ -7,9 +7,7 @@ import styles from './NavigationApp.module.scss'
 export function NavigationApp() {
   return (
     <div className={styles.navigation}>
-      <div className={styles['alic3-wrapper']}>
-        <Alic3 />
-      </div>
+      <Alic3 header />
 
       <h1 className={styles.title}>
         <Link to="/">
