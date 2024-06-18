@@ -1,9 +1,9 @@
 import styles from './Alic3.module.scss'
 
-export function Alic3(): React.ReactNode {
+export function Alic3({ header = false }: { header?: boolean }): JSX.Element {
   return (
-    <h1 className={styles.title}>
-      <a className={styles['title-header']} href="https://www.alic3.dev/">
+    <h1 className={`${styles.title} ${header ? styles.header : ''}`}>
+      <a className={styles['title-header']} href="https://alic3.dev">
         <div className={styles['title-main']}>
           <span className={styles['title-main-start']}>A</span>
           <div className={styles['title-main-part']}>l</div>
@@ -22,6 +22,9 @@ export function Alic3(): React.ReactNode {
           >
             3
           </div>
+        </div>
+        <div className={styles['title-secondary']} aria-hidden="true">
+          L<span className={styles['title-emphasis']}>I</span>C3
         </div>
       </a>
     </h1>
