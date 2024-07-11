@@ -3,7 +3,7 @@
   min-width: 100%;
   min-height: 100%;
 
-  background: #000;
+  background: var(--color-black);
 
   overflow: hidden;
 }
@@ -91,10 +91,10 @@
   justify-content: center;
   align-items: center;
 
-  background: #000;
+  background: var(--color-black);
 
   font-size: 4rem;
-  color: #fff;
+  color: var(--color-white);
 
   transition: all ease-in-out 5000ms;
 

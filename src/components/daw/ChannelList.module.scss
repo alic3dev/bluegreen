@@ -1,6 +1,8 @@
 .channel-list {
   display: flex;
   flex-direction: column;
+
+  padding-top: 1rem;
 }
 
 .controls {
@@ -17,10 +19,6 @@
 
   padding: 1rem;
   padding-top: 0.5rem;
-
-  &:nth-child(odd) {
-    background: rgba(0, 0, 0, 0.05);
-  }
 
   label {
     display: flex;
@@ -43,6 +41,7 @@
   cursor: pointer;
 
   &:hover {
+    background: none;
     box-shadow: none;
   }
 }
@@ -78,17 +77,17 @@
 .gain-display-wrapper {
   width: 100%;
 
-  background: rgba(0, 0, 0, 0.1);
+  background: rgba(var(--color-black-raw), 0.1);
 
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(var(--color-black-raw), 0.1);
   border-radius: 5px;
 }
 
 .gain-display {
   height: 6px;
   width: 100%;
-  background: linear-gradient(to right, #000, #000);
+  background: linear-gradient(to right, var(--color-black), var(--color-black));
 
-  border: 1px solid #000;
+  border: 1px solid var(--color-black);
   border-radius: 5px;
 }

@@ -5,8 +5,7 @@
 
   padding: 0.5rem 1rem;
 
-  background: rgba(0, 0, 0, 0.1);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  background: var(--color-base);
 }
 
 .project-controls {
@@ -32,31 +31,32 @@
   border: none;
 
   &:hover {
+    background: none;
     box-shadow: none;
   }
 }
 
 .project-control-save {
   &:hover {
-    color: #0e0;
+    color: var(--color-green);
   }
 }
 
 .project-control-open {
   &:hover {
-    color: #ee0;
+    color: var(--color-yellow);
   }
 }
 
 .project-control-new {
   &:hover {
-    color: #0ee;
+    color: var(--color-sky);
   }
 }
 
 .project-control-settings {
   &:hover {
-    color: #eee;
+    color: var(--color-subtext0);
   }
 }
 
@@ -71,11 +71,18 @@
   height: 100%;
   width: 100px;
 
-  background: rgba(0, 0, 0, 0.1);
+  & > svg {
+    stroke-width: 1px;
+  }
 
   &:hover {
     box-shadow: none;
   }
+}
+
+.reset,
+.bpm {
+  border-radius: 0px;
 }
 
 .bpm-wrapper {
@@ -88,8 +95,6 @@
   left: 0.75rem;
   top: 50%;
 
-  color: rgba(255, 255, 255, 0.3);
-
   font-size: 0.75rem;
 
   pointer-events: none;
@@ -98,11 +103,21 @@
 }
 
 .bpm {
+  border-left-width: 0.5px;
+  border-right-width: 0.5px;
+
   text-align: right;
 }
 
+.play,
+.stop {
+  border-top-right-radius: 0px;
+  border-bottom-right-radius: 0px;
+  border-right-width: 0.5px;
+}
+
 .play {
-  color: #6e6;
+  color: var(--color-green);
 
   &:hover,
   &:focus-visible {
@@ -111,7 +126,7 @@
 }
 
 .stop {
-  color: #e66;
+  color: var(--color-red);
 
   &:hover,
   &:focus-visible {
@@ -120,7 +135,10 @@
 }
 
 .reset {
-  color: #ee6;
+  color: var(--color-yellow);
+
+  border-left-width: 0.5px;
+  border-right-width: 0.5px;
 
   &:hover,
   &:focus-visible {
@@ -154,16 +172,16 @@ input.project-title {
 
   text-overflow: ellipsis;
 
-  background-color: rgba(0, 0, 0, 0);
-  box-shadow: 0px 0px 5px 0px rgba(0, 255, 255, 0);
+  background-color: rgba(var(--color-black-raw), 0);
+  box-shadow: 0px 0px 5px 0px rgba(var(--color-white-raw), 0);
 
   &:hover {
-    background-color: rgba(0, 0, 0, 0.025);
-    box-shadow: 0px 0px 5px 0px rgba(0, 255, 255, 0.025);
+    background-color: rgba(var(--color-black-raw), 0.025);
+    box-shadow: 0px 0px 5px 0px rgba(var(--color-white-raw), 0.025);
   }
 
   &:focus-visible {
-    background-color: rgba(0, 0, 0, 0.05);
-    box-shadow: 0px 0px 5px 0px rgba(0, 255, 255, 0.05);
+    background-color: rgba(var(--color-black-raw), 0.05);
+    box-shadow: 0px 0px 5px 0px rgba(var(--color-white-raw), 0.05);
   }
 }

@@ -43,7 +43,7 @@
   &:focus,
   &:hover {
     text-decoration: none;
-    color: #eaefff;
+    color: var(--color-text);
   }
 
   &:hover,

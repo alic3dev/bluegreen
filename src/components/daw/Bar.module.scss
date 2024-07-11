@@ -7,7 +7,7 @@
 .title {
   min-width: 0px;
 
-  color: #555;
+  color: var(--color-subtext0);
 
   font-size: 0.75rem;
 
@@ -19,12 +19,4 @@
 
 .controls {
   margin-bottom: 0.25rem;
-
-  label {
-    input,
-    select {
-      border: 1px solid rgba(0, 0, 0, 0.125);
-      border-radius: 5px;
-    }
-  }
 }
