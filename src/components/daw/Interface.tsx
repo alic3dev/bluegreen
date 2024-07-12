@@ -603,25 +603,27 @@ export function Interface(): JSX.Element {
             </button>
           </div>
 
-          <div className={styles['track-container']}>
-            {tracks.map(
-              (trackOptions: TrackOptions): JSX.Element =>
-                Object.hasOwnProperty.call(trackOptions, 'defaultKitId') ? (
-                  <Track
-                    options={trackOptions}
-                    key={trackOptions.id}
-                    channels={channels}
-                    kits={kits}
-                  />
-                ) : (
-                  <Track
-                    options={trackOptions}
-                    key={trackOptions.id}
-                    channels={channels}
-                    synths={synths}
-                  />
-                ),
-            )}
+          <div className={styles['track-container-wrapper']}>
+            <div className={styles['track-container']}>
+              {tracks.map(
+                (trackOptions: TrackOptions): JSX.Element =>
+                  Object.hasOwnProperty.call(trackOptions, 'defaultKitId') ? (
+                    <Track
+                      options={trackOptions}
+                      key={trackOptions.id}
+                      channels={channels}
+                      kits={kits}
+                    />
+                  ) : (
+                    <Track
+                      options={trackOptions}
+                      key={trackOptions.id}
+                      channels={channels}
+                      synths={synths}
+                    />
+                  ),
+              )}
+            </div>
           </div>
         </div>
 
