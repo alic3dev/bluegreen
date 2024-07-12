@@ -23,6 +23,8 @@ import { ErrorBoundary } from './components/debug/ErrorBoundry'
 
 import './index.scss'
 
+import { ColorSchemeProvider } from './contexts/ColorSchemeContext'
+
 const getTitleLoader = (title: string): LoaderFunction => {
   return (): null => {
     document.title = title
@@ -32,7 +34,9 @@ const getTitleLoader = (title: string): LoaderFunction => {
 }
 
 const withErrorBoundary = (app: JSX.Element, appName?: string): JSX.Element => (
-  <ErrorBoundary app={appName}>{app}</ErrorBoundary>
+  <ErrorBoundary app={appName}>
+    <ColorSchemeProvider>{app}</ColorSchemeProvider>
+  </ErrorBoundary>
 )
 
 const router = createBrowserRouter(

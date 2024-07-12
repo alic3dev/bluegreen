@@ -1,25 +1,22 @@
+.synth-selector {
+  display: block;
+  min-width: 50%;
+  max-width: 90%;
+  margin: 1rem auto;
+}
+
 .synth {
   padding: 1rem;
   padding-top: 0.5rem;
 
   font-size: 0.75rem;
-
-  &:nth-child(even) {
-    background: linear-gradient(
-      to bottom,
-      rgba(0, 0, 0, 0.05) 0%,
-      rgba(0, 0, 0, 0.025) 10%,
-      rgba(0, 0, 0, 0.025) 90%,
-      rgba(0, 0, 0, 0.05) 100%
-    );
-  }
 }
 
 .name {
   margin: 0;
   padding: 0;
 
-  color: #aaa;
+  color: var(--color-surface2);
 }
 
 .controls {

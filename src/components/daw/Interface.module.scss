@@ -7,71 +7,14 @@
 
   background: radial-gradient(
     farthest-corner at -50% 0%,
-    #1e1b29 0%,
-    #1b1c22 50%,
-    #1d1b28 100%
+    var(--color-base) 0%,
+    var(--color-base) 50%,
+    var(--color-base) 100%
   );
 
   &,
   * {
     user-select: none;
-  }
-
-  & select,
-  & input,
-  & button {
-    border-radius: 0;
-
-    // &[type='range'] {
-    //   appearance: none;
-    //   background: none;
-    //   border: none;
-
-    //   &:active,
-    //   &:hover {
-    //     box-shadow: none;
-    //   }
-
-    //   &::-webkit-slider-runnable-track {
-    //     appearance: none;
-
-    //     height: 0.5em;
-    //     width: 100%;
-
-    //     background: rgba(0, 0, 0, 0.1);
-
-    //     border: 1px solid rgba(0, 0, 0, 0.25);
-    //     border-radius: 100px;
-    //   }
-
-    //   &::-webkit-slider-thumb {
-    //     position: relative;
-
-    //     appearance: none;
-    //     overflow: visible;
-
-    //     background: #684fc4;
-
-    //     &::before {
-    //       position: absolute;
-    //       left: 100%;
-
-    //       border-radius: 100%;
-
-    //       margin-top: calc(-0.25em - 1px);
-
-    //       height: 1em;
-    //       width: 1em;
-
-    //       background: #684fc4;
-    //     }
-    //   }
-    // }
-
-    &:focus-visible {
-      border-color: #684fc4;
-      outline: none;
-    }
   }
 }
 
@@ -93,8 +36,6 @@
   height: 100%;
   max-width: 100%;
 
-  box-shadow: inset -3px 3px 3px rgba(0, 0, 0, 0.05);
-
   overflow: hidden;
 }
 
@@ -102,9 +43,9 @@
   display: flex;
   flex-direction: column;
 
-  background: rgba(0, 0, 0, 0.05);
-  border-right: 1px solid rgba(0, 0, 0, 0.05);
-  box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.125);
+  background: var(--color-base);
+  border-right: 1px solid rgba(var(--color-black-raw), 0.05);
+  // box-shadow: 0px 0px 5px rgba(var(--color-black-raw), 0.125);
 
   padding: 0.5rem;
 
@@ -130,6 +71,28 @@
   padding-right: 1rem;
 }
 
+.track-container-wrapper {
+  position: relative;
+
+  height: 100%;
+  width: 100%;
+
+  overflow: hidden;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+
+    pointer-events: none;
+
+    box-shadow: inset 0px 0px 5px 0px rgba(var(--color-black-raw), 0.125);
+  }
+}
+
 .track-container {
   display: flex;
   align-items: baseline;
@@ -139,6 +102,8 @@
 
   padding-left: 1rem;
   padding-right: 1rem;
+
+  background: var(--color-crust);
 
   overflow-x: scroll;
   overflow-y: hidden;

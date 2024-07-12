@@ -10,10 +10,5 @@
 
   padding: 1rem 2rem;
 
-  // background: rgba(0, 0, 0, 0.1);
-  background: linear-gradient(
-    to bottom,
-    rgba(0, 0, 0, 0.0125),
-    rgba(0, 0, 0, 0.1)
-  );
+  background: var(--color-mantle);
 }

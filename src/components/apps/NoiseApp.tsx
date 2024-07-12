@@ -1,6 +1,10 @@
+import type { ColorScheme } from '../../contexts/ColorSchemeContext'
+
 import React from 'react'
 
 import { Channel, Noise } from 'zer0'
+
+import { ColorSchemeContext } from '../../contexts/ColorSchemeContext'
 
 import styles from './NoiseApp.module.scss'
 
@@ -79,6 +83,8 @@ export function NoiseApp() {
   const audioRef = React.useRef<AudioRef>(getDefaultAudioRef())
   const canvasRef = React.useRef<HTMLCanvasElement>(null)
 
+  const colorScheme = React.useContext<ColorScheme>(ColorSchemeContext)
+
   React.useEffect((): (() => void) => {
     const gain = audioRef.current.gain
     gain.gain.value = 1 / 6
@@ -117,7 +123,7 @@ export function NoiseApp() {
       oddFrame = !oddFrame
       lastTime = time
 
-      ctx.fillStyle = '#11111166'
+      ctx.fillStyle = colorScheme.base
       ctx.fillRect(0, 0, VIDEO_RESOLUTION.x, VIDEO_RESOLUTION.y)
 
       const analyserData: Uint8Array = audioRef.current.channel.pollAnalyser()
@@ -156,18 +162,16 @@ export function NoiseApp() {
       const yAvg: number = Math.round(ySum / analyserData.length)
 
       if (yAvg === 111 || yAvg === 333 || yAvg === 666 || yAvg === 999) {
-        ctx.strokeStyle = '#ba2323'
+        ctx.strokeStyle = colorScheme.red
       } else if (yAvg === 777) {
-        ctx.strokeStyle = '#baba23'
+        ctx.strokeStyle = colorScheme.yellow
       } else if (oddFrame) {
-        ctx.strokeStyle = '#23ba10'
+        ctx.strokeStyle = colorScheme.green
       } else {
-        ctx.strokeStyle = '#1023ba'
+        ctx.strokeStyle = colorScheme.blue
       }
 
       ctx.stroke()
-      ctx.fillStyle = '#23baba02'
-      ctx.fill()
 
       analyserVisualizationHandle = window.requestAnimationFrame(
         analyserVisualizationFrame,
@@ -182,7 +186,7 @@ export function NoiseApp() {
       window.clearInterval(pannerInterval)
       window.cancelAnimationFrame(analyserVisualizationHandle)
     }
-  }, [])
+  }, [colorScheme])
 
   return (
     <div className={styles.app}>

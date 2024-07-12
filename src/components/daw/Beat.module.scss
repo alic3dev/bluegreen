@@ -1,22 +1,20 @@
 .beat {
   display: flex;
 
-  background: rgba(255, 255, 255, 0);
+  background: var(--color-mantle);
+
+  padding-bottom: 1px;
 
   transition: all 0s 0s ease-in-out;
 
-  &.active {
-    background: rgba(255, 255, 255, 0.1);
+  &:last-of-type {
+    padding-bottom: 0px;
   }
 }
 
 .poly {
   flex: 1;
   display: flex;
-
-  &:nth-child(even) {
-    background-color: rgba(0, 0, 0, 0.2);
-  }
 }
 
 .note {
@@ -24,17 +22,22 @@
   min-height: 2rem;
 
   padding: 0.25rem;
+  margin-right: 1px;
 
-  border: 1px solid rgba(0, 0, 0, 0.25);
-  border-left-color: transparent;
-  border-bottom-color: transparent;
-  border-radius: 10px;
+  border: none;
+  border-radius: 0px;
 
   flex: 1;
 
   text-align: center;
+}
 
-  &:last-of-type {
-    border-right-color: transparent;
+.poly:last-of-type {
+  .note {
+    margin-right: 0px;
   }
+}
+
+.beat.active .note {
+  background: var(--color-mantle);
 }

@@ -2,7 +2,7 @@
   width: 100%;
   height: 100%;
 
-  background-color: #000;
+  background-color: var(--color-black);
 }
 
 .canvas {
@@ -11,7 +11,7 @@
 
   object-fit: contain;
 
-  background-color: #000;
+  background-color: var(--color-black);
 
   transform: scaleY(0.1);
 }

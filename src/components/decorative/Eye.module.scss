@@ -24,4 +24,19 @@
   transform: skew(0, 0) scale(1, 1);
 
   animation: breathe 24s ease-in-out 0s infinite alternate;
+
+  &.full {
+    position: fixed;
+    top: 0;
+    left: 0;
+
+    width: 100vw;
+    max-width: unset;
+    height: 100vh;
+    max-height: unset;
+
+    transform: none;
+
+    animation: none;
+  }
 }
