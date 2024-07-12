@@ -67,8 +67,8 @@ importers:
         specifier: ^5.3.3
         version: 5.3.3(sass@1.77.8)
       zer0:
-        specifier: file:../zer0
-        version: file:../zer0
+        specifier: github:alic3dev/zer0
+        version: https://codeload.github.com/alic3dev/zer0/tar.gz/aac1f1100ae2292adcea84c8516021e99edf9b95
 
 packages:
 
@@ -1072,8 +1072,9 @@ packages:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
 
-  zer0@file:../zer0:
-    resolution: {directory: ../zer0, type: directory}
+  zer0@https://codeload.github.com/alic3dev/zer0/tar.gz/aac1f1100ae2292adcea84c8516021e99edf9b95:
+    resolution: {tarball: https://codeload.github.com/alic3dev/zer0/tar.gz/aac1f1100ae2292adcea84c8516021e99edf9b95}
+    version: 0.0.1
 
 snapshots:
 
@@ -1971,4 +1972,4 @@ snapshots:
 
   yocto-queue@0.1.0: {}
 
-  zer0@file:../zer0: {}
+  zer0@https://codeload.github.com/alic3dev/zer0/tar.gz/aac1f1100ae2292adcea84c8516021e99edf9b95: {}
