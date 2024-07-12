@@ -1,4 +1,8 @@
+import type { ColorScheme } from '../../contexts/ColorSchemeContext'
+
 import React from 'react'
+
+import { ColorSchemeContext } from '../../contexts/ColorSchemeContext'
 
 import styles from './Eye.module.scss'
 
@@ -6,9 +10,10 @@ const RESOLUTION: number = 2560
 const HALF_RESOLUTION: number = RESOLUTION / 2
 const PUPIL_RADIUS: number = RESOLUTION / 7
 
-function drawEye(ctx: CanvasRenderingContext2D) {
+function drawEye(ctx: CanvasRenderingContext2D, colorScheme: ColorScheme) {
   ctx.lineWidth = 6
-  ctx.strokeStyle = '#000'
+  ctx.strokeStyle = colorScheme.text
+  ctx.fillStyle = colorScheme.crust
 
   ctx.beginPath()
 
@@ -34,7 +39,6 @@ function drawEye(ctx: CanvasRenderingContext2D) {
     HALF_RESOLUTION,
   )
 
-  ctx.fillStyle = '#202020'
   ctx.fill()
   ctx.stroke()
   ctx.beginPath()
@@ -59,7 +63,7 @@ function drawEye(ctx: CanvasRenderingContext2D) {
     RESOLUTION,
     HALF_RESOLUTION,
   )
-  ctx.fillStyle = '#242424'
+  ctx.fillStyle = colorScheme.mantle
   ctx.fill()
   ctx.stroke()
 
@@ -70,7 +74,7 @@ function drawEye(ctx: CanvasRenderingContext2D) {
   ctx.arc(HALF_RESOLUTION, HALF_RESOLUTION, RESOLUTION / 2.5, 0, 2 * Math.PI)
   ctx.lineWidth = 12
   ctx.stroke()
-  ctx.fillStyle = '#262626'
+  ctx.fillStyle = colorScheme.mantle
   ctx.fill()
   ctx.lineWidth = 6
 
@@ -78,16 +82,9 @@ function drawEye(ctx: CanvasRenderingContext2D) {
   ctx.beginPath()
   ctx.moveTo(HALF_RESOLUTION + RESOLUTION / 6, HALF_RESOLUTION)
   ctx.arc(HALF_RESOLUTION, HALF_RESOLUTION, RESOLUTION / 6, 0, 2 * Math.PI)
-  ctx.fillStyle = '#282828'
+  ctx.fillStyle = colorScheme.green
   ctx.fill()
   ctx.stroke()
-
-  // Pupil
-  ctx.beginPath()
-  ctx.moveTo(HALF_RESOLUTION + PUPIL_RADIUS, HALF_RESOLUTION)
-  ctx.arc(HALF_RESOLUTION, HALF_RESOLUTION, PUPIL_RADIUS, 0, 2 * Math.PI)
-  ctx.fillStyle = '#000000'
-  ctx.fill()
 }
 
 // const pulseValues: { opacity: number; direction: 'up' | 'down' } = {
@@ -125,81 +122,143 @@ function drawEye(ctx: CanvasRenderingContext2D) {
 //   ctx.strokeText('音楽', HALF_RESOLUTION, HALF_RESOLUTION)
 // }
 
-function drawAudioData(ctx: CanvasRenderingContext2D, audioData: Uint8Array) {
-  // Pupil Clip
-  ctx.beginPath()
-  ctx.moveTo(HALF_RESOLUTION + PUPIL_RADIUS, HALF_RESOLUTION)
-  ctx.arc(HALF_RESOLUTION, HALF_RESOLUTION, PUPIL_RADIUS, 0, 2 * Math.PI)
-  ctx.fillStyle = '#000000'
-  ctx.fill()
+interface DrawOptions {
+  fade: number
+}
 
-  ctx.save()
-  ctx.clip()
+function drawAudioData(
+  options: DrawOptions,
+  ctx: CanvasRenderingContext2D,
+  audioData: Uint8Array,
+  full: boolean = false,
+  colorScheme: ColorScheme,
+) {
+  if (!full) {
+    // Pupil Clip
+    ctx.beginPath()
+    ctx.moveTo(HALF_RESOLUTION + PUPIL_RADIUS, HALF_RESOLUTION)
+    ctx.arc(HALF_RESOLUTION, HALF_RESOLUTION, PUPIL_RADIUS, 0, 2 * Math.PI)
+    ctx.fillStyle = colorScheme.base
+    ctx.fill()
 
-  ctx.strokeStyle = '#484848'
+    ctx.save()
+    ctx.clip()
+
+    ctx.strokeStyle = colorScheme.text
+  } else {
+    // ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
+    const fade = Math.min(255, Math.max(0, options.fade)).toString(16)
+
+    if (fade.length === 0) {
+      ctx.fillStyle = `${colorScheme.base}00`
+    } else if (fade.length === 1) {
+      ctx.fillStyle = `${colorScheme.base}${fade}`
+    } else {
+      ctx.fillStyle = `${colorScheme.base}${fade}`
+    }
+
+    ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height)
+
+    ctx.strokeStyle = colorScheme.text
+  }
 
   ctx.beginPath()
 
   for (let i = 0; i < audioData.length; i++) {
     const v = audioData[i] / 128.0
-    const y = v * PUPIL_RADIUS
+    const y = v * (full ? HALF_RESOLUTION : PUPIL_RADIUS)
 
-    const mappedX = (i / (audioData.length - 1)) * PUPIL_RADIUS * 2
+    const mappedX =
+      (i / (audioData.length - 1)) * (full ? HALF_RESOLUTION : PUPIL_RADIUS) * 2
 
     ctx[i === 0 ? 'moveTo' : 'lineTo'](
-      HALF_RESOLUTION - PUPIL_RADIUS + mappedX,
-      y + HALF_RESOLUTION - PUPIL_RADIUS,
+      (full ? 0 : HALF_RESOLUTION - PUPIL_RADIUS) + mappedX,
+      y + (full ? 0 : HALF_RESOLUTION - PUPIL_RADIUS),
     )
   }
+
   ctx.stroke()
 
-  ctx.restore()
+  if (!full) {
+    ctx.restore()
+  }
 }
 
 export function Eye({
+  drawOptions,
   audioDataRef,
+  full,
 }: {
+  drawOptions: React.MutableRefObject<DrawOptions>
   audioDataRef: React.MutableRefObject<Uint8Array | undefined>
+  full?: boolean
 }) {
   const canvasRef = React.useRef<HTMLCanvasElement>(null)
+  const ctxRef = React.useRef<CanvasRenderingContext2D | null>(null)
 
-  React.useEffect(() => {
+  const colorScheme = React.useContext<ColorScheme>(ColorSchemeContext)
+
+  React.useEffect((): void | (() => void) => {
     if (!canvasRef.current) return
 
-    const ctx: CanvasRenderingContext2D | null =
-      canvasRef.current.getContext('2d')
+    if (!ctxRef.current) {
+      ctxRef.current = canvasRef.current.getContext('2d')
+    }
+
+    const ctx: CanvasRenderingContext2D | null = ctxRef.current
 
     if (!ctx) return
 
-    drawEye(ctx)
-    if (audioDataRef.current) drawAudioData(ctx, audioDataRef.current)
+    ctx.reset()
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
 
-    // let startTime: number
-    let animationFrameHandler: number
-
-    const prevAudioData: Uint8Array | undefined = audioDataRef.current
-
-    const drawAnimation = () => {
-      if (prevAudioData !== audioDataRef.current && audioDataRef.current) {
-        // drawEye(ctx)
-
-        drawAudioData(ctx, audioDataRef.current)
-      }
-
-      animationFrameHandler = requestAnimationFrame(drawAnimation)
+    if (!full) {
+      drawEye(ctx, colorScheme)
+    } else {
+      ctx.lineWidth = 6
+      ctx.strokeStyle = colorScheme.base
+      ctx.fillStyle = colorScheme.base
     }
 
-    animationFrameHandler = requestAnimationFrame(drawAnimation)
+    if (audioDataRef.current) {
+      drawAudioData(
+        drawOptions.current,
+        ctx,
+        audioDataRef.current,
+        full,
+        colorScheme,
+      )
+    }
 
-    return () => cancelAnimationFrame(animationFrameHandler)
-  }, [audioDataRef])
+    let animationFrameHandle: number
+
+    const drawAnimation = (): void => {
+      if (audioDataRef.current) {
+        drawAudioData(
+          drawOptions.current,
+          ctx,
+          audioDataRef.current,
+          full,
+          colorScheme,
+        )
+      }
+
+      animationFrameHandle = window.requestAnimationFrame(drawAnimation)
+    }
+
+    drawAnimation()
+
+    return (): void => {
+      window.cancelAnimationFrame(animationFrameHandle)
+    }
+  }, [audioDataRef, full, colorScheme, drawOptions])
 
   return (
     <canvas
       ref={canvasRef}
       width={RESOLUTION}
       height={RESOLUTION}
-      className={styles.eye}
+      className={`${styles.eye} ${full ? styles.full : ''}`}
     ></canvas>
   )
 }
