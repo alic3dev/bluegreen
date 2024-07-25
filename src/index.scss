@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Major+Mono+Display&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap');
 
 @import '@catppuccin/palette/style';
 
@@ -9,33 +9,23 @@
   --color-#{$color}-raw: var(--ctp-#{$flavor}-#{$color}-raw);
 }
 
+$colors-theme: 'rosewater', 'flamingo', 'pink', 'mauve', 'red', 'maroon',
+  'peach', 'yellow', 'green', 'teal', 'sky', 'sapphire', 'blue', 'lavender';
+
+$colors-text: 'text', 'subtext1', 'subtext0';
+$colors-overlay: 'overlay2', 'overlay1', 'overlay0';
+$colors-surface: 'surface2', 'surface1', 'surface0';
+$colors-infastructure: 'crust', 'mantle', 'base';
+
+$colors-all: $colors-theme, $colors-text, $colors-overlay, $colors-surface,
+  $colors-infastructure;
+
 @mixin set-flavor-colors($flavor) {
-  @include set-color($flavor, 'rosewater');
-  @include set-color($flavor, 'flamingo');
-  @include set-color($flavor, 'pink');
-  @include set-color($flavor, 'mauve');
-  @include set-color($flavor, 'red');
-  @include set-color($flavor, 'maroon');
-  @include set-color($flavor, 'peach');
-  @include set-color($flavor, 'yellow');
-  @include set-color($flavor, 'green');
-  @include set-color($flavor, 'teal');
-  @include set-color($flavor, 'sky');
-  @include set-color($flavor, 'sapphire');
-  @include set-color($flavor, 'blue');
-  @include set-color($flavor, 'lavender');
-  @include set-color($flavor, 'text');
-  @include set-color($flavor, 'subtext1');
-  @include set-color($flavor, 'subtext0');
-  @include set-color($flavor, 'overlay2');
-  @include set-color($flavor, 'overlay1');
-  @include set-color($flavor, 'overlay0');
-  @include set-color($flavor, 'surface2');
-  @include set-color($flavor, 'surface1');
-  @include set-color($flavor, 'surface0');
-  @include set-color($flavor, 'crust');
-  @include set-color($flavor, 'mantle');
-  @include set-color($flavor, 'base');
+  @each $color-set in $colors-all {
+    @each $color in $color-set {
+      @include set-color($flavor, $color);
+    }
+  }
 }
 
 :root {
@@ -73,26 +63,45 @@
   }
 
   & {
-    font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
-    line-height: 1.5;
-    font-weight: 400;
+    --box-shadow-item: 0px 2px 4px rgba(var(--color-black-raw), 0.3);
+    --box-shadow-item-light: 0px 2px 4px rgba(var(--color-black-raw), 0.05);
+    --box-shadow-item-extalight: 0px 2px 4px rgba(var(--color-black-raw), 0.025);
 
-    color-scheme: light dark;
-    color: var(--color-text);
-    background-color: var(--color-base);
+    --box-shadow-item-inverted: 0px -2px 4px rgba(var(--color-black-raw), 0.3);
+    --box-shadow-item-light-inverted: 0px -2px 4px rgba(var(--color-black-raw), 0.05);
+    --box-shadow-item-extralight-inverted: 0px -2px 4px rgba(var(--color-black-raw), 0.025);
 
-    font-synthesis: none;
-    text-rendering: optimizeLegibility;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+    --box-shadow-item-centered: 0px 0px 4px rgba(var(--color-black-raw), 0.3);
+    --box-shadow-item-centered-light: 0px 0px 4px
+      rgba(var(--color-black-raw), 0.05);
+
+    --border-radius-item: 10px;
+    --border-radius-item-half: 5px;
   }
 }
 
+:root,
+html,
 body {
   padding: 0;
   margin: 0;
   width: 100vw;
   height: 100vh;
+
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+
+  line-height: 1.5;
+
+  color-scheme: light dark;
+  color: var(--color-text);
+  background-color: var(--color-base);
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 #root {
@@ -114,22 +123,19 @@ label {
   text-align: center;
 
   color: var(--color-subtext0);
-
-  font-size: 16px;
-
-  text-transform: uppercase;
 }
 
 select,
+a.button,
 button,
 input {
   min-width: 100px;
-  padding: 6px;
+  padding: 0.5rem;
 
   background: var(--color-base);
 
   border: 1px solid var(--color-crust);
-  border-radius: 6px;
+  border-radius: var(--border-radius-item-half);
 
   color: var(--color-text);
 
@@ -137,17 +143,38 @@ input {
 
   &:hover,
   &:focus-visible {
-    box-shadow: 0px 1px 4px 0px rgba(var(--color-black-raw), 0.05);
+    box-shadow: var(--box-shadow-item-light);
   }
 
   &:focus-visible {
     outline: 1px solid rgba(var(--color-blue-raw), 0.6);
+  }
+
+  @each $color in $colors-theme {
+    &.#{$color} {
+      background: var(--color-#{$color});
+      color: var(--color-base);
+    }
+  }
+}
+
+input[type='checkbox'],
+input[type='range'] {
+  accent-color: var(--color-blue);
+
+  &:hover,
+  &:focus-visible {
+    box-shadow: none;
   }
 }
 
 button,
 select {
   cursor: pointer;
+}
+
+a.button {
+  text-decoration: none;
 }
 
 p.small {

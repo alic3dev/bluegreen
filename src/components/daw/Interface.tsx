@@ -8,8 +8,9 @@ import type {
 } from '../../utils/project'
 
 import React from 'react'
-import { MdPiano } from 'react-icons/md'
 import { IoGrid } from 'react-icons/io5'
+import { MdPiano } from 'react-icons/md'
+import { PiDotsThreeVertical } from 'react-icons/pi'
 import { TbEaseInOutControlPoints } from 'react-icons/tb'
 
 import { Channel, Effect, effects, SampleKit, Synth } from 'zer0'
@@ -67,6 +68,11 @@ export function Interface({ project }: { project: Project }): JSX.Element {
   }: { setProject: React.Dispatch<React.SetStateAction<Project>> } = project
 
   const [dialogs, setDialogs] = React.useState<JSX.Element[]>([])
+
+  const [tabbedOpen, setTabbedOpen] = React.useState<boolean>(true)
+  const toggleTabbedOpen = (): void => {
+    setTabbedOpen((prevValue: boolean): boolean => !prevValue)
+  }
 
   const audioRef = React.useRef<AudioRef>(getDefaultAudioRef())
   const generatedChannelsRef = React.useRef<number>(1)
@@ -624,31 +630,44 @@ export function Interface({ project }: { project: Project }): JSX.Element {
           </div>
         </div>
 
-        <Tabbed
-          tabs={[
-            {
-              id: tabsIdLookup.synths,
-              name: 'Synths',
-              element: <SynthList synths={synths} />,
-            },
-            {
-              id: tabsIdLookup.kits,
-              name: 'Kits',
-              element: <KitList kits={kits} />,
-            },
-            {
-              id: tabsIdLookup.channels,
-              name: 'Channels',
-              element: (
-                <ChannelList
-                  channels={channels}
-                  addChannel={addChannel}
-                  removeChannel={removeChannel}
-                />
-              ),
-            },
-          ]}
-        />
+        <div
+          className={`${styles['tabbed-wrapper']} ${
+            tabbedOpen ? '' : styles.closed
+          }`}
+        >
+          <button
+            className={styles['tabbed-toggle']}
+            onClick={toggleTabbedOpen}
+          >
+            <PiDotsThreeVertical />
+          </button>
+
+          <Tabbed
+            tabs={[
+              {
+                id: tabsIdLookup.synths,
+                name: 'Synths',
+                element: <SynthList synths={synths} />,
+              },
+              {
+                id: tabsIdLookup.kits,
+                name: 'Kits',
+                element: <KitList kits={kits} />,
+              },
+              {
+                id: tabsIdLookup.channels,
+                name: 'Channels',
+                element: (
+                  <ChannelList
+                    channels={channels}
+                    addChannel={addChannel}
+                    removeChannel={removeChannel}
+                  />
+                ),
+              },
+            ]}
+          />
+        </div>
       </div>
 
       <DialogContainer dialogs={dialogs} setDialogs={setDialogs} />

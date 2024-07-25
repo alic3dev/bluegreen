@@ -40,8 +40,6 @@
   overflow: hidden;
   text-overflow: clip;
   white-space: nowrap;
-
-  z-index: -1;
 }
 
 .eye {
@@ -49,8 +47,6 @@
   top: -10%;
   left: 50%;
   transform: translateX(-50%);
-
-  z-index: -2;
 
   &.full {
     position: unset;
