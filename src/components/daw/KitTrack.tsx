@@ -261,7 +261,7 @@ export function KitTrack({
             Bars
             <input
               type="number"
-              defaultValue={4}
+              defaultValue={bars.length}
               min={1}
               name={`${options.id}-bars`}
               autoComplete="off"
