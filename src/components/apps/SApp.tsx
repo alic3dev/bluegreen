@@ -88,11 +88,169 @@ export function SApp(): JSX.Element {
       // ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height)
 
       ctx.lineWidth = 6
-      ctx.strokeStyle = '#FFFFFF25'
-      ctx.moveTo(500, 750)
-      ctx.moveTo(750, 500)
-      ctx.lineTo(100, 100)
-      ctx.stroke()
+
+      // const tex = 'Sidney Mark Williams'
+
+      // ctx.font =
+      //   'bold 36px ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont'
+      // const w = ctx.measureText(tex).width
+
+      // const pos = {
+      //   x: ctx.canvas.width / 4 - w / 2,
+      //   y: ctx.canvas.height / 4,
+      // }
+
+      // const gradient = ctx.createLinearGradient(
+      //   pos.x,
+      //   pos.y,
+      //   pos.x + w / 2,
+      //   pos.y + w / 2,
+      // )
+      // gradient.addColorStop(0, '#00FF0025')
+      // gradient.addColorStop(0.5, '#FF000025')
+      // gradient.addColorStop(1, '#0000FF25')
+      // ctx.fillStyle = gradient
+      // ctx.textBaseline = 'middle'
+      // ctx.fillText(tex, pos.x, pos.y)
+
+      // let gradient = ctx.createLinearGradient(333, 333, 100, 100)
+
+      // gradient.addColorStop(0, '#00FF0025')
+      // gradient.addColorStop(0.5, '#FF000025')
+      // gradient.addColorStop(1, '#0000FF25')
+
+      // ctx.strokeStyle = gradient
+      // // ctx.strokeStyle = '#FFFFFF25'
+      // // ctx.moveTo(500, 750)
+      // // ctx.moveTo(750, 500)
+      // // ctx.lineTo(100, 100)
+      // // ctx.stroke()
+      // ctx.moveTo(333, 333)
+      // ctx.lineTo(100, 100)
+      // ctx.stroke()
+
+      // gradient = ctx.createLinearGradient(100, 333, 333, 100)
+
+      // gradient.addColorStop(0, '#00FF0025')
+      // gradient.addColorStop(0.5, '#FF000025')
+      // gradient.addColorStop(1, '#0000FF25')
+
+      // ctx.strokeStyle = gradient
+      // ctx.moveTo(100, 333)
+      // ctx.lineTo(333, 100)
+      // ctx.stroke()
+
+      // gradient = ctx.createLinearGradient(433, 333, 666, 100)
+
+      // gradient.addColorStop(0, '#00FF0025')
+      // gradient.addColorStop(0.5, '#FF000025')
+      // gradient.addColorStop(1, '#0000FF25')
+
+      // ctx.strokeStyle = gradient
+      // ctx.moveTo(433, 333)
+      // ctx.lineTo(666, 100)
+      // ctx.stroke()
+
+      // gradient = ctx.createLinearGradient(666, 333, 433, 100)
+
+      // gradient.addColorStop(0, '#00FF0025')
+      // gradient.addColorStop(0.5, '#FF000025')
+      // gradient.addColorStop(1, '#0000FF25')
+
+      // ctx.strokeStyle = gradient
+      // ctx.moveTo(666, 333)
+      // ctx.lineTo(433, 100)
+      // ctx.stroke()
+
+      let radgrad = ctx.createRadialGradient(
+        ctx.canvas.width / 4,
+        ctx.canvas.height / 4,
+        0,
+        ctx.canvas.width / 4,
+        ctx.canvas.height / 4,
+        50,
+      )
+      radgrad.addColorStop(0, '#FF000025')
+      radgrad.addColorStop(0.5, '#00FF0025')
+      radgrad.addColorStop(1, '#0000FF25')
+
+      ctx.fillStyle = radgrad
+      ctx.beginPath()
+      ctx.arc(ctx.canvas.width / 4, ctx.canvas.height / 4, 50, 0, 2 * Math.PI)
+      ctx.closePath()
+      ctx.fill()
+
+      radgrad = ctx.createRadialGradient(
+        ctx.canvas.width - ctx.canvas.width / 4,
+        ctx.canvas.height - ctx.canvas.height / 4,
+        0,
+        ctx.canvas.width - ctx.canvas.width / 4,
+        ctx.canvas.height - ctx.canvas.height / 4,
+        50,
+      )
+      radgrad.addColorStop(0, '#FF000025')
+      radgrad.addColorStop(0.5, '#00FF0025')
+      radgrad.addColorStop(1, '#0000FF25')
+
+      ctx.fillStyle = radgrad
+      ctx.beginPath()
+      ctx.arc(
+        ctx.canvas.width - ctx.canvas.width / 4,
+        ctx.canvas.height - ctx.canvas.height / 4,
+        50,
+        0,
+        2 * Math.PI,
+      )
+      ctx.closePath()
+      ctx.fill()
+
+      radgrad = ctx.createRadialGradient(
+        ctx.canvas.width - ctx.canvas.width / 4,
+        ctx.canvas.height / 4,
+        0,
+        ctx.canvas.width - ctx.canvas.width / 4,
+        ctx.canvas.height / 4,
+        50,
+      )
+      radgrad.addColorStop(0, '#FF000025')
+      radgrad.addColorStop(0.5, '#00FF0025')
+      radgrad.addColorStop(1, '#0000FF25')
+
+      ctx.fillStyle = radgrad
+      ctx.beginPath()
+      ctx.arc(
+        ctx.canvas.width - ctx.canvas.width / 4,
+        ctx.canvas.height / 4,
+        50,
+        0,
+        2 * Math.PI,
+      )
+      ctx.closePath()
+      ctx.fill()
+
+      radgrad = ctx.createRadialGradient(
+        ctx.canvas.width / 4,
+        ctx.canvas.height - ctx.canvas.height / 4,
+        0,
+        ctx.canvas.width / 4,
+        ctx.canvas.height - ctx.canvas.height / 4,
+        50,
+      )
+      radgrad.addColorStop(0, '#FF000025')
+      radgrad.addColorStop(0.5, '#00FF0025')
+      radgrad.addColorStop(1, '#0000FF25')
+
+      ctx.fillStyle = radgrad
+      ctx.beginPath()
+      ctx.arc(
+        ctx.canvas.width / 4,
+        ctx.canvas.height - ctx.canvas.height / 4,
+        50,
+        0,
+        2 * Math.PI,
+      )
+      ctx.closePath()
+      ctx.fill()
 
       prevImageData = ctx.getImageData(
         0,
