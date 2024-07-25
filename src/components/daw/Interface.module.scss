@@ -60,6 +60,12 @@
     margin-top: 0.5rem;
 
     border-radius: 10px;
+
+    transition: box-shadow 100ms ease-in-out, color 100ms ease-in-out;
+
+    &:hover {
+      color: var(--color-lavender);
+    }
   }
 }
 

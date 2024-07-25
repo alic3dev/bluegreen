@@ -152,6 +152,7 @@ input {
 
   @each $color in $colors-theme {
     &.#{$color} {
+      border: none;
       background: var(--color-#{$color});
       color: var(--color-base);
     }
