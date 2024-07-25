@@ -1,7 +1,11 @@
 import React from 'react'
 
 import { Beat } from './Beat'
-import { generateBeat, BarData, Position } from '../../utils/general'
+import {
+  generateBeat as _generateBeat,
+  BarData,
+  Position,
+} from '../../utils/general'
 
 import styles from './Bar.module.scss'
 
@@ -14,6 +18,7 @@ export function Bar({
   position,
   frequencies,
   polyphony,
+  generateBeat = _generateBeat,
 }: {
   setBars: React.Dispatch<React.SetStateAction<BarData[]>>
   bar: BarData
@@ -21,6 +26,7 @@ export function Bar({
   position: Position
   frequencies: number[]
   polyphony: number
+  generateBeat?: typeof _generateBeat
 }): JSX.Element {
   const onBeatsInputChange: React.ChangeEventHandler<HTMLInputElement> = (
     event: React.ChangeEvent<HTMLInputElement>,
