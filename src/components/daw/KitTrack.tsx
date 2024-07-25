@@ -1,17 +1,19 @@
-import React from 'react'
-import { Sample, SampleKit } from 'zer0'
-
-import { ChannelWithOptions } from './ChannelList'
-import { Bar, BarData } from './Bar'
-
-import { generateBar, Position } from '../../utils/general'
-
-import {
+import type {
   ProjectKitTrack,
   ProjectTrack,
   Project,
-  ProjectContext,
-} from '../../contexts'
+} from '../../utils/project'
+import type { Position } from '../../utils/general'
+
+import type { BarData } from './Bar'
+import type { ChannelWithOptions } from './ChannelList'
+
+import React from 'react'
+import { Sample, SampleKit } from 'zer0'
+
+import { Bar } from './Bar'
+
+import { generateBar, generateBeat } from '../../utils/general'
 
 export interface KitTrackOptions {
   title: string
@@ -30,6 +32,7 @@ export interface KitTrackOptions {
 }
 
 export interface KitTrackProps {
+  project: Project
   options: KitTrackOptions
   channels: ChannelWithOptions[]
   kits: SampleKit[]
@@ -38,13 +41,11 @@ export interface KitTrackProps {
 import trackStyles from './Track.module.scss'
 
 export function KitTrack({
+  project,
   options,
   channels,
   kits,
 }: KitTrackProps): JSX.Element {
-  // FIXME: Need async support for load states
-
-  const project = React.useContext<Project>(ProjectContext)
   const {
     setProject,
   }: { setProject: React.Dispatch<React.SetStateAction<Project>> } = project
@@ -272,9 +273,7 @@ export function KitTrack({
                     ...prevBars,
                     ...new Array(barCount - bars.length)
                       .fill(null)
-                      .map(
-                        (): BarData => generateBar([0, 1], 4, samples.length),
-                      ),
+                      .map((): BarData => generateBar([0], 4, samples.length)),
                   ])
                 } else if (barCount < bars.length) {
                   setBars((prevBars: BarData[]): BarData[] =>
@@ -297,6 +296,9 @@ export function KitTrack({
             position={position}
             polyphony={samples.length}
             key={barIndex}
+            generateBeat={(_: number[], polyphony?: number) =>
+              generateBeat([0], polyphony)
+            }
           />
         ),
       )}

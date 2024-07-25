@@ -1,17 +1,18 @@
+import type { SynthPresetValues, SampleKitPresetValues } from 'zer0'
+
+import type {
+  Project,
+  ProjectKitTrack,
+  ProjectSynthTrack,
+  ProjectTrack,
+} from '../../utils/project'
+
 import React from 'react'
 import { MdPiano } from 'react-icons/md'
 import { IoGrid } from 'react-icons/io5'
 import { TbEaseInOutControlPoints } from 'react-icons/tb'
 
-import {
-  Channel,
-  Effect,
-  effects,
-  SampleKit,
-  Synth,
-  SynthPresetValues,
-} from 'zer0'
-import { SampleKitPresetValues } from 'zer0/src/SampleKitPreset'
+import { Channel, Effect, effects, SampleKit, Synth } from 'zer0'
 
 import {
   ChannelList,
@@ -29,13 +30,6 @@ import {
 } from '../layout/Dialogs'
 import { Tabbed } from '../layout/Tabbed'
 
-import {
-  Project,
-  ProjectContext,
-  ProjectKitTrack,
-  ProjectSynthTrack,
-  ProjectTrack,
-} from '../../contexts'
 import { LOCAL_STORAGE_KEY_SELECTED_PROJECT } from '../../utils/constants'
 
 import { KitList } from './KitList'
@@ -67,8 +61,7 @@ const defaultSamples: Record<string, string> = {
   clap: '/kits/SwuM Drum Kit/Claps/Clap 1.wav',
 }
 
-export function Interface(): JSX.Element {
-  const project: Project = React.useContext(ProjectContext)
+export function Interface({ project }: { project: Project }): JSX.Element {
   const {
     setProject,
   }: { setProject: React.Dispatch<React.SetStateAction<Project>> } = project
@@ -358,13 +351,13 @@ export function Interface(): JSX.Element {
 
   const addKitTrack = (): void => {
     const originalName: string = 'Kit #'
-    let accumulatedName: string = `${originalName} 1`
+    let accumulatedName: string = `${originalName}1`
     let accumulator: number = 1
 
     while (
       kits.find((kit: SampleKit): boolean => kit.name === accumulatedName)
     ) {
-      accumulatedName = `${originalName} ${accumulator++}`
+      accumulatedName = `${originalName}${accumulator++}`
     }
 
     const newKit: SampleKit = new SampleKit(
@@ -479,6 +472,7 @@ export function Interface(): JSX.Element {
         // TODO: Modularize this
         const openDialog: JSX.Element = (
           <OpenDialog
+            project={project}
             key={crypto.randomUUID()}
             close={(
               closeBase: boolean = true,
@@ -583,6 +577,7 @@ export function Interface(): JSX.Element {
   return (
     <div className={styles.interface}>
       <Header
+        project={project}
         trackInfo={trackInfoRef.current}
         playing={playing}
         setPlaying={setPlaying}
@@ -609,6 +604,7 @@ export function Interface(): JSX.Element {
                 (trackOptions: TrackOptions): JSX.Element =>
                   Object.hasOwnProperty.call(trackOptions, 'defaultKitId') ? (
                     <Track
+                      project={project}
                       options={trackOptions}
                       key={trackOptions.id}
                       channels={channels}
@@ -616,6 +612,7 @@ export function Interface(): JSX.Element {
                     />
                   ) : (
                     <Track
+                      project={project}
                       options={trackOptions}
                       key={trackOptions.id}
                       channels={channels}

@@ -1,3 +1,6 @@
+import type { Project } from '../../utils/project'
+import type { TrackInfo } from './SharedTypes'
+
 import React from 'react'
 import { Link } from 'react-router-dom'
 import {
@@ -11,18 +14,17 @@ import {
 } from 'react-icons/ci'
 
 import { TapBpm } from './TapBpm'
-import { TrackInfo } from './SharedTypes'
-
-import { Project, ProjectContext } from '../../contexts'
 
 import styles from './Header.module.scss'
 
 export function Header({
+  project,
   trackInfo,
   playing,
   setPlaying,
   actions,
 }: {
+  project: Project
   trackInfo: TrackInfo
   playing: boolean
   setPlaying: React.Dispatch<React.SetStateAction<boolean>>
@@ -33,8 +35,6 @@ export function Header({
     settings: () => void
   }
 }): JSX.Element {
-  const project: Project = React.useContext(ProjectContext)
-
   const reset = React.useCallback(
     (): void =>
       Object.values(trackInfo.registeredResets).forEach(
@@ -156,6 +156,7 @@ export function Header({
       </label>
 
       <TapBpm
+        project={project}
         registerStep={registerTapBpmStep}
         unregisterStep={unregisterTapBpmStep}
         onTapped={(bpm: number): void => {

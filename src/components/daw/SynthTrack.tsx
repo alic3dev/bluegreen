@@ -1,18 +1,23 @@
-import React from 'react'
-import { Note, Octave, Synth, utils } from 'zer0'
+import type { Note, Octave } from 'zer0'
 
-import { ChannelWithOptions } from './ChannelList'
-import { Bar, BarData } from './Bar'
+import type { BarData } from './Bar'
+import type { ChannelWithOptions } from './ChannelList'
 
-import { generateBar, Position } from '../../utils/general'
-
-import styles from './Track.module.scss'
-import {
+import type {
   Project,
   ProjectTrack,
-  ProjectContext,
   ProjectSynthTrack,
-} from '../../contexts'
+} from '../../utils/project'
+import type { Position } from '../../utils/general'
+
+import React from 'react'
+import { Synth, utils } from 'zer0'
+
+import { Bar } from './Bar'
+
+import { generateBar } from '../../utils/general'
+
+import styles from './Track.module.scss'
 
 export interface SynthTrackOptions {
   title: string
@@ -31,6 +36,7 @@ export interface SynthTrackOptions {
 }
 
 export interface SynthTrackProps {
+  project: Project
   options: SynthTrackOptions
   channels: ChannelWithOptions[]
   synths: Synth[]
@@ -47,11 +53,11 @@ const frequencies: number[] = utils
   .sort((a: number, b: number): number => a - b)
 
 export function SynthTrack({
+  project,
   options,
   channels,
   synths,
 }: SynthTrackProps): JSX.Element {
-  const project = React.useContext(ProjectContext)
   const {
     setProject,
   }: { setProject: React.Dispatch<React.SetStateAction<Project>> } = project

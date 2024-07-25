@@ -1,5 +1,3 @@
-import React from 'react'
-
 import { BarData } from '../utils/general'
 
 export interface BaseProjectTrack {
@@ -41,5 +39,3 @@ export const defaultProject: Project = {
 
   setProject() {},
 }
-
-export const ProjectContext = React.createContext<Project>(defaultProject)

@@ -1,7 +1,7 @@
+import type { Project } from '../../../utils/project'
+
 import React from 'react'
 import { CiMenuKebab, CiSquareChevRight } from 'react-icons/ci'
-
-import { Project, ProjectContext } from '../../../contexts'
 
 import {
   LOCAL_STORAGE_KEY_PROJECT_PREFIX,
@@ -13,15 +13,15 @@ import { ConfirmDialog, Dialog, DialogHeader, DialogFooter } from '.'
 import styles from './OpenDialog.module.scss'
 
 export function OpenDialog({
+  project,
   close,
   addDialog,
 }: {
+  project: Project
   close: (closeBase: boolean, ...dialogs: JSX.Element[]) => void
   addDialog: (dialog: JSX.Element) => void
 }): JSX.Element {
-  const [dialogKey] = React.useState<string>(() => crypto.randomUUID())
-
-  const project = React.useContext<Project>(ProjectContext)
+  const [dialogKey] = React.useState<string>((): string => crypto.randomUUID())
 
   const savedProjectKeys: string[] = []
 

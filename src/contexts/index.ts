@@ -1,10 +1,3 @@
-export { ProjectContext, defaultProject } from './ProjectContext'
-export type {
-  Project,
-  ProjectTrack,
-  ProjectKitTrack,
-  ProjectSynthTrack,
-} from './ProjectContext'
+export type { Settings, ProvidedSettings } from './SettingsContext'
 
 export { SettingsContext, defaultSettings } from './SettingsContext'
-export type { Settings } from './SettingsContext'

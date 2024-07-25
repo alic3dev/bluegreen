@@ -1,17 +1,14 @@
+import type { Settings, ProvidedSettings } from '../../contexts'
+import type { Project } from '../../utils/project'
+
 import React from 'react'
 
 import { Interface } from '../daw'
 import { RequestAudio } from '../RequestAudio'
 
-import {
-  defaultProject,
-  Project,
-  ProjectContext,
-  defaultSettings,
-  Settings,
-  SettingsContext,
-} from '../../contexts'
-import { ProvidedSettings } from '../../contexts/SettingsContext'
+import { defaultSettings, SettingsContext } from '../../contexts'
+
+import { defaultProject } from '../../utils/project'
 
 import {
   LOCAL_STORAGE_KEY_SETTINGS,
@@ -21,7 +18,7 @@ import {
 import { canCreateAudioContext } from '../../utils/canCreateAudioContext'
 
 function Zer0Daw(): JSX.Element {
-  const [project, setProject] = React.useState<Project>((): Project => {
+  const [_project, setProject] = React.useState<Project>((): Project => {
     const savedProjectId = window.localStorage.getItem(
       LOCAL_STORAGE_KEY_SELECTED_PROJECT,
     )
@@ -47,9 +44,9 @@ function Zer0Daw(): JSX.Element {
     return defaultProject
   })
 
-  const projectProviderValue = React.useMemo<Project>(
-    () => ({ ...project, setProject }),
-    [project],
+  const project = React.useMemo<Project>(
+    () => ({ ..._project, setProject }),
+    [_project],
   )
 
   const [settings, setSettings] = React.useState<Settings>((): Settings => {
@@ -131,11 +128,9 @@ function Zer0Daw(): JSX.Element {
   }, [settings.autoSave, project])
 
   return (
-    <ProjectContext.Provider value={projectProviderValue}>
-      <SettingsContext.Provider value={settingsProviderValue}>
-        <Interface />
-      </SettingsContext.Provider>
-    </ProjectContext.Provider>
+    <SettingsContext.Provider value={settingsProviderValue}>
+      <Interface project={project} />
+    </SettingsContext.Provider>
   )
 }
 
