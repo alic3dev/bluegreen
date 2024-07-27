@@ -148,41 +148,33 @@ export function Interface({ project }: { project: Project }): JSX.Element {
     [channels],
   )
 
-  const defaultSynthRef = React.useRef<{ val?: Synth }>({})
   const generateDefaultSynth = (): Synth => {
-    if (!defaultSynthRef.current.val) {
-      defaultSynthRef.current.val = new Synth({
-        audioContext: audioRef.current.context,
-        name: 'Basic',
-        channel: channels[0],
-      })
-    }
-
-    return defaultSynthRef.current.val
+    return new Synth({
+      audioContext: audioRef.current.context,
+      name: 'Basic',
+      channel: channels[0],
+    })
   }
 
   const [synths, setSynths] = React.useState<Synth[]>((): Synth[] => {
-    // FIXME: This is loading all synth presets, be more effiecient about it (Only project Synths)
     const savedSynths: SynthPresetValues[] = []
-    for (let i: number = 0; i < window.localStorage.length; i++) {
-      const synthStorageKey = window.localStorage.key(i)
 
-      if (
-        !synthStorageKey ||
-        !synthStorageKey.startsWith(Synth.localStorageKeyPrefix)
-      ) {
-        continue
-      }
+    for (const track of project.tracks) {
+      if (Object.prototype.hasOwnProperty.call(track, 'synthId')) {
+        const synthStorageKey: string = `${Synth.localStorageKeyPrefix}${
+          (track as ProjectSynthTrack).synthId
+        }`
 
-      const synthStorageString: string | null =
-        window.localStorage.getItem(synthStorageKey)
+        const synthStorageString: string | null =
+          window.localStorage.getItem(synthStorageKey)
 
-      if (!synthStorageString) continue
+        if (!synthStorageString) continue
 
-      try {
-        savedSynths.push(JSON.parse(synthStorageString))
-      } catch {
-        window.localStorage.removeItem(synthStorageKey)
+        try {
+          savedSynths.push(JSON.parse(synthStorageString))
+        } catch {
+          window.localStorage.removeItem(synthStorageKey)
+        }
       }
     }
 
@@ -228,27 +220,24 @@ export function Interface({ project }: { project: Project }): JSX.Element {
   }
 
   const [kits, setKits] = React.useState<SampleKit[]>((): SampleKit[] => {
-    // FIXME: This is loading all kit presets, be more effiecient about it (Only project Synths)
     const savedKits: SampleKitPresetValues[] = []
-    for (let i: number = 0; i < window.localStorage.length; i++) {
-      const synthStorageKey = window.localStorage.key(i)
 
-      if (
-        !synthStorageKey ||
-        !synthStorageKey.startsWith(SampleKit.localStorageKeyPrefix)
-      ) {
-        continue
-      }
+    for (const track of project.tracks) {
+      if (Object.prototype.hasOwnProperty.call(track, 'kitId')) {
+        const kitStorageKey: string = `${SampleKit.localStorageKeyPrefix}${
+          (track as ProjectKitTrack).kitId
+        }`
 
-      const kitStorageString: string | null =
-        window.localStorage.getItem(synthStorageKey)
+        const kitStorageString: string | null =
+          window.localStorage.getItem(kitStorageKey)
 
-      if (!kitStorageString) continue
+        if (!kitStorageString) continue
 
-      try {
-        savedKits.push(JSON.parse(kitStorageString))
-      } catch {
-        window.localStorage.removeItem(synthStorageKey)
+        try {
+          savedKits.push(JSON.parse(kitStorageString))
+        } catch {
+          window.localStorage.removeItem(kitStorageKey)
+        }
       }
     }
 
@@ -445,12 +434,10 @@ export function Interface({ project }: { project: Project }): JSX.Element {
 
     const newKit: SampleKit = new SampleKit({
       audioContext: audioRef.current.context,
+      name: accumulatedName,
       samples: defaultSamples,
       channel: channels[0],
     })
-
-    newKit.name = accumulatedName
-    newKit.savePreset()
 
     setKits((prevKits: SampleKit[]): SampleKit[] => [...prevKits, newKit])
 
