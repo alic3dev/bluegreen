@@ -74,27 +74,23 @@ export function NavigationApp() {
                 Get Started
               </Link>
             </div>
-
-            <div className={styles['navigation-container']}>
-              <p>// TODO: Put additional info here</p>
-            </div>
           </div>
 
           <div className={styles['navigation-container-wrapper']}>
             <div className={styles['navigation-container']}>
               <h2>Other tools</h2>
 
-              <div>
-                <Link to="/eye-gen">Eye Gen</Link>- &nbsp;Generate waves of
-                sound
-              </div>
-              <div>
-                <Link to="/tones">Tones</Link>- &nbsp;Produce a multitude of
-                specific frequencies simultaneously
-              </div>
-              <div>
-                <Link to="/noise">Noise</Link>- &nbsp;A rhythm, a heartbeat, its
-                life is yours.
+              <div className={styles.tools}>
+                <Link to="/eye-gen">Eye Gen</Link>
+                <div>Generate waves of sound</div>
+
+                <Link to="/tones">Tones</Link>
+                <div>
+                  Produce a multitude of specific frequencies simultaneously
+                </div>
+
+                <Link to="/noise">Noise</Link>
+                <div>A rhythm, a heartbeat. Its life is yours.</div>
               </div>
             </div>
           </div>

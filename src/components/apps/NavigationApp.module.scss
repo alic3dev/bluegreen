@@ -81,11 +81,13 @@
   height: 100%;
 
   a {
-    margin: 0.5em;
-
     font-weight: 700;
     color: var(--color-blue);
     text-decoration: none;
+
+    &.button {
+      margin: 0.5em;
+    }
   }
 }
 
@@ -115,13 +117,20 @@
   margin: 2rem auto;
   padding: 2rem;
 
-  background: rgba(var(--color-base-raw), 0.6);
-
-  backdrop-filter: blur(60px);
+  background: var(--color-base);
 
   border-radius: var(--border-radius-item);
 
   box-shadow: var(--box-shadow-item);
+}
+
+.tools {
+  display: grid;
+  grid-template-columns: auto auto;
+  column-gap: 1rem;
+  row-gap: 2rem;
+
+  padding: 2rem 0;
 }
 
 .border {
