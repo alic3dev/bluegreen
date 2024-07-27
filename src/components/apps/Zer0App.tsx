@@ -1,7 +1,10 @@
+import type { Note, Octave } from 'zer0'
+
 import type { Settings, ProvidedSettings } from '../../contexts'
-import type { Project } from '../../utils/project'
+import type { BaseProject, Project } from '../../utils/project'
 
 import React from 'react'
+import { utils } from 'zer0'
 
 import { Interface } from '../daw'
 import { RequestAudio } from '../RequestAudio'
@@ -18,36 +21,62 @@ import {
 import { canCreateAudioContext } from '../../utils/canCreateAudioContext'
 
 function Zer0Daw(): JSX.Element {
-  const [_project, setProject] = React.useState<Project>((): Project => {
-    const savedProjectId = window.localStorage.getItem(
-      LOCAL_STORAGE_KEY_SELECTED_PROJECT,
-    )
-
-    if (savedProjectId) {
-      const savedProject = window.localStorage.getItem(
-        `${LOCAL_STORAGE_KEY_PROJECT_PREFIX}${savedProjectId}`,
+  const [_project, setProject] = React.useState<BaseProject>(
+    (): BaseProject => {
+      const savedProjectId = window.localStorage.getItem(
+        LOCAL_STORAGE_KEY_SELECTED_PROJECT,
       )
 
-      if (savedProject) {
-        try {
-          return JSON.parse(savedProject)
-        } catch {
-          window.localStorage.removeItem(LOCAL_STORAGE_KEY_SELECTED_PROJECT)
-          // TODO: May not want to remove this, could be recovered if corrupted
-          window.localStorage.removeItem(
-            `${LOCAL_STORAGE_KEY_PROJECT_PREFIX}${savedProjectId}`,
-          )
+      if (savedProjectId) {
+        const savedProject = window.localStorage.getItem(
+          `${LOCAL_STORAGE_KEY_PROJECT_PREFIX}${savedProjectId}`,
+        )
+
+        if (savedProject) {
+          try {
+            return {
+              ...defaultProject,
+              ...JSON.parse(savedProject),
+            }
+          } catch {
+            window.localStorage.removeItem(LOCAL_STORAGE_KEY_SELECTED_PROJECT)
+            // TODO: May not want to remove this, could be recovered if corrupted
+            window.localStorage.removeItem(
+              `${LOCAL_STORAGE_KEY_PROJECT_PREFIX}${savedProjectId}`,
+            )
+          }
         }
       }
-    }
 
-    return defaultProject
-  })
-
-  const project = React.useMemo<Project>(
-    () => ({ ..._project, setProject }),
-    [_project],
+      return defaultProject
+    },
   )
+
+  const project = React.useMemo<Project>(() => {
+    const scaleNotes: Note[] = utils.getScaleInKey(
+      _project.scale,
+      _project.scaleKey,
+    )
+
+    const frequencyRootValue: number =
+      utils.frequencyRoots[_project.frequencyRoot]
+
+    const frequencies: number[] = utils
+      .createNoteTable(0, 10, frequencyRootValue)
+      .map((octave: Octave): number[] =>
+        scaleNotes.map((note: Note): number => octave[note]),
+      )
+      .flat()
+      .sort((a: number, b: number): number => a - b)
+
+    return {
+      ..._project,
+      setProject,
+      scaleNotes,
+      frequencies,
+      frequencyRootValue,
+    }
+  }, [_project])
 
   const [settings, setSettings] = React.useState<Settings>((): Settings => {
     const savedSettings = window.localStorage.getItem(
@@ -114,18 +143,18 @@ function Zer0Daw(): JSX.Element {
     }
   }, [settings])
 
-  React.useEffect(() => {
+  React.useEffect((): void => {
     if (settings.autoSave) {
       window.localStorage.setItem(
         LOCAL_STORAGE_KEY_SELECTED_PROJECT,
-        project.id,
+        _project.id,
       )
       window.localStorage.setItem(
-        `${LOCAL_STORAGE_KEY_PROJECT_PREFIX}${project.id}`,
-        JSON.stringify(project),
+        `${LOCAL_STORAGE_KEY_PROJECT_PREFIX}${_project.id}`,
+        JSON.stringify(_project),
       )
     }
-  }, [settings.autoSave, project])
+  }, [settings.autoSave, _project])
 
   return (
     <SettingsContext.Provider value={settingsProviderValue}>
