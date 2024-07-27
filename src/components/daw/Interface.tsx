@@ -1,5 +1,8 @@
 import type { SynthPresetValues, SampleKitPresetValues } from 'zer0'
 
+import type { TrackInfo } from './SharedTypes'
+import type { TrackOptions } from './Track'
+
 import type {
   BaseProject,
   Project,
@@ -16,7 +19,12 @@ import { TbEaseInOutControlPoints } from 'react-icons/tb'
 
 import { Channel, SampleKit, Synth } from 'zer0'
 
-import { ChannelList, Track, TrackOptions, SynthList } from '.'
+import { ChannelList } from './ChannelList'
+import { Header } from './Header'
+import { KitList } from './KitList'
+import { ProjectSettings } from './ProjectSettings'
+import { SynthList } from './SynthList'
+import { Track } from './Track'
 
 import {
   DialogContainer,
@@ -28,12 +36,7 @@ import { Tabbed } from '../layout/Tabbed'
 
 import { LOCAL_STORAGE_KEY_SELECTED_PROJECT } from '../../utils/constants'
 
-import { KitList } from './KitList'
-import { Header } from './Header'
-import { TrackInfo } from './SharedTypes'
-
 import styles from './Interface.module.scss'
-import { ProjectSettings } from './ProjectSettings'
 
 interface AudioRef {
   context: AudioContext
