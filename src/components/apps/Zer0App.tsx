@@ -20,7 +20,7 @@ import {
 } from '../../utils/constants'
 import { canCreateAudioContext } from '../../utils/canCreateAudioContext'
 
-function Zer0Daw(): JSX.Element {
+function Zer0Daw(): React.ReactNode {
   const [_project, setProject] = React.useState<BaseProject>(
     (): BaseProject => {
       const savedProjectId = window.localStorage.getItem(
@@ -164,7 +164,7 @@ function Zer0Daw(): JSX.Element {
   )
 }
 
-export function Zer0App(): JSX.Element {
+export function Zer0App(): React.ReactNode {
   const [_canCreateAudioContext, setCanCreateAudioContext] =
     React.useState<boolean>(canCreateAudioContext())
 

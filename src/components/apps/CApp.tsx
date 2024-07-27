@@ -5,7 +5,7 @@ import { GenerativeControls } from '../controls/GenerativeControls'
 
 const VIDEO_RESOLUTION = resolutions['16:9']['1080p']
 
-export function CApp(): JSX.Element {
+export function CApp(): React.ReactNode {
   const [frameCount, setFrameCount] = React.useState<number>(0)
 
   const canvasRef = React.useRef<HTMLCanvasElement>(null)

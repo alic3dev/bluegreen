@@ -5,7 +5,7 @@ import { Alic3 } from '../decorative/Alic3'
 
 import styles from './NavigationApp.module.scss'
 
-export function NavigationApp() {
+export function NavigationApp(): React.ReactNode {
   const backgroundRef = React.useRef<HTMLDivElement>(null)
 
   React.useEffect((): (() => void) => {

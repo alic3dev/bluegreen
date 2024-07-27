@@ -26,7 +26,7 @@ const GREEN_CHANNEL: number = 1
 const BLUE_CHANNEL: number = 2
 const ALPHA_CHANNEL: number = 3
 
-export function DimenApp(): JSX.Element {
+export function DimenApp(): React.ReactNode {
   const canvasRef = React.useRef<HTMLCanvasElement>(null)
   const frameRef = React.useRef<HTMLSpanElement>(null)
   const fpsRef = React.useRef<HTMLSpanElement>(null)

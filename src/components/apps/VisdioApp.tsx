@@ -199,7 +199,7 @@ const SCREEN_SIZE: Size2D = {
 //   return shader
 // }
 
-export function VisdioApp(): JSX.Element {
+export function VisdioApp(): React.ReactNode {
   const canvasRef = React.useRef<HTMLCanvasElement>(null)
 
   React.useEffect((): (() => void) | void => {

@@ -4,7 +4,7 @@ import styles from './CircleApp.module.scss'
 
 const RESOLUTION: number = 2560
 
-export function CircleApp() {
+export function CircleApp(): React.ReactNode {
   const [begin, setBegin] = React.useState<boolean>(false)
   const canvasRef = React.useRef<HTMLCanvasElement>(null)
 

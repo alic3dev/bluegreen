@@ -4,7 +4,7 @@ import { resolutions } from '../../utils/visual'
 
 const VIDEO_RESOLUTION = resolutions['16:9']['1080p']
 
-export function SApp(): JSX.Element {
+export function SApp(): React.ReactNode {
   const canvasRef = React.useRef<HTMLCanvasElement>(null)
 
   React.useEffect((): (() => void) | void => {

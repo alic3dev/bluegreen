@@ -79,7 +79,7 @@ const getDefaultAudioRef = (): AudioRef => {
   })
 }
 
-export function NoiseApp() {
+export function NoiseApp(): React.ReactNode {
   const audioRef = React.useRef<AudioRef>(getDefaultAudioRef())
   const canvasRef = React.useRef<HTMLCanvasElement>(null)
 
