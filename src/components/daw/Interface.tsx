@@ -1,6 +1,7 @@
 import type { SynthPresetValues, SampleKitPresetValues } from 'zer0'
 
 import type {
+  BaseProject,
   Project,
   ProjectKitTrack,
   ProjectSynthTrack,
@@ -60,7 +61,7 @@ const defaultSamples: Record<string, string> = {
 export function Interface({ project }: { project: Project }): JSX.Element {
   const {
     setProject,
-  }: { setProject: React.Dispatch<React.SetStateAction<Project>> } = project
+  }: { setProject: React.Dispatch<React.SetStateAction<BaseProject>> } = project
 
   const [dialogs, setDialogs] = React.useState<JSX.Element[]>([])
 
@@ -273,7 +274,14 @@ export function Interface({ project }: { project: Project }): JSX.Element {
     },
   )
 
-  const [playing, setPlaying] = React.useState<boolean>(false)
+  const [playing, _setPlaying] = React.useState<boolean>(false)
+  const setPlaying = (action: React.SetStateAction<boolean>): void => {
+    if (audioRef.current.context) {
+      audioRef.current.context.resume()
+    }
+
+    return _setPlaying(action)
+  }
 
   React.useEffect(
     (): void =>

@@ -1,4 +1,4 @@
-import type { Project } from '../../utils/project'
+import type { BaseProject, Project } from '../../utils/project'
 import type { TrackInfo } from './SharedTypes'
 
 import React from 'react'
@@ -66,7 +66,7 @@ export function Header({
     onProjectNameChangeTimeout.current = setTimeout(
       (): void =>
         project.setProject(
-          (prevProject: Project): Project => ({
+          (prevProject: BaseProject): BaseProject => ({
             ...prevProject,
             name: event.target.value,
           }),
@@ -80,8 +80,6 @@ export function Header({
       <h1 className={styles.title}>
         <Link to="/">ゼロ</Link>
       </h1>
-      {/* <h1 className={styles.title}>ZER0</h1> */}
-      {/* ブルーグリーン - ゼロ */}
 
       <input
         className={styles['project-title']}
@@ -145,7 +143,7 @@ export function Header({
 
             if (!isNaN(newBPM) && newBPM > 0) {
               project.setProject(
-                (prevProject: Project): Project => ({
+                (prevProject: BaseProject): BaseProject => ({
                   ...prevProject,
                   bpm: newBPM,
                 }),
@@ -161,7 +159,7 @@ export function Header({
         unregisterStep={unregisterTapBpmStep}
         onTapped={(bpm: number): void => {
           project.setProject(
-            (prevProject: Project): Project => ({
+            (prevProject: BaseProject): BaseProject => ({
               ...prevProject,
               bpm: Math.round(bpm),
             }),
