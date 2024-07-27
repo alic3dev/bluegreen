@@ -88,21 +88,25 @@ export function EyeGen({ tones }: { tones?: boolean }) {
     if (!gainNode.current) {
       gainNode.current = audioContext.current.createGain()
 
-      const delay = audioContext.current.createDelay()
-      delay.delayTime.value = 60 / 90 / 16
+      if (tones) {
+        gainNode.current.connect(analyser.current)
+      } else {
+        const delay = audioContext.current.createDelay()
+        delay.delayTime.value = 60 / 90 / 16
 
-      const delayTwo = audioContext.current.createDelay()
-      delayTwo.delayTime.value = 60 / 90 / 32
+        const delayTwo = audioContext.current.createDelay()
+        delayTwo.delayTime.value = 60 / 90 / 32
 
-      const delayGain = audioContext.current.createGain()
-      delayGain.gain.value = 0.3
+        const delayGain = audioContext.current.createGain()
+        delayGain.gain.value = 0.3
 
-      delay.connect(delayTwo)
-      delayTwo.connect(delayGain)
-      delayGain.connect(delay)
+        delay.connect(delayTwo)
+        delayTwo.connect(delayGain)
+        delayGain.connect(delay)
 
-      gainNode.current.connect(delay)
-      delay.connect(analyser.current)
+        gainNode.current.connect(delay)
+        delay.connect(analyser.current)
+      }
     }
 
     gainNode.current.gain.value = 0
@@ -163,7 +167,7 @@ export function EyeGen({ tones }: { tones?: boolean }) {
     }
   }, [tones, noteTable, scaleInKey])
 
-  const mute = React.useCallback(() => {
+  const mute = React.useCallback((): void => {
     if (!gainNode.current || !audioContext.current) return
 
     gainNode.current.gain.linearRampToValueAtTime(
@@ -172,74 +176,8 @@ export function EyeGen({ tones }: { tones?: boolean }) {
     )
   }, [])
 
-  React.useEffect(() => {
-    if (tones) {
-      let a: number
-
-      let z = 0
-
-      const b = () => {
-        a =
-          window.setTimeout((): void => {
-            // oscillators.current.forEach((osc) => {
-
-            const idx = z++ % oscillators.current.length //Math.floor(Math.random() * oscillators.current.length)
-            const osc = oscillators.current[idx]
-            const oscGain = oscillatorGains.current[idx]
-
-            if (!osc) return b()
-
-            // osc.type = 'sine'
-
-            osc.type = ['sine', 'triangle'][
-              Math.floor(Math.random() * 2)
-            ] as OscillatorType
-
-            // osc.type = ['sawtooth', 'sine', 'triangle', 'square'][
-            //   Math.floor(Math.random() * 4)
-            // ] as OscillatorType
-
-            osc.frequency.cancelScheduledValues(
-              audioContext.current!.currentTime,
-            )
-            osc.frequency.setValueAtTime(
-              getRandomNoteInScale(),
-              audioContext.current!.currentTime,
-            )
-
-            oscGain.gain.cancelScheduledValues(
-              audioContext.current!.currentTime,
-            )
-            // oscGain.gain.value = 0.3
-            oscGain.gain.setValueCurveAtTime(
-              [0, 0.3, 0.4, 0.4, 0.4, 0.4, 0.3, 0.2, 0.1, 0],
-              audioContext.current!.currentTime,
-              60 /
-                90 /
-                [0.125, 0.25, 0.5, 1, 2, 4][Math.floor(Math.random() * 1)],
-            )
-
-            // osc.frequency.value = Math.random() * 2700
-            // })
-
-            if (Math.random() > 0.98) {
-              console.log('SC')
-              setScaleKey(
-                ['C', 'G', 'E', 'A'][Math.floor(Math.random() * 4)] as Note,
-              )
-            }
-
-            b()
-          }, (60 * 1000) / 90) /
-          [0.5, 1, 2, 4, 8][Math.floor(Math.random() * 5)]
-      }
-
-      b()
-
-      return () => {
-        window.clearTimeout(a)
-      }
-    }
+  React.useEffect((): (() => void) | void => {
+    if (tones) return
 
     const intervalHandler = window.setInterval(() => {
       if (!oscillators.current.length) return
@@ -268,7 +206,7 @@ export function EyeGen({ tones }: { tones?: boolean }) {
       }
     }, 60000 / bpm)
 
-    return () => clearInterval(intervalHandler)
+    return (): void => clearInterval(intervalHandler)
   }, [tones, scale, bpm, noteTable, getRandomNoteInScale])
 
   return (
@@ -278,7 +216,7 @@ export function EyeGen({ tones }: { tones?: boolean }) {
     >
       <h1 className={styles.title}>音楽を見ます</h1>
 
-      <div className={`${styles.eye} ${tones ? styles.full : ''}`}>
+      <div className={styles.eye}>
         <Eye
           drawOptions={drawOptions}
           audioDataRef={audioDataRef}
@@ -293,11 +231,16 @@ export function EyeGen({ tones }: { tones?: boolean }) {
               調
               <br />
               <form
-                onSubmit={(event) => {
+                onSubmit={(event: React.FormEvent<HTMLFormElement>): void => {
                   event.preventDefault()
                   event.stopPropagation()
 
+                  if (!oscillators.current.length) {
+                    start()
+                  }
+
                   const values: number[] = []
+                  const gainValues: number[] = []
                   const types: OscillatorType[] = []
 
                   const inputs =
@@ -313,6 +256,15 @@ export function EyeGen({ tones }: { tones?: boolean }) {
                     )
                   }
 
+                  const gains =
+                    event.currentTarget.querySelectorAll('input.gain')
+                  for (const gainInput of gains) {
+                    gainValues.push(
+                      parseInt((gainInput as HTMLInputElement).value),
+                    )
+                  }
+                  console.log(gainValues)
+
                   const selects = event.currentTarget.querySelectorAll('select')
                   for (const select of selects) {
                     types.push(select.value as OscillatorType)
@@ -321,34 +273,54 @@ export function EyeGen({ tones }: { tones?: boolean }) {
                   for (let i = 0; i < oscillators.current.length; i++) {
                     oscillators.current[i].frequency.value = values[i] || 0
                     oscillators.current[i].type = types[i] || 'sine'
+
+                    oscillatorGains.current[i].gain.setValueAtTime(
+                      values[i] ? (gainValues[i] ?? 300) / 1000 : 0,
+                      0,
+                    )
                   }
                 }}
               >
                 {new Array(12).fill(null).map(
                   (_: null, index: number): React.ReactNode => (
-                    <div key={index}>
-                      <input defaultValue={0} className="freq" />
+                    <div key={index} className={styles['tone-control']}>
+                      <input
+                        defaultValue={0}
+                        className="freq"
+                        type="number"
+                        step="any"
+                      />
                       <select defaultValue="sine">
                         <option value="sine">Sine</option>
                         <option value="triangle">Triangle</option>
                         <option value="square">Square</option>
                         <option value="sawtooth">Sawtooth</option>
                       </select>
+                      <input
+                        className="gain"
+                        type="range"
+                        min={0}
+                        max={1000}
+                        defaultValue={300}
+                        step={1}
+                      />
                     </div>
                   ),
                 )}
 
-                <input
-                  type="number"
-                  className="fade"
-                  min={0}
-                  max={255}
-                  defaultValue={drawOptions.current.fade}
-                />
+                <div className={styles['tone-control']}>
+                  <input
+                    type="number"
+                    className="fade"
+                    min={0}
+                    max={255}
+                    defaultValue={drawOptions.current.fade}
+                  />
 
-                <button type="submit">音楽</button>
+                  <button type="submit">音楽</button>
 
-                <button type="reset">0 0 0</button>
+                  <button type="reset">0 0 0</button>
+                </div>
               </form>
             </label>
           </div>
@@ -357,7 +329,10 @@ export function EyeGen({ tones }: { tones?: boolean }) {
             <label>
               調
               <br />
-              <select value="C" /*onChange={(e) => setScale(e.target.value)}*/>
+              <select
+                value="C"
+                onChange={(e) => setScaleKey(e.target.value as Note)}
+              >
                 <option value="A">A</option>
                 <option value="A#">A#</option>
                 <option value="B">B</option>
@@ -387,29 +362,44 @@ export function EyeGen({ tones }: { tones?: boolean }) {
                 ))}
               </select>
             </label>
+
+            <label>
+              テンポ
+              <br />
+              <input
+                type="number"
+                value={bpm}
+                onChange={(e) => setBPM(parseInt(e.target.value) || 60)}
+              />
+            </label>
           </div>
         )}
 
-        <br />
+        <label className={styles.label}>
+          音量
+          <input
+            value={gainNode.current?.gain.value}
+            type="range"
+            min={0}
+            max={1}
+            step={0.01}
+            onChange={(e) => {
+              gainNode.current?.gain.setValueAtTime(
+                e.currentTarget.valueAsNumber,
+                0,
+              )
+            }}
+          />
+        </label>
 
         {!tones && (
-          <label>
-            テンポ
-            <br />
-            <input
-              type="number"
-              value={bpm}
-              onChange={(e) => setBPM(parseInt(e.target.value) || 60)}
-            />
-          </label>
+          <>
+            <div className={styles.dual}>
+              <button onClick={start}>音楽</button>
+              <button onClick={mute}>ミュート</button>
+            </div>
+          </>
         )}
-
-        <br />
-
-        <div className={styles.dual}>
-          <button onClick={start}>音楽</button>
-          <button onClick={mute}>ミュート</button>
-        </div>
       </div>
     </div>
   )

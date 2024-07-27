@@ -152,7 +152,7 @@ function drawAudioData(
     if (fade.length === 0) {
       ctx.fillStyle = `${colorScheme.base}00`
     } else if (fade.length === 1) {
-      ctx.fillStyle = `${colorScheme.base}${fade}`
+      ctx.fillStyle = `${colorScheme.base}0${fade}`
     } else {
       ctx.fillStyle = `${colorScheme.base}${fade}`
     }

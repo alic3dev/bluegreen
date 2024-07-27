@@ -1,20 +1,20 @@
 .content {
   display: flex;
   flex-direction: column;
+
   width: 100%;
 
-  // justify-content: center;
-  align-items: center;
+  background: var(--color-mantle);
 
   font-family: 'ヒラギノ角ゴ Pro W3', 'Hiragino Kaku Gothic Pro', Osaka,
     'メイリオ', Meiryo, 'ＭＳ Ｐゴシック', 'MS PGothic', sans-serif;
 
   & input[type='number'] {
-    width: 48px;
+    width: 4rem;
   }
 
   &.full {
-    background: var(--color-black);
+    flex-direction: row-reverse;
   }
 }
 
@@ -44,33 +44,64 @@
 
 .eye {
   position: absolute;
-  top: -10%;
   left: 50%;
-  transform: translateX(-50%);
+  bottom: 100%;
 
-  &.full {
-    position: unset;
-    top: unset;
+  transform: translate(-50%, 100%);
+
+  .full & {
+    flex: 1;
+
+    position: relative;
     left: unset;
-    transform: unset;
+    bottom: unset;
 
-    z-index: unset;
+    transform: unset;
   }
 }
 
 .controls {
   position: absolute;
-  bottom: 25%;
-  left: 0;
-  right: 0;
+  bottom: 10vh;
+  left: 50%;
 
   display: flex;
   flex-direction: column;
   align-items: center;
+
+  padding: 2rem;
+
+  background: var(--color-base);
+
+  box-shadow: var(--box-shadow-item);
+
+  border-radius: var(--border-radius-item);
+
+  transform: translateX(-50%);
+
+  .full & {
+    position: relative;
+    bottom: unset;
+    left: unset;
+
+    padding: 1rem;
+
+    transform: unset;
+
+    border-radius: 0;
+  }
 }
 
 .dual {
   display: flex;
+
+  &:first-of-type {
+    margin-bottom: 0.5rem;
+  }
+
+  &:last-of-type {
+    margin-top: 0.5rem;
+  }
 
   & > * {
     margin-right: 12px;
@@ -81,6 +112,32 @@
 
     &:last-child {
       margin-right: 0;
+    }
+  }
+}
+
+.label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  input {
+    margin-left: 1rem;
+  }
+}
+
+.tone-control {
+  display: grid;
+  grid-template-columns: auto auto auto;
+  gap: 0.5rem;
+
+  margin-bottom: 0.5rem;
+
+  input {
+    min-width: unset;
+
+    &[type='range'] {
+      width: 7rem;
     }
   }
 }
