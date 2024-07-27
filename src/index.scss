@@ -74,6 +74,8 @@ $colors-all: $colors-theme, $colors-text, $colors-overlay, $colors-surface,
     --box-shadow-item-centered: 0px 0px 4px rgba(var(--color-black-raw), 0.3);
     --box-shadow-item-centered-light: 0px 0px 4px
       rgba(var(--color-black-raw), 0.05);
+    --box-shadow-item-centered-extralight: 0px 0px 4px
+      rgba(var(--color-black-raw), 0.025);
 
     --border-radius-item: 10px;
     --border-radius-item-half: 5px;
