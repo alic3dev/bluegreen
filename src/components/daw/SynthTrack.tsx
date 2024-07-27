@@ -1,17 +1,15 @@
-import type { Note, Octave } from 'zer0'
-
 import type { BarData } from './Bar'
-import type { ChannelWithOptions } from './ChannelList'
 
 import type {
   Project,
   ProjectTrack,
   ProjectSynthTrack,
+  BaseProject,
 } from '../../utils/project'
 import type { Position } from '../../utils/general'
 
 import React from 'react'
-import { Synth, utils } from 'zer0'
+import { Synth } from 'zer0'
 
 import { Bar } from './Bar'
 
@@ -38,35 +36,17 @@ export interface SynthTrackOptions {
 export interface SynthTrackProps {
   project: Project
   options: SynthTrackOptions
-  channels: ChannelWithOptions[]
   synths: Synth[]
 }
-
-// FIXME: Make this a context or sumfin
-const scale: Note[] = utils.getScaleInKey('minor', 'G')
-const frequencies: number[] = utils
-  .createNoteTable(2, 4, utils.frequencyRoots.magic)
-  .map((octave: Octave): number[] =>
-    scale.map((note: Note): number => octave[note]),
-  )
-  .flat()
-  .sort((a: number, b: number): number => a - b)
 
 export function SynthTrack({
   project,
   options,
-  channels,
   synths,
 }: SynthTrackProps): JSX.Element {
   const {
     setProject,
-  }: { setProject: React.Dispatch<React.SetStateAction<Project>> } = project
-
-  const [selectedChannel, setSelectedChannel] =
-    React.useState<ChannelWithOptions>(
-      channels.find((channel) => channel.id === options.defaultChannelId) ??
-        channels[0],
-    )
+  }: { setProject: React.Dispatch<React.SetStateAction<BaseProject>> } = project
 
   const [synth, setSynth] = React.useState<Synth>(() => {
     return (
@@ -77,6 +57,27 @@ export function SynthTrack({
 
   const polyphony: number = synth.getPolyphony()
 
+  function constrainBarData(
+    bars: BarData[],
+    minimumOctave: number = 2,
+    octaveRange: number = 3,
+  ): BarData[] {
+    return bars.map((barData: BarData) => {
+      return {
+        notes: barData.notes.map((polyphony: number[][]): number[][] =>
+          polyphony.map((notes: number[]): number[] =>
+            notes.map(
+              (note: number): number =>
+                (note % ((project.frequencies.length / 11) * octaveRange)) +
+                (project.frequencies.length / 11) * minimumOctave,
+            ),
+          ),
+        ),
+        repeat: barData.repeat,
+      }
+    })
+  }
+
   const [bars, setBars] = React.useState<BarData[]>((): BarData[] => {
     const savedTrack: ProjectSynthTrack | undefined = project.tracks.find(
       (track: ProjectTrack): boolean => track.id === options.id,
@@ -84,14 +85,16 @@ export function SynthTrack({
 
     return savedTrack
       ? savedTrack.bars
-      : new Array<null>(4)
-          .fill(null)
-          .map((): BarData => generateBar(frequencies, 4, polyphony))
+      : constrainBarData(
+          new Array<null>(4)
+            .fill(null)
+            .map((): BarData => generateBar(project.frequencies, 4, polyphony)),
+        )
   })
 
   React.useEffect((): void => {
     // TODO: Defer this
-    setProject((prevProject: Project): Project => {
+    setProject((prevProject: BaseProject): BaseProject => {
       const tracks: ProjectTrack[] = prevProject.tracks.map(
         (track: ProjectTrack): ProjectTrack => ({
           ...track,
@@ -104,7 +107,6 @@ export function SynthTrack({
       const updatedTrack: ProjectSynthTrack = {
         id: options.id,
         name: options.title,
-        channelId: selectedChannel.id,
         synthId: synth.id,
         bars,
       }
@@ -117,7 +119,7 @@ export function SynthTrack({
 
       return { ...prevProject, tracks }
     })
-  }, [setProject, bars, options.id, options.title, synth, selectedChannel.id])
+  }, [setProject, bars, options.id, options.title, synth])
 
   const [position, setPosition] = React.useState<Position>({
     bar: 0,
@@ -131,9 +133,9 @@ export function SynthTrack({
     // FIXME: Add polyphony
 
     for (let i: number = 0; i < notes[0].length; i++) {
-      if (notes[0][i] > -1 && notes[0][i] < frequencies.length) {
+      if (notes[0][i] > -1 && notes[0][i] < project.frequencies.length) {
         synth.playNote(
-          frequencies[notes[0][i]],
+          project.frequencies[notes[0][i]],
           i / notes[0].length,
           1 / notes[0].length,
         )
@@ -163,7 +165,7 @@ export function SynthTrack({
 
       return newPosition
     })
-  }, [bars, position, synth])
+  }, [bars, position, synth, project.frequencies])
 
   const reset = React.useCallback(
     (): void =>
@@ -213,7 +215,7 @@ export function SynthTrack({
 
                 setSynth(newSynth)
 
-                setProject((prevProject: Project): Project => {
+                setProject((prevProject: BaseProject): BaseProject => {
                   const tracks: ProjectTrack[] = prevProject.tracks.map(
                     (track: ProjectTrack): ProjectTrack => ({
                       ...track,
@@ -226,7 +228,6 @@ export function SynthTrack({
                   const updatedTrack: ProjectSynthTrack = {
                     id: options.id,
                     name: options.title,
-                    channelId: 'FIXME: Impleeeee',
                     synthId: newSynth.id,
                     bars,
                   }
@@ -250,31 +251,6 @@ export function SynthTrack({
               )}
             </select>
           </label>
-          <label>
-            Channel
-            <select
-              name={`${options.id}-channel`}
-              autoComplete="off"
-              value={selectedChannel.id}
-              onChange={(event: React.ChangeEvent<HTMLSelectElement>) => {
-                const newlySelectedChannel: ChannelWithOptions =
-                  channels.find(
-                    (channel) => channel.id === event.target.value,
-                  ) ?? channels[0]
-
-                setSelectedChannel(newlySelectedChannel)
-                synth.setOutput(newlySelectedChannel.channel.destination)
-              }}
-            >
-              {channels.map(
-                (channel: ChannelWithOptions): JSX.Element => (
-                  <option key={channel.id} value={channel.id}>
-                    {channel.name}
-                  </option>
-                ),
-              )}
-            </select>
-          </label>
 
           <label>
             Bars
@@ -291,11 +267,14 @@ export function SynthTrack({
                 if (barCount > bars.length) {
                   setBars((prevBars: BarData[]): BarData[] => [
                     ...prevBars,
-                    ...new Array(barCount - bars.length)
-                      .fill(null)
-                      .map(
-                        (): BarData => generateBar(frequencies, 4, polyphony),
-                      ),
+                    ...constrainBarData(
+                      new Array(barCount - bars.length)
+                        .fill(null)
+                        .map(
+                          (): BarData =>
+                            generateBar(project.frequencies, 4, polyphony),
+                        ),
+                    ),
                   ])
                 } else if (barCount < bars.length) {
                   setBars((prevBars: BarData[]): BarData[] =>
@@ -314,7 +293,7 @@ export function SynthTrack({
             bar={bar}
             barIndex={barIndex}
             setBars={setBars}
-            frequencies={frequencies}
+            frequencies={project.frequencies}
             position={position}
             polyphony={polyphony}
             key={barIndex}

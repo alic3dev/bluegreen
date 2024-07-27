@@ -13,15 +13,9 @@ import { MdPiano } from 'react-icons/md'
 import { PiDotsThreeVertical } from 'react-icons/pi'
 import { TbEaseInOutControlPoints } from 'react-icons/tb'
 
-import { Channel, Effect, effects, SampleKit, Synth } from 'zer0'
+import { Channel, SampleKit, Synth } from 'zer0'
 
-import {
-  ChannelList,
-  ChannelWithOptions,
-  Track,
-  TrackOptions,
-  SynthList,
-} from '.'
+import { ChannelList, Track, TrackOptions, SynthList } from '.'
 
 import {
   DialogContainer,
@@ -38,6 +32,7 @@ import { Header } from './Header'
 import { TrackInfo } from './SharedTypes'
 
 import styles from './Interface.module.scss'
+import { ProjectSettings } from './ProjectSettings'
 
 interface AudioRef {
   context: AudioContext
@@ -77,47 +72,32 @@ export function Interface({ project }: { project: Project }): JSX.Element {
   const audioRef = React.useRef<AudioRef>(getDefaultAudioRef())
   const generatedChannelsRef = React.useRef<number>(1)
 
-  const [channels, setChannels] = React.useState<ChannelWithOptions[]>(
-    (): ChannelWithOptions[] => [
-      {
-        id: crypto.randomUUID(),
-        name: `Main`,
-        channel: new Channel(
-          audioRef.current.context,
-          audioRef.current.context.destination,
-        ),
-      },
-    ],
-  )
+  const [channels, setChannels] = React.useState<Channel[]>((): Channel[] => [
+    new Channel({
+      name: 'Main',
+      audioContext: audioRef.current.context,
+      output: audioRef.current.context.destination,
+    }),
+  ])
 
   const generateChannel = React.useCallback(
-    (name?: string): ChannelWithOptions => ({
-      id: crypto.randomUUID(),
-      name: name ?? `Channel ${generatedChannelsRef.current++}`,
-
-      channel: new Channel(
-        audioRef.current.context,
-        channels[0].channel.destination,
-      ),
-    }),
+    (name?: string): Channel =>
+      new Channel({
+        name: name ?? `Channel ${generatedChannelsRef.current++}`,
+        audioContext: audioRef.current.context,
+        output: channels[0].destination,
+      }),
     [channels],
-  )
-
-  const delayReverb = React.useRef<Effect>(
-    new effects.reverb.DelayReverb(
-      audioRef.current.context,
-      channels[0].channel.destination, // FIXME: Routing is getting confusing, refactor how these connect/link
-    ),
   )
 
   const defaultSynthRef = React.useRef<{ val?: Synth }>({})
   const generateDefaultSynth = (): Synth => {
     if (!defaultSynthRef.current.val) {
-      defaultSynthRef.current.val = new Synth(
-        audioRef.current.context,
-        'Basic',
-        delayReverb.current.input,
-      )
+      defaultSynthRef.current.val = new Synth({
+        audioContext: audioRef.current.context,
+        name: 'Basic',
+        channel: channels[0],
+      })
     }
 
     return defaultSynthRef.current.val
@@ -146,29 +126,25 @@ export function Interface({ project }: { project: Project }): JSX.Element {
 
     // FIXME: Synths don't save their position/order
     return savedSynths.length
-      ? savedSynths.map(
-          (savedSynthPreset: SynthPresetValues, index: number) => {
-            return new Synth(
-              audioRef.current.context,
-              savedSynthPreset.name,
-              index
-                ? channels[0].channel.destination
-                : delayReverb.current.input,
-              savedSynthPreset,
-            )
-          },
-        )
+      ? savedSynths.map((savedSynthPreset: SynthPresetValues): Synth => {
+          return new Synth({
+            audioContext: audioRef.current.context,
+            name: savedSynthPreset.name,
+            channel: channels[0],
+            savedPreset: savedSynthPreset,
+          })
+        })
       : [generateDefaultSynth()]
   })
 
   const defaultKitRef = React.useRef<{ val?: SampleKit }>({})
   const generateDefaultKit = (): SampleKit => {
     if (!defaultKitRef.current.val) {
-      defaultKitRef.current.val = new SampleKit(
-        audioRef.current.context,
-        defaultSamples,
-        channels[0].channel.destination,
-      )
+      defaultKitRef.current.val = new SampleKit({
+        audioContext: audioRef.current.context,
+        samples: defaultSamples,
+        channel: channels[0],
+      })
     }
 
     return defaultKitRef.current.val
@@ -202,12 +178,11 @@ export function Interface({ project }: { project: Project }): JSX.Element {
     return savedKits.length
       ? savedKits.map(
           (savedSampleKitPreset: SampleKitPresetValues): SampleKit =>
-            new SampleKit(
-              audioRef.current.context,
-              {},
-              channels[0].channel.destination,
-              savedSampleKitPreset,
-            ),
+            new SampleKit({
+              audioContext: audioRef.current.context,
+              channel: channels[0],
+              savedPreset: savedSampleKitPreset,
+            }),
         )
       : [generateDefaultKit()]
   })
@@ -280,14 +255,12 @@ export function Interface({ project }: { project: Project }): JSX.Element {
             return generateNewTrack({
               id: track.id,
               title: track.name,
-              defaultChannelId: track.channelId,
               defaultSynthId: (track as ProjectSynthTrack).synthId,
             })
           } else if (Object.hasOwnProperty.call(track, 'kitId')) {
             return generateNewTrack({
               id: track.id,
               title: track.name,
-              defaultChannelId: track.channelId,
               defaultKitId: (track as ProjectKitTrack).kitId,
             })
           }
@@ -342,11 +315,11 @@ export function Interface({ project }: { project: Project }): JSX.Element {
     }
 
     const newTrack: TrackOptions = generateNewTrack({})
-    const newSynth: Synth = new Synth(
-      audioRef.current.context,
-      accumulatedName,
-      channels[0].channel.destination,
-    )
+    const newSynth: Synth = new Synth({
+      audioContext: audioRef.current.context,
+      name: accumulatedName,
+      channel: channels[0],
+    })
 
     setSynths((prevSynths: Synth[]): Synth[] => [...prevSynths, newSynth])
     setTracks((prevTracks: TrackOptions[]): TrackOptions[] => [
@@ -366,11 +339,11 @@ export function Interface({ project }: { project: Project }): JSX.Element {
       accumulatedName = `${originalName}${accumulator++}`
     }
 
-    const newKit: SampleKit = new SampleKit(
-      audioRef.current.context,
-      defaultSamples,
-      channels[0].channel.destination,
-    )
+    const newKit: SampleKit = new SampleKit({
+      audioContext: audioRef.current.context,
+      samples: defaultSamples,
+      channel: channels[0],
+    })
 
     newKit.name = accumulatedName
     newKit.savePreset()
@@ -392,18 +365,18 @@ export function Interface({ project }: { project: Project }): JSX.Element {
   const addAutomationTrack = (): void => alert('// TODO: Implement me :)')
 
   const addChannel = React.useCallback((): void => {
-    const newChannel: ChannelWithOptions = generateChannel()
+    const newChannel: Channel = generateChannel()
 
-    setChannels((prevChannels: ChannelWithOptions[]): ChannelWithOptions[] => [
+    setChannels((prevChannels: Channel[]): Channel[] => [
       ...prevChannels,
       newChannel,
     ])
   }, [generateChannel])
 
   const removeChannel = React.useCallback((id: string): void => {
-    setChannels((prevChannels: ChannelWithOptions[]): ChannelWithOptions[] => {
+    setChannels((prevChannels: Channel[]): Channel[] => {
       const channelIndex: number = prevChannels.findIndex(
-        (channel: ChannelWithOptions): boolean => channel.id === id,
+        (channel: Channel): boolean => channel.id === id,
       )
 
       if (channelIndex === -1) return prevChannels
@@ -530,7 +503,7 @@ export function Interface({ project }: { project: Project }): JSX.Element {
         ])
       },
     }),
-    [],
+    [project],
   )
 
   React.useEffect((): (() => void) => {
@@ -568,11 +541,12 @@ export function Interface({ project }: { project: Project }): JSX.Element {
   }, [actions])
 
   type TabsIdLookup = Record<
-    'kits' | 'synths' | 'channels',
+    'project' | 'kits' | 'synths' | 'channels',
     `${string}-${string}-${string}-${string}-${string}`
   >
   const tabsIdLookup = React.useMemo<TabsIdLookup>(
     (): TabsIdLookup => ({
+      project: crypto.randomUUID(),
       kits: crypto.randomUUID(),
       synths: crypto.randomUUID(),
       channels: crypto.randomUUID(),
@@ -613,7 +587,6 @@ export function Interface({ project }: { project: Project }): JSX.Element {
                       project={project}
                       options={trackOptions}
                       key={trackOptions.id}
-                      channels={channels}
                       kits={kits}
                     />
                   ) : (
@@ -621,7 +594,6 @@ export function Interface({ project }: { project: Project }): JSX.Element {
                       project={project}
                       options={trackOptions}
                       key={trackOptions.id}
-                      channels={channels}
                       synths={synths}
                     />
                   ),
@@ -645,14 +617,19 @@ export function Interface({ project }: { project: Project }): JSX.Element {
           <Tabbed
             tabs={[
               {
+                id: tabsIdLookup.project,
+                name: 'Project',
+                element: <ProjectSettings project={project} />,
+              },
+              {
                 id: tabsIdLookup.synths,
                 name: 'Synths',
-                element: <SynthList synths={synths} />,
+                element: <SynthList synths={synths} channels={channels} />,
               },
               {
                 id: tabsIdLookup.kits,
                 name: 'Kits',
-                element: <KitList kits={kits} />,
+                element: <KitList kits={kits} channels={channels} />,
               },
               {
                 id: tabsIdLookup.channels,

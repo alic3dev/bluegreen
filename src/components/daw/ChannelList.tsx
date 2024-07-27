@@ -4,12 +4,6 @@ import { RxCaretDown } from 'react-icons/rx'
 
 import styles from './ChannelList.module.scss'
 
-export interface ChannelWithOptions {
-  id: string
-  name: string
-  channel: Channel
-}
-
 const UPDATE_RATE: number = 10
 
 export function ChannelList({
@@ -17,7 +11,7 @@ export function ChannelList({
   addChannel,
   removeChannel,
 }: {
-  channels: ChannelWithOptions[]
+  channels: Channel[]
   addChannel: () => void
   removeChannel: (id: string) => void
 }): JSX.Element {
@@ -59,7 +53,7 @@ export function ChannelList({
 
         if (!channelGainDOM) continue
 
-        const buffer: Uint8Array = channel.channel.pollAnalyser()
+        const buffer: Uint8Array = channel.pollAnalyser()
 
         const perc: number =
           buffer.reduce(
@@ -88,7 +82,7 @@ export function ChannelList({
       </div>
 
       {channels.map(
-        (channel: ChannelWithOptions): JSX.Element => (
+        (channel: Channel): JSX.Element => (
           <div
             key={channel.id}
             className={`${styles.channel} ${
@@ -133,12 +127,11 @@ export function ChannelList({
                   type="range"
                   min={0}
                   max={1000}
-                  defaultValue={channel.channel.gain.gain.value * 1000}
+                  defaultValue={channel.gain.gain.value * 1000}
                   onChange={(
                     event: React.ChangeEvent<HTMLInputElement>,
                   ): void => {
-                    channel.channel.gain.gain.value =
-                      event.target.valueAsNumber / 1000
+                    channel.gain.gain.value = event.target.valueAsNumber / 1000
                   }}
                 />
               </label>

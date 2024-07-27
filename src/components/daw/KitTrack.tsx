@@ -6,7 +6,6 @@ import type {
 import type { Position } from '../../utils/general'
 
 import type { BarData } from './Bar'
-import type { ChannelWithOptions } from './ChannelList'
 
 import React from 'react'
 import { Sample, SampleKit } from 'zer0'
@@ -34,7 +33,6 @@ export interface KitTrackOptions {
 export interface KitTrackProps {
   project: Project
   options: KitTrackOptions
-  channels: ChannelWithOptions[]
   kits: SampleKit[]
 }
 
@@ -43,7 +41,6 @@ import trackStyles from './Track.module.scss'
 export function KitTrack({
   project,
   options,
-  channels,
   kits,
 }: KitTrackProps): JSX.Element {
   const {
@@ -100,7 +97,6 @@ export function KitTrack({
       const updatedTrack: ProjectKitTrack = {
         id: options.id,
         name: options.title,
-        channelId: 'FIXME: Impleeeee',
         kitId: kit.id,
         bars,
       }
@@ -220,7 +216,6 @@ export function KitTrack({
                   const updatedTrack: ProjectKitTrack = {
                     id: options.id,
                     name: options.title,
-                    channelId: 'FIXME: Impleeeee',
                     kitId: newKit.id,
                     bars: tracks[prevTrackIndex].bars,
                   }
@@ -239,18 +234,6 @@ export function KitTrack({
                 (kit: SampleKit): JSX.Element => (
                   <option key={kit.id} value={kit.id}>
                     {kit.name}
-                  </option>
-                ),
-              )}
-            </select>
-          </label>
-          <label>
-            Channel
-            <select name={`${options.id}-channel`} autoComplete="off">
-              {channels.map(
-                (channel: ChannelWithOptions): JSX.Element => (
-                  <option key={channel.id} value={channel.name}>
-                    {channel.name}
                   </option>
                 ),
               )}

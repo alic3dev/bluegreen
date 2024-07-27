@@ -1,4 +1,6 @@
-import { BarData } from '../utils/general'
+import type { Note, ScaleName, FrequencyRootName } from 'zer0'
+
+import type { BarData } from '../utils/general'
 
 export interface BaseProjectTrack {
   id: string
@@ -7,35 +9,44 @@ export interface BaseProjectTrack {
 }
 
 export interface ProjectKitTrack extends BaseProjectTrack {
-  channelId: string
   kitId: string
 }
 
 export interface ProjectSynthTrack extends BaseProjectTrack {
-  channelId: string
   synthId: string
 }
 
 export type ProjectTrack = ProjectSynthTrack | ProjectKitTrack
 
-export interface Project {
+export interface BaseProject {
   id: string
   name: string
 
   bpm: number
 
-  tracks: ProjectTrack[]
+  frequencyRoot: FrequencyRootName
+  scale: ScaleName
+  scaleKey: Note
 
-  setProject: React.Dispatch<React.SetStateAction<Project>>
+  tracks: ProjectTrack[]
 }
 
-export const defaultProject: Project = {
+export interface Project extends BaseProject {
+  setProject: React.Dispatch<React.SetStateAction<BaseProject>>
+  scaleNotes: Note[]
+  frequencies: number[]
+  frequencyRootValue: number
+}
+
+export const defaultProject: BaseProject = {
   id: crypto.randomUUID(),
   name: 'Untitled Project',
 
   bpm: 270,
 
-  tracks: [],
+  frequencyRoot: 'standard',
+  scale: 'minor',
+  scaleKey: 'C',
 
-  setProject() {},
+  tracks: [],
 }
