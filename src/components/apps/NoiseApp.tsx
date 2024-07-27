@@ -29,7 +29,7 @@ const getDefaultAudioRef = (): AudioRef => {
 
   const context: AudioContext = new AudioContext()
 
-  const channel = new Channel(context, context.destination, true)
+  const channel = new Channel({ audioContext: context })
   channel.gain.gain.value = 0.666
 
   const dc = context.createDynamicsCompressor()
@@ -187,6 +187,16 @@ export function NoiseApp() {
       window.cancelAnimationFrame(analyserVisualizationHandle)
     }
   }, [colorScheme])
+
+  React.useEffect((): (() => void) => {
+    const audioCtx: AudioContext = audioRef.current.context
+
+    audioCtx.resume()
+
+    return (): void => {
+      audioCtx.suspend()
+    }
+  }, [])
 
   return (
     <div className={styles.app}>

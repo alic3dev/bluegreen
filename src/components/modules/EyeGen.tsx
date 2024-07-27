@@ -209,6 +209,23 @@ export function EyeGen({ tones }: { tones?: boolean }) {
     return (): void => clearInterval(intervalHandler)
   }, [tones, scale, bpm, noteTable, getRandomNoteInScale])
 
+  React.useEffect((): (() => void) => {
+    audioContext.current?.resume()
+
+    for (const oscillator of oscillators.current) {
+      oscillator.start()
+    }
+
+    return (): void => {
+      audioContext.current?.suspend()
+
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      for (const oscillator of oscillators.current) {
+        oscillator.stop()
+      }
+    }
+  }, [])
+
   return (
     <div
       ref={contentRef}
