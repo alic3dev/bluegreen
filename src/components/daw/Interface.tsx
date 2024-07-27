@@ -167,11 +167,15 @@ export function Interface({ project }: { project: Project }): JSX.Element {
     for (let i: number = 0; i < window.localStorage.length; i++) {
       const synthStorageKey = window.localStorage.key(i)
 
-      if (!synthStorageKey || !synthStorageKey.startsWith('ゼロ：Synth：')) {
+      if (
+        !synthStorageKey ||
+        !synthStorageKey.startsWith(Synth.localStorageKeyPrefix)
+      ) {
         continue
       }
 
-      const synthStorageString = window.localStorage.getItem(synthStorageKey)
+      const synthStorageString: string | null =
+        window.localStorage.getItem(synthStorageKey)
 
       if (!synthStorageString) continue
 
@@ -231,17 +235,18 @@ export function Interface({ project }: { project: Project }): JSX.Element {
 
       if (
         !synthStorageKey ||
-        !synthStorageKey.startsWith('ゼロ：Sample＿Kit：')
+        !synthStorageKey.startsWith(SampleKit.localStorageKeyPrefix)
       ) {
         continue
       }
 
-      const synthStorageString = window.localStorage.getItem(synthStorageKey)
+      const kitStorageString: string | null =
+        window.localStorage.getItem(synthStorageKey)
 
-      if (!synthStorageString) continue
+      if (!kitStorageString) continue
 
       try {
-        savedKits.push(JSON.parse(synthStorageString))
+        savedKits.push(JSON.parse(kitStorageString))
       } catch {
         window.localStorage.removeItem(synthStorageKey)
       }
@@ -283,7 +288,7 @@ export function Interface({ project }: { project: Project }): JSX.Element {
   const generateNewTrack = React.useCallback(
     ({
       id = crypto.randomUUID(),
-      title = `Track ${trackInfoRef.current.numberOfGeneratedTracks++}`,
+      title = `Track ${++trackInfoRef.current.numberOfGeneratedTracks}`,
       defaultChannelId,
       defaultSynthId,
       defaultKitId,
@@ -336,8 +341,8 @@ export function Interface({ project }: { project: Project }): JSX.Element {
 
   const [tracks, setTracks] = React.useState<TrackOptions[]>(
     (): TrackOptions[] => {
-      if (project.tracks.length) {
-        return project.tracks.map((track: ProjectTrack): TrackOptions => {
+      const res: TrackOptions[] = project.tracks.map(
+        (track: ProjectTrack): TrackOptions => {
           if (Object.hasOwnProperty.call(track, 'synthId')) {
             return generateNewTrack({
               id: track.id,
@@ -353,10 +358,16 @@ export function Interface({ project }: { project: Project }): JSX.Element {
           }
 
           throw new Error('Unknown track type in project')
-        })
+        },
+      )
+
+      if (!res.length) {
+        res.push(generateNewTrack({}))
       }
 
-      return [generateNewTrack({})]
+      trackInfoRef.current.numberOfGeneratedTracks = res.length
+
+      return res
     },
   )
 
@@ -378,10 +389,9 @@ export function Interface({ project }: { project: Project }): JSX.Element {
   }, [synths, project.bpm])
 
   /*
-  // FIXME: Figure out why these don't work, may need to set metadata first?
-  //        Probably not worthwhile to pursue.
-
   React.useEffect(() => {
+    // FIXME: Figure out why these don't work, may need to set metadata first?
+    //        Probably not worthwhile to pursue.
     if (playing) navigator.mediaSession.playbackState = 'playing'
     else navigator.mediaSession.playbackState = 'paused'
   
