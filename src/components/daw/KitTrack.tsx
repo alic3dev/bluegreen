@@ -2,6 +2,7 @@ import type {
   ProjectKitTrack,
   ProjectTrack,
   Project,
+  BaseProject,
 } from '../../utils/project'
 import type { Position } from '../../utils/general'
 
@@ -45,7 +46,7 @@ export function KitTrack({
 }: KitTrackProps): JSX.Element {
   const {
     setProject,
-  }: { setProject: React.Dispatch<React.SetStateAction<Project>> } = project
+  }: { setProject: React.Dispatch<React.SetStateAction<BaseProject>> } = project
 
   const [kit, setKit] = React.useState<SampleKit>(
     (): SampleKit =>
@@ -84,7 +85,7 @@ export function KitTrack({
 
   React.useEffect((): void => {
     // TODO: Defer this
-    setProject((prevProject: Project): Project => {
+    setProject((prevProject: BaseProject): BaseProject => {
       const tracks: ProjectTrack[] = prevProject.tracks.map(
         (track: ProjectTrack): ProjectTrack => ({
           ...track,
@@ -203,7 +204,7 @@ export function KitTrack({
 
                 setKit(newKit)
 
-                setProject((prevProject: Project): Project => {
+                setProject((prevProject: BaseProject): BaseProject => {
                   const tracks: ProjectTrack[] = prevProject.tracks.map(
                     (track: ProjectTrack): ProjectTrack => ({
                       ...track,
