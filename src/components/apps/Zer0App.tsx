@@ -149,6 +149,7 @@ function Zer0Daw(): JSX.Element {
         LOCAL_STORAGE_KEY_SELECTED_PROJECT,
         _project.id,
       )
+
       window.localStorage.setItem(
         `${LOCAL_STORAGE_KEY_PROJECT_PREFIX}${_project.id}`,
         JSON.stringify(_project),

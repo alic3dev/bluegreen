@@ -34,12 +34,21 @@ import {
 } from '../layout/Dialogs'
 import { Tabbed } from '../layout/Tabbed'
 
-import { LOCAL_STORAGE_KEY_SELECTED_PROJECT } from '../../utils/constants'
+import {
+  LOCAL_STORAGE_KEY_PROJECT_CHANNELS_PREFIX,
+  LOCAL_STORAGE_KEY_SELECTED_PROJECT,
+} from '../../utils/constants'
 
 import styles from './Interface.module.scss'
 
 interface AudioRef {
   context: AudioContext
+}
+
+interface ChannelPreset {
+  id: string
+  name: string
+  gain: number
 }
 
 let defaultAudioRef: AudioRef
@@ -61,6 +70,9 @@ const defaultSamples: Record<string, string> = {
   clap: '/kits/SwuM Drum Kit/Claps/Clap 1.wav',
 }
 
+const getLocalStorageChannelsKey = (id: string): string =>
+  `${LOCAL_STORAGE_KEY_PROJECT_CHANNELS_PREFIX}${id}`
+
 export function Interface({ project }: { project: Project }): JSX.Element {
   const {
     setProject,
@@ -74,15 +86,57 @@ export function Interface({ project }: { project: Project }): JSX.Element {
   }
 
   const audioRef = React.useRef<AudioRef>(getDefaultAudioRef())
-  const generatedChannelsRef = React.useRef<number>(1)
 
-  const [channels, setChannels] = React.useState<Channel[]>((): Channel[] => [
-    new Channel({
-      name: 'Main',
-      audioContext: audioRef.current.context,
-      output: audioRef.current.context.destination,
-    }),
-  ])
+  const [channels, setChannels] = React.useState<Channel[]>((): Channel[] => {
+    const res: Channel[] = [
+      new Channel({
+        name: 'Main',
+        audioContext: audioRef.current.context,
+      }),
+    ]
+
+    if (window.localStorage) {
+      const localStorageKey: string = getLocalStorageChannelsKey(project.id)
+
+      try {
+        const storedChannelsJSON: string | null =
+          window.localStorage.getItem(localStorageKey)
+
+        if (storedChannelsJSON) {
+          const storedChannels: ChannelPreset[] = JSON.parse(storedChannelsJSON)
+
+          if (!Array.isArray(storedChannels)) {
+            throw new Error('Invalid channel storage type')
+          }
+
+          for (const channel of storedChannels) {
+            if (
+              typeof channel.id !== 'string' ||
+              typeof channel.name !== 'string' ||
+              typeof channel.gain !== 'number'
+            ) {
+              throw new Error('Invalid channel storage data')
+            }
+
+            res.push(
+              new Channel({
+                name: channel.name,
+                id: channel.id,
+                audioContext: audioRef.current.context,
+                output: res[0].destination,
+              }),
+            )
+          }
+        }
+      } catch {
+        window.localStorage.removeItem(localStorageKey)
+      }
+    }
+
+    return res
+  })
+
+  const generatedChannelsRef = React.useRef<number>(channels.length)
 
   const generateChannel = React.useCallback(
     (name?: string): Channel =>
@@ -129,16 +183,31 @@ export function Interface({ project }: { project: Project }): JSX.Element {
     }
 
     // FIXME: Synths don't save their position/order
-    return savedSynths.length
-      ? savedSynths.map((savedSynthPreset: SynthPresetValues): Synth => {
-          return new Synth({
-            audioContext: audioRef.current.context,
-            name: savedSynthPreset.name,
-            channel: channels[0],
-            savedPreset: savedSynthPreset,
-          })
+    const res: Synth[] = savedSynths.map(
+      (savedSynthPreset: SynthPresetValues): Synth => {
+        let synthChannel: Channel | undefined
+
+        if (savedSynthPreset.channelId) {
+          synthChannel = channels.find(
+            (channel: Channel): boolean =>
+              channel.id === savedSynthPreset.channelId,
+          )
+        }
+
+        return new Synth({
+          audioContext: audioRef.current.context,
+          name: savedSynthPreset.name,
+          channel: synthChannel ?? channels[0],
+          savedPreset: savedSynthPreset,
         })
-      : [generateDefaultSynth()]
+      },
+    )
+
+    if (!res.length) {
+      res.push(generateDefaultSynth())
+    }
+
+    return res
   })
 
   const defaultKitRef = React.useRef<{ val?: SampleKit }>({})
@@ -179,16 +248,30 @@ export function Interface({ project }: { project: Project }): JSX.Element {
     }
 
     // FIXME: Kits don't save their position/order
-    return savedKits.length
-      ? savedKits.map(
-          (savedSampleKitPreset: SampleKitPresetValues): SampleKit =>
-            new SampleKit({
-              audioContext: audioRef.current.context,
-              channel: channels[0],
-              savedPreset: savedSampleKitPreset,
-            }),
-        )
-      : [generateDefaultKit()]
+    const res: SampleKit[] = savedKits.map(
+      (savedSampleKitPreset: SampleKitPresetValues): SampleKit => {
+        let sampleKitChannel: Channel | undefined
+
+        if (savedSampleKitPreset.channelId) {
+          sampleKitChannel = channels.find(
+            (channel: Channel): boolean =>
+              channel.id === savedSampleKitPreset.channelId,
+          )
+        }
+
+        return new SampleKit({
+          audioContext: audioRef.current.context,
+          channel: sampleKitChannel ?? channels[0],
+          savedPreset: savedSampleKitPreset,
+        })
+      },
+    )
+
+    if (!res.length) {
+      res.push(generateDefaultKit())
+    }
+
+    return res
   })
 
   const trackInfoRef = React.useRef<TrackInfo>({
@@ -286,13 +369,13 @@ export function Interface({ project }: { project: Project }): JSX.Element {
     return _setPlaying(action)
   }
 
-  React.useEffect(
-    (): void =>
-      synths
-        .filter((synth: Synth): boolean => synth.getBPMSync())
-        .forEach((synth: Synth): void => synth.setBPM(project.bpm)),
-    [synths, project.bpm],
-  )
+  React.useEffect((): void => {
+    for (const synth of synths) {
+      if (synth.getBPMSync()) {
+        synth.setBPM(project.bpm)
+      }
+    }
+  }, [synths, project.bpm])
 
   /*
   // FIXME: Figure out why these don't work, may need to set metadata first?
@@ -567,6 +650,22 @@ export function Interface({ project }: { project: Project }): JSX.Element {
     }),
     [],
   )
+
+  React.useEffect((): void => {
+    // FIXME: This should be a preset on channel itself rather than being done here
+    window.localStorage.setItem(
+      getLocalStorageChannelsKey(project.id),
+      JSON.stringify(
+        channels.slice(1).map(
+          (channel: Channel): ChannelPreset => ({
+            name: channel.name,
+            id: channel.id,
+            gain: channel.gain.gain.value,
+          }),
+        ),
+      ),
+    )
+  }, [channels, project.id])
 
   return (
     <div className={styles.interface}>

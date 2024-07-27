@@ -1,4 +1,7 @@
-export const LOCAL_STORAGE_KEY_SELECTED_PROJECT: string = 'ゼローProject'
-export const LOCAL_STORAGE_KEY_PROJECT_PREFIX: string = `${LOCAL_STORAGE_KEY_SELECTED_PROJECT}：`
+const ZER0_APP_NAME: string = 'ゼロ'
 
-export const LOCAL_STORAGE_KEY_SETTINGS: string = 'ゼローSettings'
+export const LOCAL_STORAGE_KEY_SELECTED_PROJECT: string = `${ZER0_APP_NAME}ーProject`
+export const LOCAL_STORAGE_KEY_PROJECT_PREFIX: string = `${LOCAL_STORAGE_KEY_SELECTED_PROJECT}：`
+export const LOCAL_STORAGE_KEY_PROJECT_CHANNELS_PREFIX: string = `${LOCAL_STORAGE_KEY_SELECTED_PROJECT}ーChannels：`
+
+export const LOCAL_STORAGE_KEY_SETTINGS: string = `${ZER0_APP_NAME}ーSettings`
