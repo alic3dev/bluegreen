@@ -15,8 +15,6 @@ export function ProjectSettings({
 }): React.ReactNode {
   return (
     <div>
-      <h5 className={styles.name}>{project.name}</h5>
-
       <div className={styles['tabbed-content']}>
         <div className={styles['tabbed-controls']}>
           <label>

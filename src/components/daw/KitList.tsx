@@ -94,6 +94,12 @@ export function KitList({
     return styles.loading
   }
 
+  React.useEffect((): void => {
+    if (kits.length === 1) {
+      setSelectedKitID(kits[0].id)
+    }
+  }, [kits])
+
   return (
     <div className={styles['kit-list']}>
       <select
@@ -166,7 +172,7 @@ export function KitList({
               (sampleKey: string): JSX.Element => {
                 return (
                   <label key={sampleKey} className={styles.sample}>
-                    <span>{sampleKey}</span>
+                    <span className={styles['sample-name']}>{sampleKey}</span>
 
                     <input
                       type="url"

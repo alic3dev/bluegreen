@@ -14,7 +14,7 @@ import type {
 import React from 'react'
 import { IoGrid } from 'react-icons/io5'
 import { MdPiano } from 'react-icons/md'
-import { PiDotsThreeVertical } from 'react-icons/pi'
+import { PiArrowLeftBold, PiDotsThreeVertical } from 'react-icons/pi'
 import { TbEaseInOutControlPoints } from 'react-icons/tb'
 
 import { Channel, SampleKit, Synth } from 'zer0'
@@ -148,14 +148,6 @@ export function Interface({ project }: { project: Project }): JSX.Element {
     [channels],
   )
 
-  const generateDefaultSynth = (): Synth => {
-    return new Synth({
-      audioContext: audioRef.current.context,
-      name: 'Basic',
-      channel: channels[0],
-    })
-  }
-
   const [synths, setSynths] = React.useState<Synth[]>((): Synth[] => {
     const savedSynths: SynthPresetValues[] = []
 
@@ -199,25 +191,8 @@ export function Interface({ project }: { project: Project }): JSX.Element {
       },
     )
 
-    if (!res.length) {
-      res.push(generateDefaultSynth())
-    }
-
     return res
   })
-
-  const defaultKitRef = React.useRef<{ val?: SampleKit }>({})
-  const generateDefaultKit = (): SampleKit => {
-    if (!defaultKitRef.current.val) {
-      defaultKitRef.current.val = new SampleKit({
-        audioContext: audioRef.current.context,
-        samples: defaultSamples,
-        channel: channels[0],
-      })
-    }
-
-    return defaultKitRef.current.val
-  }
 
   const [kits, setKits] = React.useState<SampleKit[]>((): SampleKit[] => {
     const savedKits: SampleKitPresetValues[] = []
@@ -260,10 +235,6 @@ export function Interface({ project }: { project: Project }): JSX.Element {
         })
       },
     )
-
-    if (!res.length) {
-      res.push(generateDefaultKit())
-    }
 
     return res
   })
@@ -349,10 +320,6 @@ export function Interface({ project }: { project: Project }): JSX.Element {
           throw new Error('Unknown track type in project')
         },
       )
-
-      if (!res.length) {
-        res.push(generateNewTrack({}))
-      }
 
       trackInfoRef.current.numberOfGeneratedTracks = res.length
 
@@ -689,6 +656,13 @@ export function Interface({ project }: { project: Project }): JSX.Element {
           </div>
 
           <div className={styles['track-container-wrapper']}>
+            {!tracks.length && (
+              <div className={styles['track-intro']}>
+                <PiArrowLeftBold />
+                &nbsp;&nbsp;Add a track to get started!
+              </div>
+            )}
+
             <div className={styles['track-container']}>
               {tracks.map(
                 (trackOptions: TrackOptions): JSX.Element =>

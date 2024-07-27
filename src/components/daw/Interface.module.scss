@@ -114,6 +114,29 @@
   overflow-y: hidden;
 }
 
+.track-intro {
+  position: absolute;
+  top: 2rem;
+  left: 2rem;
+
+  display: flex;
+  align-items: center;
+
+  padding: 1rem;
+
+  background: var(--color-lavender);
+
+  border-radius: var(--border-radius-item);
+
+  box-shadow: var(--box-shadow-item);
+
+  line-height: 0;
+
+  font-weight: 500;
+
+  color: var(--color-base);
+}
+
 .track-container,
 .track-container-wrapper::after {
   border-radius: var(--border-radius-item);

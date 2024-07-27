@@ -36,6 +36,12 @@ export function SynthList({
     )
   }, [])
 
+  React.useEffect((): void => {
+    if (synths.length === 1) {
+      setSelectedSynthID(synths[0].id)
+    }
+  }, [synths])
+
   return (
     <div className={styles['synth-list']}>
       <select
