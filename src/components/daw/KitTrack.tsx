@@ -252,6 +252,15 @@ export function KitTrack({
               className={trackStyles['number-input']}
               onChange={(event: React.ChangeEvent<HTMLInputElement>): void => {
                 const barCount: number = parseInt(event.target.value ?? 0)
+
+                if (position.bar > barCount - 1) {
+                  setPosition({
+                    bar: barCount - 1,
+                    beat: 0,
+                    repeated: 0,
+                  })
+                }
+
                 if (barCount > bars.length) {
                   setBars((prevBars: BarData[]): BarData[] => [
                     ...prevBars,
@@ -278,6 +287,7 @@ export function KitTrack({
             setBars={setBars}
             frequencies={[0, 1]}
             position={position}
+            setPosition={setPosition}
             polyphony={samples.length}
             key={barIndex}
             generateBeat={(_: number[], polyphony?: number) =>

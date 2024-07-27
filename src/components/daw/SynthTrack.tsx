@@ -264,6 +264,14 @@ export function SynthTrack({
               onChange={(event: React.ChangeEvent<HTMLInputElement>): void => {
                 const barCount: number = parseInt(event.target.value ?? 0)
 
+                if (position.bar > barCount - 1) {
+                  setPosition({
+                    bar: barCount - 1,
+                    beat: 0,
+                    repeated: 0,
+                  })
+                }
+
                 if (barCount > bars.length) {
                   setBars((prevBars: BarData[]): BarData[] => [
                     ...prevBars,
@@ -295,6 +303,7 @@ export function SynthTrack({
             setBars={setBars}
             frequencies={project.frequencies}
             position={position}
+            setPosition={setPosition}
             polyphony={polyphony}
             key={barIndex}
           />

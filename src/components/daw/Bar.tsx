@@ -16,6 +16,7 @@ export function Bar({
   bar,
   barIndex,
   position,
+  setPosition,
   frequencies,
   polyphony,
   generateBeat = _generateBeat,
@@ -24,6 +25,7 @@ export function Bar({
   bar: BarData
   barIndex: number
   position: Position
+  setPosition: React.Dispatch<React.SetStateAction<Position>>
   frequencies: number[]
   polyphony: number
   generateBeat?: typeof _generateBeat
@@ -52,6 +54,15 @@ export function Bar({
         return newBars
       })
     } else {
+      if (position.bar === barIndex && position.beat > bar.notes.length - 2) {
+        setPosition(
+          (prevPosition: Position): Position => ({
+            ...prevPosition,
+            beat: bar.notes.length - 2,
+          }),
+        )
+      }
+
       setBars((prevBars: BarData[]): BarData[] => {
         const newBars: BarData[] = prevBars.map(
           (bar: BarData): BarData => ({
