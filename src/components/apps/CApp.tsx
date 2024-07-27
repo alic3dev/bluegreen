@@ -28,7 +28,7 @@ export function CApp(): JSX.Element {
     if (!ctx) return
 
     let animationFrameHandle: number
-    const animationFrame = (time: DOMHighResTimeStamp): void => {
+    const animationFrame = (): void => {
       prevImageDataRef.current.data = ctx.getImageData(
         0,
         0,

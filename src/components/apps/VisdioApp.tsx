@@ -1,5 +1,5 @@
 import React from 'react'
-import { mat4 } from 'gl-matrix'
+// import { mat4 } from 'gl-matrix'
 
 import * as twgl from 'twgl.js'
 
@@ -24,180 +24,180 @@ const SCREEN_SIZE: Size2D = {
 // ...
 //
 
-interface ProgramInfo {
-  program: WebGLProgram
-  attribLocations: {
-    vertexPosition: GLuint
-  }
-  uniformLocations: {
-    projectionMatrix: WebGLUniformLocation | null
-    modelViewMatrix: WebGLUniformLocation | null
-  }
-}
+// interface ProgramInfo {
+//   program: WebGLProgram
+//   attribLocations: {
+//     vertexPosition: GLuint
+//   }
+//   uniformLocations: {
+//     projectionMatrix: WebGLUniformLocation | null
+//     modelViewMatrix: WebGLUniformLocation | null
+//   }
+// }
 
-interface Buffers {
-  position: WebGLBuffer | null
-}
+// interface Buffers {
+//   position: WebGLBuffer | null
+// }
 
-function initPositionBuffer(gl: WebGL2RenderingContext): WebGLBuffer | null {
-  // Create a buffer for the square's positions.
-  const positionBuffer: WebGLBuffer | null = gl.createBuffer()
+// function initPositionBuffer(gl: WebGL2RenderingContext): WebGLBuffer | null {
+//   // Create a buffer for the square's positions.
+//   const positionBuffer: WebGLBuffer | null = gl.createBuffer()
 
-  // Select the positionBuffer as the one to apply buffer
-  // operations to from here out.
-  gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer)
+//   // Select the positionBuffer as the one to apply buffer
+//   // operations to from here out.
+//   gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer)
 
-  // Now create an array of positions for the square.
-  const positions: Float32Array = new Float32Array([
-    1.0, 1.0, -1.0, 1.0, 1.0, -1.0, -1.0, -1.0,
-  ])
+//   // Now create an array of positions for the square.
+//   const positions: Float32Array = new Float32Array([
+//     1.0, 1.0, -1.0, 1.0, 1.0, -1.0, -1.0, -1.0,
+//   ])
 
-  // Now pass the list of positions into WebGL to build the
-  // shape. We do this by creating a Float32Array from the
-  // JavaScript array, then use it to fill the current buffer.
-  gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW)
+//   // Now pass the list of positions into WebGL to build the
+//   // shape. We do this by creating a Float32Array from the
+//   // JavaScript array, then use it to fill the current buffer.
+//   gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW)
 
-  return positionBuffer
-}
+//   return positionBuffer
+// }
 
-function initBuffers(gl: WebGL2RenderingContext): Buffers {
-  const positionBuffer: WebGLBuffer | null = initPositionBuffer(gl)
+// function initBuffers(gl: WebGL2RenderingContext): Buffers {
+//   const positionBuffer: WebGLBuffer | null = initPositionBuffer(gl)
 
-  return {
-    position: positionBuffer,
-  }
-}
+//   return {
+//     position: positionBuffer,
+//   }
+// }
 
-function drawScene({
-  gl,
-  programInfo,
-  buffers,
-}: {
-  gl: WebGL2RenderingContext
-  programInfo: ProgramInfo
-  buffers: Buffers
-}): void {
-  gl.clearColor(0.0, 0.0, 0.0, 1.0) // Clear to black, fully opaque
-  gl.clearDepth(1.0) // Clear everything
-  gl.enable(gl.DEPTH_TEST) // Enable depth testing
-  gl.depthFunc(gl.LEQUAL) // Near things obscure far things
+// function drawScene({
+//   gl,
+//   programInfo,
+//   buffers,
+// }: {
+//   gl: WebGL2RenderingContext
+//   programInfo: ProgramInfo
+//   buffers: Buffers
+// }): void {
+//   gl.clearColor(0.0, 0.0, 0.0, 1.0) // Clear to black, fully opaque
+//   gl.clearDepth(1.0) // Clear everything
+//   gl.enable(gl.DEPTH_TEST) // Enable depth testing
+//   gl.depthFunc(gl.LEQUAL) // Near things obscure far things
 
-  // Clear the canvas before we start drawing on it.
-  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+//   // Clear the canvas before we start drawing on it.
+//   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 
-  // Create a perspective matrix, a special matrix that is
-  // used to simulate the distortion of perspective in a camera.
-  // Our field of view is 45 degrees, with a width/height
-  // ratio that matches the display size of the canvas
-  // and we only want to see objects between 0.1 units
-  // and 100 units away from the camera.
-  const fieldOfView: number = (45 * Math.PI) / 180 // in radians
-  const aspect: number = gl.canvas.width / gl.canvas.height
-  const zNear: number = 0.1
-  const zFar: number = 100.0
-  const projectionMatrix: mat4 = mat4.create()
+//   // Create a perspective matrix, a special matrix that is
+//   // used to simulate the distortion of perspective in a camera.
+//   // Our field of view is 45 degrees, with a width/height
+//   // ratio that matches the display size of the canvas
+//   // and we only want to see objects between 0.1 units
+//   // and 100 units away from the camera.
+//   const fieldOfView: number = (45 * Math.PI) / 180 // in radians
+//   const aspect: number = gl.canvas.width / gl.canvas.height
+//   const zNear: number = 0.1
+//   const zFar: number = 100.0
+//   const projectionMatrix: mat4 = mat4.create()
 
-  // note: glmatrix.js always has the first argument
-  // as the destination to receive the result.
-  mat4.perspective(projectionMatrix, fieldOfView, aspect, zNear, zFar)
+//   // note: glmatrix.js always has the first argument
+//   // as the destination to receive the result.
+//   mat4.perspective(projectionMatrix, fieldOfView, aspect, zNear, zFar)
 
-  // Set the drawing position to the "identity" point, which is
-  // the center of the scene.
-  const modelViewMatrix: mat4 = mat4.create()
+//   // Set the drawing position to the "identity" point, which is
+//   // the center of the scene.
+//   const modelViewMatrix: mat4 = mat4.create()
 
-  // Now move the drawing position a bit to where we want to
-  // start drawing the square.
-  mat4.translate(
-    modelViewMatrix, // destination matrix
-    modelViewMatrix, // matrix to translate
-    [-0.0, 0.0, -6.0],
-  ) // amount to translate
+//   // Now move the drawing position a bit to where we want to
+//   // start drawing the square.
+//   mat4.translate(
+//     modelViewMatrix, // destination matrix
+//     modelViewMatrix, // matrix to translate
+//     [-0.0, 0.0, -6.0],
+//   ) // amount to translate
 
-  // Tell WebGL how to pull out the positions from the position
-  // buffer into the vertexPosition attribute.
-  setPositionAttribute({ gl, buffers, programInfo })
+//   // Tell WebGL how to pull out the positions from the position
+//   // buffer into the vertexPosition attribute.
+//   setPositionAttribute({ gl, buffers, programInfo })
 
-  // Tell WebGL to use our program when drawing
-  gl.useProgram(programInfo.program)
+//   // Tell WebGL to use our program when drawing
+//   gl.useProgram(programInfo.program)
 
-  const transpose: GLboolean = false
+//   const transpose: GLboolean = false
 
-  // Set the shader uniforms
-  gl.uniformMatrix4fv(
-    programInfo.uniformLocations.projectionMatrix,
-    transpose,
-    projectionMatrix,
-  )
-  gl.uniformMatrix4fv(
-    programInfo.uniformLocations.modelViewMatrix,
-    transpose,
-    modelViewMatrix,
-  )
+//   // Set the shader uniforms
+//   gl.uniformMatrix4fv(
+//     programInfo.uniformLocations.projectionMatrix,
+//     transpose,
+//     projectionMatrix,
+//   )
+//   gl.uniformMatrix4fv(
+//     programInfo.uniformLocations.modelViewMatrix,
+//     transpose,
+//     modelViewMatrix,
+//   )
 
-  const offset: GLint = 0
-  const vertexCount: GLsizei = 4
-  gl.drawArrays(gl.TRIANGLE_STRIP, offset, vertexCount)
-}
+//   const offset: GLint = 0
+//   const vertexCount: GLsizei = 4
+//   gl.drawArrays(gl.TRIANGLE_STRIP, offset, vertexCount)
+// }
 
 // Tell WebGL how to pull out the positions from the position
 // buffer into the vertexPosition attribute.
-function setPositionAttribute({
-  gl,
-  buffers,
-  programInfo,
-}: {
-  gl: WebGL2RenderingContext
-  buffers: Buffers
-  programInfo: ProgramInfo
-}): void {
-  const numComponents: GLint = 2 // pull out 2 values per iteration
-  const type: GLenum = gl.FLOAT // the data in the buffer is 32bit floats
-  const normalize: GLboolean = false // don't normalize
-  const stride: GLsizei = 0 // how many bytes to get from one set of values to the next
-  // 0 = use type and numComponents above
-  const offset: GLintptr = 0 // how many bytes inside the buffer to start from
+// function setPositionAttribute({
+//   gl,
+//   buffers,
+//   programInfo,
+// }: {
+//   gl: WebGL2RenderingContext
+//   buffers: Buffers
+//   programInfo: ProgramInfo
+// }): void {
+//   const numComponents: GLint = 2 // pull out 2 values per iteration
+//   const type: GLenum = gl.FLOAT // the data in the buffer is 32bit floats
+//   const normalize: GLboolean = false // don't normalize
+//   const stride: GLsizei = 0 // how many bytes to get from one set of values to the next
+//   // 0 = use type and numComponents above
+//   const offset: GLintptr = 0 // how many bytes inside the buffer to start from
 
-  gl.bindBuffer(gl.ARRAY_BUFFER, buffers.position)
-  gl.vertexAttribPointer(
-    programInfo.attribLocations.vertexPosition,
-    numComponents,
-    type,
-    normalize,
-    stride,
-    offset,
-  )
-  gl.enableVertexAttribArray(programInfo.attribLocations.vertexPosition)
-}
+//   gl.bindBuffer(gl.ARRAY_BUFFER, buffers.position)
+//   gl.vertexAttribPointer(
+//     programInfo.attribLocations.vertexPosition,
+//     numComponents,
+//     type,
+//     normalize,
+//     stride,
+//     offset,
+//   )
+//   gl.enableVertexAttribArray(programInfo.attribLocations.vertexPosition)
+// }
 
-function loadShader({
-  gl,
-  type,
-  source,
-}: {
-  gl: WebGL2RenderingContext
-  type: GLenum
-  source: string
-}): WebGLShader {
-  const shader: WebGLShader | null = gl.createShader(type)
-  if (!shader) throw new Error('Unable to create shader')
+// function loadShader({
+//   gl,
+//   type,
+//   source,
+// }: {
+//   gl: WebGL2RenderingContext
+//   type: GLenum
+//   source: string
+// }): WebGLShader {
+//   const shader: WebGLShader | null = gl.createShader(type)
+//   if (!shader) throw new Error('Unable to create shader')
 
-  // Send the source to the shader object
-  gl.shaderSource(shader, source)
+//   // Send the source to the shader object
+//   gl.shaderSource(shader, source)
 
-  // Compile the shader program
-  gl.compileShader(shader)
+//   // Compile the shader program
+//   gl.compileShader(shader)
 
-  // See if it compiled successfully
-  if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-    gl.deleteShader(shader)
+//   // See if it compiled successfully
+//   if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+//     gl.deleteShader(shader)
 
-    throw new Error(
-      `An error occurred compiling the shaders: ${gl.getShaderInfoLog(shader)}`,
-    )
-  }
+//     throw new Error(
+//       `An error occurred compiling the shaders: ${gl.getShaderInfoLog(shader)}`,
+//     )
+//   }
 
-  return shader
-}
+//   return shader
+// }
 
 export function VisdioApp(): JSX.Element {
   const canvasRef = React.useRef<HTMLCanvasElement>(null)

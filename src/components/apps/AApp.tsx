@@ -116,8 +116,6 @@ Open (open) up your eyes`
         previousTime = time
       }
 
-      const delta: number = time - previousTime
-
       ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
 
       if (count < Infinity) {
