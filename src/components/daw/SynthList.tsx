@@ -1,10 +1,16 @@
-import React from 'react'
+import type { Channel, Oscillator, Synth } from 'zer0'
 
-import { Oscillator, Synth } from 'zer0'
+import React from 'react'
 
 import styles from './SynthList.module.scss'
 
-export function SynthList({ synths }: { synths: Synth[] }): JSX.Element {
+export function SynthList({
+  synths,
+  channels,
+}: {
+  synths: Synth[]
+  channels: Channel[]
+}): JSX.Element {
   const [, setRefreshIndex] = React.useState<Record<string, number>>({}) // May want to change this to a simple incrementor
   // FIXME: This needs to be reactive somehow; this is already reactive..? Ah nvm, only main BPM causes refresh but not internal
 
@@ -33,7 +39,7 @@ export function SynthList({ synths }: { synths: Synth[] }): JSX.Element {
   return (
     <div className={styles['synth-list']}>
       <select
-        className={styles['synth-selector']}
+        className={styles['tabbed-selector']}
         value={selectedSynthID}
         onChange={(event) => setSelectedSynthID(event.currentTarget.value)}
       >
@@ -47,11 +53,38 @@ export function SynthList({ synths }: { synths: Synth[] }): JSX.Element {
         )}
       </select>
 
-      {selectedSynth && (
-        <div key={`${selectedSynth.id}`} className={styles.synth}>
-          <h4 className={styles.name}>{selectedSynth.name}</h4>
+      <select
+        className={styles['tabbed-selector']}
+        value={selectedSynth ? selectedSynth.channel?.id : ''}
+        onChange={(event: React.ChangeEvent<HTMLSelectElement>): void => {
+          if (!selectedSynth) return
 
-          <div className={styles.controls}>
+          const selectedChannel: Channel | undefined = channels.find(
+            (channel: Channel): boolean =>
+              channel.id === event.currentTarget.value,
+          )
+
+          if (selectedChannel) {
+            selectedSynth.setChannel(selectedChannel)
+
+            refreshSynth(selectedSynth.id)
+          }
+        }}
+      >
+        <option value=""></option>
+        {selectedSynth &&
+          channels.map(
+            (channel: Channel): React.ReactNode => (
+              <option value={channel.id} key={channel.id}>
+                {channel.name}
+              </option>
+            ),
+          )}
+      </select>
+
+      {selectedSynth && (
+        <div key={`${selectedSynth.id}`} className={styles['tabbed-content']}>
+          <div className={styles['tabbed-controls']}>
             <label>
               Hold
               <input
@@ -138,9 +171,11 @@ export function SynthList({ synths }: { synths: Synth[] }): JSX.Element {
               />
             </label>
 
+            <br />
+
             <div className={styles.oscillators}>
-              <div className={styles['oscillator-header']}>
-                <h4>Oscillators</h4>
+              <div className={styles['tabbed-button-header']}>
+                <h4 className={styles['tabbed-name']}>Oscillators</h4>
 
                 <button
                   onClick={(): void => {
@@ -159,8 +194,8 @@ export function SynthList({ synths }: { synths: Synth[] }): JSX.Element {
                   oscillatorIndex: number,
                 ): JSX.Element => (
                   <div className={styles.oscillator} key={oscillatorIndex}>
-                    <div className={styles['oscillator-header']}>
-                      <h5 className={styles.name}>
+                    <div className={styles['tabbed-button-header']}>
+                      <h5 className={styles['tabbed-name']}>
                         Oscillator {oscillatorIndex + 1}
                       </h5>
 
