@@ -44,35 +44,45 @@ export class ErrorBoundary extends React.Component<
     return (
       this.props.fallback ?? (
         <div className={styles.fallback}>
-          <div className={styles.icon}>
-            {new Array(4).fill('❤️‍🩹').map((emoji, index) => (
-              <div
-                key={index}
-                className={styles.iconpart}
-                style={
-                  index
-                    ? { animationDelay: `${(3 - index) * 1000}ms` }
-                    : { animation: 'none' }
-                }
-              >
-                {emoji}
-              </div>
-            ))}
+          <div className={styles.intro}>
+            {this.props.app && <h1 className={styles.app}>{this.props.app}</h1>}
+
+            <div className={styles.icon}>
+              {new Array(4).fill('❤️‍🩹').map((emoji, index) => (
+                <div
+                  key={index}
+                  className={styles.iconpart}
+                  style={
+                    index
+                      ? { animationDelay: `${(3 - index) * 1000}ms` }
+                      : { animation: 'none' }
+                  }
+                >
+                  {emoji}
+                </div>
+              ))}
+            </div>
+
+            <h1 className={styles.failed}>Failed to load</h1>
+
+            <br />
+
+            <a href="/" className="button">
+              Back to Home
+            </a>
           </div>
-          {this.props.app && <h1 className={styles.app}>{this.props.app}</h1>}
-          <h1 className={styles.failed}>
-            {this.props.app ? 'f' : 'F'}ailed to load
-          </h1>
 
           <div className={styles.error}>
-            <pre className={styles.name}>
+            <div className={styles.name}>
               {this.state.error?.name}:{' '}
               <span className={styles.message}>
                 {this.state.error?.message}
               </span>
-            </pre>
+            </div>
 
-            <pre className={styles.stack}>{this.state.error?.stack}</pre>
+            <div className={styles.content}>
+              <pre className={styles.stack}>{this.state.error?.stack}</pre>
+            </div>
           </div>
         </div>
       )
