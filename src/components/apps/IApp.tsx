@@ -4,7 +4,7 @@ import { resolutions } from '../../utils/visual'
 
 const VIDEO_RESOLUTION = resolutions['16:9']['1080p']
 
-export function SApp(): React.ReactNode {
+export function IApp(): React.ReactNode {
   const canvasRef = React.useRef<HTMLCanvasElement>(null)
 
   React.useEffect((): (() => void) | void => {
@@ -49,9 +49,9 @@ export function SApp(): React.ReactNode {
               Math.floor(y / 2) * prevImageData.width) *
             4
 
-          data.data[newDataPosHor] = prevImageData.data[dataPos]
-          data.data[newDataPosHor + 1] = prevImageData.data[dataPos + 1]
-          data.data[newDataPosHor + 2] = prevImageData.data[dataPos + 2]
+          data.data[newDataPosHor] = 255 - prevImageData.data[dataPos]
+          data.data[newDataPosHor + 1] = 255 - prevImageData.data[dataPos + 1]
+          data.data[newDataPosHor + 2] = 255 - prevImageData.data[dataPos + 2]
           data.data[newDataPosHor + 3] = 255
 
           const newDataPosVer: number =
@@ -60,9 +60,9 @@ export function SApp(): React.ReactNode {
                 prevImageData.width) *
             4
 
-          data.data[newDataPosVer] = prevImageData.data[dataPos]
-          data.data[newDataPosVer + 1] = prevImageData.data[dataPos + 1]
-          data.data[newDataPosVer + 2] = prevImageData.data[dataPos + 2]
+          data.data[newDataPosVer] = 255 - prevImageData.data[dataPos]
+          data.data[newDataPosVer + 1] = 255 - prevImageData.data[dataPos + 1]
+          data.data[newDataPosVer + 2] = 255 - prevImageData.data[dataPos + 2]
           data.data[newDataPosVer + 3] = 255
 
           const newDataPosHorVer: number =
@@ -188,8 +188,8 @@ export function SApp(): React.ReactNode {
         ctx.canvas.height - ctx.canvas.height / 4,
         50,
       )
-      radgrad.addColorStop(0, '#FF000025')
       radgrad.addColorStop(0.5, '#00FF0025')
+      radgrad.addColorStop(0, '#FF000025')
       radgrad.addColorStop(1, '#0000FF25')
 
       ctx.fillStyle = radgrad
@@ -212,9 +212,9 @@ export function SApp(): React.ReactNode {
         ctx.canvas.height / 4,
         50,
       )
-      radgrad.addColorStop(0, '#FF000025')
+      radgrad.addColorStop(0, '#0000FF25')
       radgrad.addColorStop(0.5, '#00FF0025')
-      radgrad.addColorStop(1, '#0000FF25')
+      radgrad.addColorStop(1, '#FF000025')
 
       ctx.fillStyle = radgrad
       ctx.beginPath()
@@ -236,9 +236,9 @@ export function SApp(): React.ReactNode {
         ctx.canvas.height - ctx.canvas.height / 4,
         50,
       )
-      radgrad.addColorStop(0, '#FF000025')
+      radgrad.addColorStop(0, '#0000FF25')
       radgrad.addColorStop(0.5, '#00FF0025')
-      radgrad.addColorStop(1, '#0000FF25')
+      radgrad.addColorStop(1, '#FF000025')
 
       ctx.fillStyle = radgrad
       ctx.beginPath()

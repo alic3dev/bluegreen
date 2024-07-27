@@ -1,37 +1,105 @@
+import React from 'react'
 import { Link } from 'react-router-dom'
 
 import { Alic3 } from '../decorative/Alic3'
 
 import styles from './NavigationApp.module.scss'
 
-export function NavigationApp() {
+export function NavigationApp(): React.ReactNode {
+  const backgroundRef = React.useRef<HTMLDivElement>(null)
+
+  React.useEffect((): (() => void) => {
+    let firstRun: boolean = true
+    function onScroll(): void {
+      if (!backgroundRef.current) return
+
+      if (!firstRun) {
+        backgroundRef.current.style.transition = 'padding-bottom 50ms ease-out'
+      }
+
+      backgroundRef.current.style.paddingBottom = `${window.scrollY / 1.5}px`
+
+      firstRun = false
+    }
+
+    onScroll()
+
+    window.addEventListener('scroll', onScroll)
+
+    return (): void => {
+      window.removeEventListener('scroll', onScroll)
+    }
+  }, [])
+
   return (
-    <div className={styles.navigation}>
-      <Alic3 header />
+    <>
+      <div ref={backgroundRef} className={styles['title-container']}>
+        <h1 className={styles.title} aria-hidden="true">
+          {new Array(500).fill(null).map(
+            (_: null, i: number): React.ReactNode => (
+              <React.Fragment key={i}>
+                {i % 3 === 0 ? (
+                  <>
+                    <span className={styles.blue}>BLUE</span>
+                    <span className={styles.greendark}>GREEN</span>
+                  </>
+                ) : i % 2 === 0 ? (
+                  <>
+                    <span className={styles.bluedark}>BLUE</span>
+                    <span className={styles.green}>GREEN</span>
+                  </>
+                ) : (
+                  <>
+                    <span className={styles.bluedark}>BLUE</span>
+                    <span className={styles.greendark}>GREEN</span>
+                  </>
+                )}
+              </React.Fragment>
+            ),
+          )}
+        </h1>
+      </div>
 
-      <h1 className={styles.title}>
-        <Link to="/">
-          <span className={styles.blue}>BLUE</span>
-          <span className={styles.green}>GREEN</span>
-        </Link>
-      </h1>
-
-      <div className={styles['navigation-wrapper']}>
+      <div className={styles.navigation}>
         <div className={styles['navigation-section']}>
-          <div className={styles['navigation-container']}>
-            <h2>DAW</h2>
-            <Link to="/zer0">ゼロ</Link>
+          <div className={styles['navigation-container-wrapper']}>
+            <div className={styles['navigation-container']}>
+              <h1>ゼロ</h1>
+
+              <p>
+                A lightweight, sophisticated, and opinionated tracker style DAW.
+              </p>
+
+              <Link to="/zer0" className="button blue">
+                Get Started
+              </Link>
+            </div>
           </div>
 
-          <div className={styles['navigation-container']}>
-            <h2>Misc</h2>
-            <Link to="/circle">Circle</Link>
-            <Link to="/eye-gen">Eye Gen</Link>
-            <Link to="/noise">Noise</Link>
-            <Link to="/visdio">Visdio</Link>
+          <div className={styles['navigation-container-wrapper']}>
+            <div className={styles['navigation-container']}>
+              <h2>Other tools</h2>
+
+              <div className={styles.tools}>
+                <Link to="/eye-gen">Eye Gen</Link>
+                <div>Generate waves of sound</div>
+
+                <Link to="/tones">Tones</Link>
+                <div>
+                  Produce a multitude of specific frequencies simultaneously
+                </div>
+
+                <Link to="/noise">Noise</Link>
+                <div>A rhythm, a heartbeat. Its life is yours.</div>
+              </div>
+            </div>
           </div>
         </div>
+
+        <Alic3 header />
+
+        <div className={styles.border} />
       </div>
-    </div>
+    </>
   )
 }

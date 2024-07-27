@@ -1,5 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,100..900;1,100..900&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Inconsolata:wght@200..900&family=Major+Mono+Display&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inconsolata:wght@200..900&family=Exo+2:ital,wght@0,100..900;1,100..900&display=swap');
 
 .title {
   user-select: none;
@@ -25,7 +24,7 @@
   &.header {
     position: fixed;
     top: 5px;
-    left: 30px;
+    left: 18px;
   }
 }
 
@@ -33,10 +32,19 @@
   display: flex;
   align-items: baseline;
 
-  opacity: 0.5;
+  padding: 0 12px;
 
-  transition: opacity 250ms ease-in-out;
+  background: var(--color-base);
 
+  border-radius: 100%;
+
+  box-shadow: var(--box-shadow-item-light);
+
+  opacity: 0.75;
+
+  transition: opacity 250ms ease-in-out, box-shadow 250ms ease-in-out;
+
+  &,
   &:active,
   &:visited,
   &:link,
@@ -51,9 +59,7 @@
   &:active {
     opacity: 1;
 
-    // .title-secondary {
-    //   opacity: 1;
-    // }
+    box-shadow: var(--box-shadow-item);
   }
 }
 

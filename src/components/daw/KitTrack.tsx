@@ -1,17 +1,19 @@
-import React from 'react'
-import { Sample, SampleKit } from 'zer0'
-
-import { ChannelWithOptions } from './ChannelList'
-import { Bar, BarData } from './Bar'
-
-import { generateBar, Position } from '../../utils/general'
-
-import {
+import type {
   ProjectKitTrack,
   ProjectTrack,
   Project,
-  ProjectContext,
-} from '../../contexts'
+  BaseProject,
+} from '../../utils/project'
+import type { Position } from '../../utils/general'
+
+import type { BarData } from './Bar'
+
+import React from 'react'
+import { Sample, SampleKit } from 'zer0'
+
+import { Bar } from './Bar'
+
+import { generateBar, generateBeat } from '../../utils/general'
 
 export interface KitTrackOptions {
   title: string
@@ -30,24 +32,21 @@ export interface KitTrackOptions {
 }
 
 export interface KitTrackProps {
+  project: Project
   options: KitTrackOptions
-  channels: ChannelWithOptions[]
   kits: SampleKit[]
 }
 
 import trackStyles from './Track.module.scss'
 
 export function KitTrack({
+  project,
   options,
-  channels,
   kits,
 }: KitTrackProps): JSX.Element {
-  // FIXME: Need async support for load states
-
-  const project = React.useContext<Project>(ProjectContext)
   const {
     setProject,
-  }: { setProject: React.Dispatch<React.SetStateAction<Project>> } = project
+  }: { setProject: React.Dispatch<React.SetStateAction<BaseProject>> } = project
 
   const [kit, setKit] = React.useState<SampleKit>(
     (): SampleKit =>
@@ -86,7 +85,7 @@ export function KitTrack({
 
   React.useEffect((): void => {
     // TODO: Defer this
-    setProject((prevProject: Project): Project => {
+    setProject((prevProject: BaseProject): BaseProject => {
       const tracks: ProjectTrack[] = prevProject.tracks.map(
         (track: ProjectTrack): ProjectTrack => ({
           ...track,
@@ -99,7 +98,6 @@ export function KitTrack({
       const updatedTrack: ProjectKitTrack = {
         id: options.id,
         name: options.title,
-        channelId: 'FIXME: Impleeeee',
         kitId: kit.id,
         bars,
       }
@@ -206,7 +204,7 @@ export function KitTrack({
 
                 setKit(newKit)
 
-                setProject((prevProject: Project): Project => {
+                setProject((prevProject: BaseProject): BaseProject => {
                   const tracks: ProjectTrack[] = prevProject.tracks.map(
                     (track: ProjectTrack): ProjectTrack => ({
                       ...track,
@@ -219,7 +217,6 @@ export function KitTrack({
                   const updatedTrack: ProjectKitTrack = {
                     id: options.id,
                     name: options.title,
-                    channelId: 'FIXME: Impleeeee',
                     kitId: newKit.id,
                     bars: tracks[prevTrackIndex].bars,
                   }
@@ -243,38 +240,33 @@ export function KitTrack({
               )}
             </select>
           </label>
-          <label>
-            Channel
-            <select name={`${options.id}-channel`} autoComplete="off">
-              {channels.map(
-                (channel: ChannelWithOptions): JSX.Element => (
-                  <option key={channel.id} value={channel.name}>
-                    {channel.name}
-                  </option>
-                ),
-              )}
-            </select>
-          </label>
 
           <label>
             Bars
             <input
               type="number"
-              defaultValue={4}
+              defaultValue={bars.length}
               min={1}
               name={`${options.id}-bars`}
               autoComplete="off"
               className={trackStyles['number-input']}
               onChange={(event: React.ChangeEvent<HTMLInputElement>): void => {
                 const barCount: number = parseInt(event.target.value ?? 0)
+
+                if (position.bar > barCount - 1) {
+                  setPosition({
+                    bar: barCount - 1,
+                    beat: 0,
+                    repeated: 0,
+                  })
+                }
+
                 if (barCount > bars.length) {
                   setBars((prevBars: BarData[]): BarData[] => [
                     ...prevBars,
                     ...new Array(barCount - bars.length)
                       .fill(null)
-                      .map(
-                        (): BarData => generateBar([0, 1], 4, samples.length),
-                      ),
+                      .map((): BarData => generateBar([0], 4, samples.length)),
                   ])
                 } else if (barCount < bars.length) {
                   setBars((prevBars: BarData[]): BarData[] =>
@@ -295,8 +287,12 @@ export function KitTrack({
             setBars={setBars}
             frequencies={[0, 1]}
             position={position}
+            setPosition={setPosition}
             polyphony={samples.length}
             key={barIndex}
+            generateBeat={(_: number[], polyphony?: number) =>
+              generateBeat([0], polyphony)
+            }
           />
         ),
       )}

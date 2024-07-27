@@ -1,3 +1,6 @@
+import type { BaseProject, Project } from '../../utils/project'
+import type { TrackInfo } from './SharedTypes'
+
 import React from 'react'
 import { Link } from 'react-router-dom'
 import {
@@ -11,18 +14,17 @@ import {
 } from 'react-icons/ci'
 
 import { TapBpm } from './TapBpm'
-import { TrackInfo } from './SharedTypes'
-
-import { Project, ProjectContext } from '../../contexts'
 
 import styles from './Header.module.scss'
 
 export function Header({
+  project,
   trackInfo,
   playing,
   setPlaying,
   actions,
 }: {
+  project: Project
   trackInfo: TrackInfo
   playing: boolean
   setPlaying: React.Dispatch<React.SetStateAction<boolean>>
@@ -33,8 +35,6 @@ export function Header({
     settings: () => void
   }
 }): JSX.Element {
-  const project: Project = React.useContext(ProjectContext)
-
   const reset = React.useCallback(
     (): void =>
       Object.values(trackInfo.registeredResets).forEach(
@@ -66,7 +66,7 @@ export function Header({
     onProjectNameChangeTimeout.current = setTimeout(
       (): void =>
         project.setProject(
-          (prevProject: Project): Project => ({
+          (prevProject: BaseProject): BaseProject => ({
             ...prevProject,
             name: event.target.value,
           }),
@@ -80,8 +80,6 @@ export function Header({
       <h1 className={styles.title}>
         <Link to="/">ゼロ</Link>
       </h1>
-      {/* <h1 className={styles.title}>ZER0</h1> */}
-      {/* ブルーグリーン - ゼロ */}
 
       <input
         className={styles['project-title']}
@@ -145,7 +143,7 @@ export function Header({
 
             if (!isNaN(newBPM) && newBPM > 0) {
               project.setProject(
-                (prevProject: Project): Project => ({
+                (prevProject: BaseProject): BaseProject => ({
                   ...prevProject,
                   bpm: newBPM,
                 }),
@@ -156,11 +154,12 @@ export function Header({
       </label>
 
       <TapBpm
+        project={project}
         registerStep={registerTapBpmStep}
         unregisterStep={unregisterTapBpmStep}
         onTapped={(bpm: number): void => {
           project.setProject(
-            (prevProject: Project): Project => ({
+            (prevProject: BaseProject): BaseProject => ({
               ...prevProject,
               bpm: Math.round(bpm),
             }),

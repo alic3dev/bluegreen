@@ -3,14 +3,21 @@
   flex-direction: column;
 
   height: 100%;
+  min-width: 280px;
+  width: fit-content;
+
+  padding-left: 0.5rem;
 
   background: var(--color-base);
 }
 
 .switcher {
-  display: flex;
+  display: grid;
+  grid-template-columns: auto auto;
 
   padding-top: 2px;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
 }
 
 button.header {
@@ -21,10 +28,8 @@ button.header {
 
   border: none;
   border-radius: 0px;
-  border-top-left-radius: 10px;
-  border-top-right-radius: 10px;
 
-  box-shadow: inset 0px -2px 2px rgba(29, 28, 28, 0.025);
+  box-shadow: inset var(--box-shadow-item-centered-extralight);
 
   white-space: nowrap;
 
@@ -35,7 +40,6 @@ button.header {
 
   &.active {
     background: var(--color-base);
-    box-shadow: none;
 
     cursor: unset;
 
@@ -44,13 +48,28 @@ button.header {
 
   &:first-of-type {
     border-left: none;
+
+    border-top-left-radius: var(--border-radius-item-half);
+  }
+
+  &:nth-of-type(2) {
+    border-top-right-radius: var(--border-radius-item-half);
+  }
+
+  &:nth-of-type(3) {
+    border-bottom-left-radius: var(--border-radius-item-half);
+  }
+
+  &:last-of-type {
+    border-bottom-right-radius: var(--border-radius-item-half);
   }
 
   &:active,
   &:hover {
-    box-shadow: inset 0px -1px 1px rgba(0, 0, 0, 0.025);
+    box-shadow: inset var(--box-shadow-item-centered-extralight);
 
     &:not(.active) {
+      box-shadow: inset var(--box-shadow-item-centered-light);
       background: var(--color-mantle);
       color: var(--color-text);
     }

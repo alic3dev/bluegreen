@@ -1,19 +1,20 @@
+import type { Project } from '../../utils/project'
+
 import React from 'react'
 
 import styles from './TapBpm.module.scss'
-import { Project, ProjectContext } from '../../contexts'
 
 export function TapBpm({
+  project,
   onTapped,
   registerStep,
   unregisterStep,
 }: {
+  project: Project
   onTapped(bpm: number): void
   registerStep(step: () => void): void
   unregisterStep(): void
 }): JSX.Element {
-  const project = React.useContext<Project>(ProjectContext)
-
   const pulseTimeout = React.useRef<{ value?: number }>({})
   const [pulse, setPulse] = React.useState<boolean>(false)
 

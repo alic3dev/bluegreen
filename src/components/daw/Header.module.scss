@@ -30,6 +30,8 @@
 
   border: none;
 
+  transition: all 100ms ease-in-out;
+
   &:hover {
     background: none;
     box-shadow: none;
@@ -116,34 +118,42 @@
   border-right-width: 0.5px;
 }
 
+$control-button-alpha: 0.6;
+
 .play {
-  color: var(--color-green);
+  color: rgba(var(--color-green-raw), $control-button-alpha);
 
   &:hover,
   &:focus-visible {
-    color: #0e0;
+    color: rgba(var(--color-green-raw), 1);
   }
 }
 
 .stop {
-  color: var(--color-red);
+  color: rgba(var(--color-red-raw), $control-button-alpha);
 
   &:hover,
   &:focus-visible {
-    color: #e00;
+    color: rgba(var(--color-red-raw), 1);
   }
 }
 
 .reset {
-  color: var(--color-yellow);
+  color: rgba(var(--color-yellow-raw), $control-button-alpha);
 
   border-left-width: 0.5px;
   border-right-width: 0.5px;
 
   &:hover,
   &:focus-visible {
-    color: #ee0;
+    color: rgba(var(--color-yellow-raw), 1);
   }
+}
+
+.play,
+.stop,
+.reset {
+  transition: all ease-in-out 100ms;
 }
 
 .title {
@@ -154,6 +164,8 @@
   line-height: 1.25rem;
 
   a {
+    color: var(--color-subtext0);
+
     text-decoration: none;
   }
 }
@@ -162,26 +174,21 @@ input.project-title {
   margin: 0;
   margin-left: 1rem;
 
-  padding: 5px;
-
   font-size: 1rem;
   line-height: 1rem;
 
   border: none;
-  border-radius: 2000px;
 
   text-overflow: ellipsis;
 
-  background-color: rgba(var(--color-black-raw), 0);
-  box-shadow: 0px 0px 5px 0px rgba(var(--color-white-raw), 0);
+  background-color: var(--color-base);
 
-  &:hover {
-    background-color: rgba(var(--color-black-raw), 0.025);
-    box-shadow: 0px 0px 5px 0px rgba(var(--color-white-raw), 0.025);
-  }
+  transition: box-shadow ease-in-out 250ms, background-color ease-in-out 250ms;
 
+  &:hover,
   &:focus-visible {
-    background-color: rgba(var(--color-black-raw), 0.05);
-    box-shadow: 0px 0px 5px 0px rgba(var(--color-white-raw), 0.05);
+    background-color: var(--color-mantle);
+
+    box-shadow: inset var(--box-shadow-item-centered-light);
   }
 }

@@ -1,12 +1,13 @@
+import type { ProvidedSettings, Settings } from '../../../contexts'
+
 import React from 'react'
 
 import { Dialog, DialogFooter, DialogHeader } from '.'
-import { Settings, SettingsContext } from '../../../contexts'
+import { SettingsContext } from '../../../contexts'
 
 export function SettingsDialog({ close }: { close: () => void }): JSX.Element {
-  const settings: Settings = React.useContext<Settings>(SettingsContext)
-  const setSettings: React.Dispatch<React.SetStateAction<Settings>> =
-    settings.setSettings
+  const settings: ProvidedSettings =
+    React.useContext<ProvidedSettings>(SettingsContext)
 
   return (
     <Dialog>
@@ -19,10 +20,12 @@ export function SettingsDialog({ close }: { close: () => void }): JSX.Element {
             type="checkbox"
             checked={settings.autoSave}
             onChange={() => {
-              setSettings((prevSettings) => ({
-                ...prevSettings,
-                autoSave: !prevSettings.autoSave,
-              }))
+              settings.setSettings(
+                (prevSettings: Settings): Settings => ({
+                  ...prevSettings,
+                  autoSave: !prevSettings.autoSave,
+                }),
+              )
             }}
           />
         </label>

@@ -11,7 +11,7 @@ const VIDEO_RESOLUTION: Resolution2D = {
 
 const MAX_ITERATIONS: number = 333
 
-export function CanviApp(): JSX.Element {
+export function CanviApp(): React.ReactNode {
   const canvasRef = React.useRef<HTMLCanvasElement>(null)
   const drawInfoRef = React.useRef<{
     iteration: number

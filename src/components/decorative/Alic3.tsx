@@ -23,9 +23,6 @@ export function Alic3({ header = false }: { header?: boolean }): JSX.Element {
             3
           </div>
         </div>
-        <div className={styles['title-secondary']} aria-hidden="true">
-          L<span className={styles['title-emphasis']}>I</span>C3
-        </div>
       </a>
     </h1>
   )

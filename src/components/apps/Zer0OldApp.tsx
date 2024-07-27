@@ -15,7 +15,7 @@ const frequencies = noteTable
   )
   .flat()
 
-export function Zer0App() {
+export function Zer0App(): React.ReactNode {
   const hasStartedRef = React.useRef<boolean>(false)
   const synthRef = React.useRef<Synth>()
   const sampleKitRef = React.useRef<SampleKit>()
@@ -34,15 +34,15 @@ export function Zer0App() {
       synthGain.gain.value = 0.2
       synthGain.connect(audioContext.destination)
 
-      synthRef.current = new Synth(audioContext, 'Basic', synthGain)
+      synthRef.current = new Synth({ audioContext, output: synthGain })
 
       const sampleKitGain = audioContext.createGain()
       sampleKitGain.gain.value = 0.6
       sampleKitGain.connect(audioContext.destination)
 
-      sampleKitRef.current = new SampleKit(
+      sampleKitRef.current = new SampleKit({
         audioContext,
-        {
+        samples: {
           kick: '/kits/SwuM Drum Kit/Kicks/kick 1.wav',
           snare: {
             input: '/kits/SwuM Drum Kit/Snare/Snare 6.wav',
@@ -61,8 +61,8 @@ export function Zer0App() {
             gain: 0.727288,
           },
         },
-        sampleKitGain,
-      )
+        output: sampleKitGain,
+      })
 
       hasStartedRef.current = true
     }

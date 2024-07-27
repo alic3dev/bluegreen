@@ -15,6 +15,9 @@ import {
   NavigationApp,
   NoiseApp,
   VisdioApp,
+  AApp,
+  CApp,
+  IApp,
   SApp,
   Zer0App,
 } from './components/apps'
@@ -22,6 +25,7 @@ import {
 import { ErrorBoundary } from './components/debug/ErrorBoundry'
 
 import './index.scss'
+import { TonesApp } from './components/apps/TonesApp'
 
 import { ColorSchemeProvider } from './contexts/ColorSchemeContext'
 
@@ -50,6 +54,11 @@ const router = createBrowserRouter(
       path: '/eye-gen',
       loader: getTitleLoader('EYE GEN'),
       element: withErrorBoundary(<EyeGenApp />, 'EYE GEN'),
+    },
+    {
+      path: '/tones',
+      loader: getTitleLoader('TONES'),
+      element: withErrorBoundary(<TonesApp />, 'Tones'),
     },
     {
       path: '/visdio',
@@ -82,9 +91,24 @@ const router = createBrowserRouter(
       element: withErrorBoundary(<DimenApp />, 'DIMEN'),
     },
     {
+      path: '/a',
+      loader: getTitleLoader('A'),
+      element: withErrorBoundary(<AApp />, 'A'),
+    },
+    {
       path: '/s',
       loader: getTitleLoader('S'),
       element: withErrorBoundary(<SApp />, 'S'),
+    },
+    {
+      path: '/c',
+      loader: getTitleLoader('c'),
+      element: withErrorBoundary(<CApp />, 'C'),
+    },
+    {
+      path: '/i',
+      loader: getTitleLoader('i'),
+      element: withErrorBoundary(<IApp />, 'I'),
     },
   ],
   {

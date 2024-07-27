@@ -1,7 +1,11 @@
 import React from 'react'
 
 import { Beat } from './Beat'
-import { generateBeat, BarData, Position } from '../../utils/general'
+import {
+  generateBeat as _generateBeat,
+  BarData,
+  Position,
+} from '../../utils/general'
 
 import styles from './Bar.module.scss'
 
@@ -12,15 +16,19 @@ export function Bar({
   bar,
   barIndex,
   position,
+  setPosition,
   frequencies,
   polyphony,
+  generateBeat = _generateBeat,
 }: {
   setBars: React.Dispatch<React.SetStateAction<BarData[]>>
   bar: BarData
   barIndex: number
   position: Position
+  setPosition: React.Dispatch<React.SetStateAction<Position>>
   frequencies: number[]
   polyphony: number
+  generateBeat?: typeof _generateBeat
 }): JSX.Element {
   const onBeatsInputChange: React.ChangeEventHandler<HTMLInputElement> = (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -46,6 +54,15 @@ export function Bar({
         return newBars
       })
     } else {
+      if (position.bar === barIndex && position.beat > bar.notes.length - 2) {
+        setPosition(
+          (prevPosition: Position): Position => ({
+            ...prevPosition,
+            beat: bar.notes.length - 2,
+          }),
+        )
+      }
+
       setBars((prevBars: BarData[]): BarData[] => {
         const newBars: BarData[] = prevBars.map(
           (bar: BarData): BarData => ({
