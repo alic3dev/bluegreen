@@ -230,11 +230,11 @@ export function Interface({ project }: { project: Project }): JSX.Element {
           delete trackInfoRef.current.registeredResets[id]
         },
         remove(): void {
-          setTracks((prevTracks) =>
+          setTracks((prevTracks: TrackOptions[]): TrackOptions[] =>
             prevTracks.filter((track) => track.id !== id),
           )
 
-          setProject((prevProject) => {
+          setProject((prevProject: BaseProject): BaseProject => {
             return {
               ...prevProject,
               tracks: prevProject.tracks.filter((track) => track.id !== id),
@@ -361,7 +361,7 @@ export function Interface({ project }: { project: Project }): JSX.Element {
 
     setKits((prevKits: SampleKit[]): SampleKit[] => [...prevKits, newKit])
 
-    setTimeout(() => {
+    setTimeout((): void => {
       const newTrack: TrackOptions = generateNewTrack({
         defaultKitId: newKit.id,
         defaultChannelId: channels[0].id,
@@ -431,13 +431,13 @@ export function Interface({ project }: { project: Project }): JSX.Element {
           <ConfirmDialog
             key={crypto.randomUUID()}
             title="Create a new project"
-            onCancel={() => {
-              setDialogs((prevDialogs) =>
+            onCancel={(): void => {
+              setDialogs((prevDialogs: JSX.Element[]): JSX.Element[] =>
                 prevDialogs.filter((dialog) => dialog !== newConfirmDialog),
               )
             }}
-            onConfirm={() => {
-              setDialogs((prevDialogs) =>
+            onConfirm={(): void => {
+              setDialogs((prevDialogs: JSX.Element[]): JSX.Element[] =>
                 prevDialogs.filter((dialog) => dialog !== newConfirmDialog),
               )
 
@@ -468,7 +468,7 @@ export function Interface({ project }: { project: Project }): JSX.Element {
               closeBase: boolean = true,
               ...dialogs: JSX.Element[]
             ): void => {
-              setDialogs((prevDialogs) =>
+              setDialogs((prevDialogs: JSX.Element[]): JSX.Element[] =>
                 prevDialogs.filter(
                   (dialog: JSX.Element): boolean =>
                     ![...(closeBase ? [openDialog] : []), ...dialogs].includes(
@@ -501,8 +501,11 @@ export function Interface({ project }: { project: Project }): JSX.Element {
           <SettingsDialog
             key={crypto.randomUUID()}
             close={(): void => {
-              setDialogs((prevDialogs) =>
-                prevDialogs.filter((dialog) => dialog !== newSettingsDialog),
+              setDialogs((prevDialogs: JSX.Element[]): JSX.Element[] =>
+                prevDialogs.filter(
+                  (dialog: JSX.Element): boolean =>
+                    dialog !== newSettingsDialog,
+                ),
               )
             }}
           />
@@ -546,7 +549,7 @@ export function Interface({ project }: { project: Project }): JSX.Element {
 
     window.addEventListener('keydown', keyboardShortcutListener)
 
-    return () => {
+    return (): void => {
       window.removeEventListener('keydown', keyboardShortcutListener)
     }
   }, [actions])
