@@ -5,11 +5,14 @@
   height: 100%;
   width: fit-content;
 
+  padding-left: 0.5rem;
+
   background: var(--color-base);
 }
 
 .switcher {
-  display: flex;
+  display: grid;
+  grid-template-columns: auto auto;
 
   padding-top: 2px;
 }
