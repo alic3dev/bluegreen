@@ -39,32 +39,6 @@ export function KitList({
     )
   }, [])
 
-  // const [loadingKits, setLoadingKits] = React.useState<Record<string, boolean>>(
-  //   (): Record<string, boolean> => {
-  //     const res: Record<string, boolean> = {};
-
-  //       for (const kit of kits) {
-  //         res[kit.id] = !kit.isReadySync;
-  //       }
-
-  //       return res;
-  //   },
-  // )
-
-  // React.useEffect(() => {
-  //   setLoadingKits(
-  //     (prevLoadingKits: Record<string, boolean>): Record<string, boolean> => {
-  //       const res: Record<string, boolean> = {};
-
-  //       for (const kit of kits) {
-  //         res[kit.id] = prevLoadingKits[kit.id] ?? true;
-  //       }
-
-  //       return res;
-  //     },
-  //   )
-  // }, [kits])
-
   const urlChangeTimeoutLookupRef = React.useRef<Record<string, number>>({})
   const getOnUrlChange =
     (kit: SampleKit, sampleKey: string) =>
@@ -86,19 +60,28 @@ export function KitList({
       )
     }
 
-  const loadAndRefresh = (kit: SampleKit): string => {
-    kit.onReady((): void => {
-      window.setTimeout((): void => refreshKit(kit.id), 0)
-    })
+  const loadAndRefresh = React.useCallback(
+    (kit: SampleKit): string => {
+      kit.onReady((): void => {
+        window.setTimeout((): void => refreshKit(kit.id), 0)
+      })
 
-    return styles.loading
-  }
+      return styles.loading
+    },
+    [refreshKit],
+  )
 
   React.useEffect((): void => {
     if (kits.length === 1) {
       setSelectedKitID(kits[0].id)
     }
-  }, [kits])
+
+    for (const kit of kits) {
+      if (!kit.isReadySync()) {
+        loadAndRefresh(kit)
+      }
+    }
+  }, [kits, loadAndRefresh])
 
   return (
     <div className={styles['kit-list']}>
@@ -150,7 +133,7 @@ export function KitList({
         <div
           key={selectedKit.id}
           className={`${styles['tabbed-content']} ${
-            selectedKit.isReadySync() ? '' : loadAndRefresh(selectedKit)
+            selectedKit.isReadySync() ? '' : styles.loading
           }`}
         >
           <div className={styles['tabbed-controls']}>
