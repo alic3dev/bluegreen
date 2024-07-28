@@ -119,7 +119,7 @@ export function KitList({
 
       <select
         className={styles['tabbed-selector']}
-        value={selectedKit ? selectedKit.channel?.id : ''}
+        value={selectedKit ? selectedKit.getChannel()?.id : ''}
         onChange={(event: React.ChangeEvent<HTMLSelectElement>): void => {
           if (!selectedKit) return
 

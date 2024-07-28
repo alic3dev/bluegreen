@@ -61,7 +61,7 @@ export function SynthList({
 
       <select
         className={styles['tabbed-selector']}
-        value={selectedSynth ? selectedSynth.channel?.id : ''}
+        value={selectedSynth ? selectedSynth.getChannel()?.id : ''}
         onChange={(event: React.ChangeEvent<HTMLSelectElement>): void => {
           if (!selectedSynth) return
 
