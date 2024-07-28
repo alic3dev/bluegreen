@@ -97,11 +97,15 @@ export function SynthList({
                 name="hold"
                 min={0}
                 step={0.01}
-                value={selectedSynth.getHold()}
+                defaultValue={selectedSynth.getHold()}
                 onChange={(
                   event: React.ChangeEvent<HTMLInputElement>,
                 ): void => {
-                  selectedSynth.setHold(event.target.valueAsNumber)
+                  const newHold: number = event.target.valueAsNumber
+
+                  if (!Number.isNaN(newHold) && newHold >= 0) {
+                    selectedSynth.setHold(event.target.valueAsNumber)
+                  }
 
                   refreshSynth(selectedSynth.id)
                 }}
@@ -115,11 +119,15 @@ export function SynthList({
                 name="portamento"
                 min={0}
                 step={0.1}
-                value={selectedSynth.getPortamento()}
+                defaultValue={selectedSynth.getPortamento()}
                 onChange={(
                   event: React.ChangeEvent<HTMLInputElement>,
                 ): void => {
-                  selectedSynth.setPortamento(event.target.valueAsNumber)
+                  const newPortamento: number = event.target.valueAsNumber
+
+                  if (!Number.isNaN(newPortamento) && newPortamento >= 0) {
+                    selectedSynth.setPortamento(event.target.valueAsNumber)
+                  }
 
                   refreshSynth(selectedSynth.id)
                 }}
@@ -141,33 +149,33 @@ export function SynthList({
                 }}
               />
             </label>
-            {/* <label>
-              BPM{' '}
-              <input
-                type="number"
-                name="bpm"
-                value={selectedSynth.BPMSync.getBPM()}
-                min={1}
-                onChange={(
-                  event: React.ChangeEvent<HTMLInputElement>,
-                ): void => {
-                  selectedSynth.setBPM(event.target.valueAsNumber)
-
-                  refreshSynth(selectedSynth.id)
-                }}
-              />
-            </label> */}
 
             <label>
               Curve
               <input
                 type="text"
                 name="curve"
-                value={JSON.stringify(selectedSynth.getGainCurve())}
+                defaultValue={JSON.stringify(selectedSynth.getGainCurve())}
                 onChange={(
                   event: React.ChangeEvent<HTMLInputElement>,
                 ): void => {
-                  selectedSynth.setGainCurve(JSON.parse(event.target.value))
+                  let newGainCurve: unknown[] | undefined
+
+                  try {
+                    newGainCurve = JSON.parse(event.target.value)
+                  } catch {
+                    /* Empty */
+                  }
+
+                  if (
+                    Array.isArray(newGainCurve) &&
+                    !newGainCurve.find(
+                      (value: unknown): boolean =>
+                        typeof value !== 'number' || Number.isNaN(value),
+                    )
+                  ) {
+                    selectedSynth.setGainCurve(newGainCurve as number[])
+                  }
 
                   refreshSynth(selectedSynth.id)
                 }}
@@ -216,7 +224,7 @@ export function SynthList({
                     <label>
                       Type{' '}
                       <select
-                        value={oscillator.type}
+                        defaultValue={oscillator.type}
                         name="oscillator-type"
                         onChange={(
                           event: React.ChangeEvent<HTMLSelectElement>,
@@ -239,7 +247,7 @@ export function SynthList({
                       Volume
                       <input
                         type="range"
-                        value={oscillator.gain.gain.value * 1000}
+                        defaultValue={oscillator.gain.gain.value * 1000}
                         name="volume"
                         min={0}
                         max={1000}
@@ -266,14 +274,17 @@ export function SynthList({
                       <input
                         type="number"
                         name="offset"
-                        value={oscillator.frequency.value}
+                        defaultValue={oscillator.frequency.value}
                         min={-22050}
                         max={22050}
                         onChange={(
                           event: React.ChangeEvent<HTMLInputElement>,
                         ): void => {
-                          oscillator.frequency.value =
-                            event.target.valueAsNumber
+                          const newOffset: number = event.target.valueAsNumber
+
+                          if (!Number.isNaN(newOffset)) {
+                            oscillator.frequency.value = newOffset
+                          }
 
                           refreshSynth(selectedSynth.id)
                         }}

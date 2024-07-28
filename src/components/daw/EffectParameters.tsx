@@ -29,8 +29,12 @@ function EffectParameterInput({
             min={0}
             max={1000}
             step={1}
-            onChange={(event) => {
-              parameter.setValue(event.currentTarget.valueAsNumber / 1000)
+            onChange={(event: React.ChangeEvent<HTMLInputElement>): void => {
+              const newValue: number = event.currentTarget.valueAsNumber
+
+              if (!Number.isNaN(newValue)) {
+                parameter.setValue(newValue / 1000)
+              }
             }}
           />
         )
@@ -40,8 +44,12 @@ function EffectParameterInput({
         <input
           type="number"
           defaultValue={parameter.getValue()}
-          onChange={(event) => {
-            parameter.setValue(event.currentTarget.valueAsNumber)
+          onChange={(event: React.ChangeEvent<HTMLInputElement>): void => {
+            const newValue: number = event.currentTarget.valueAsNumber
+
+            if (!Number.isNaN(newValue)) {
+              parameter.setValue(newValue)
+            }
           }}
         />
       )
