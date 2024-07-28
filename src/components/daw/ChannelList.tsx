@@ -1,6 +1,9 @@
+import type { Channel } from 'zer0'
+
 import React from 'react'
-import { Channel } from 'zer0'
 import { RxCaretDown } from 'react-icons/rx'
+
+import { EffectChainList } from './EffectChainList'
 
 import styles from './ChannelList.module.scss'
 
@@ -140,6 +143,8 @@ export function ChannelList({
               <div className={styles['gain-display-wrapper']}>
                 <div className={styles['gain-display']} />
               </div>
+
+              <EffectChainList effectChain={channel.effectChain} />
             </div>
           </div>
         ),
