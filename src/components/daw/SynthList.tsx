@@ -12,7 +12,6 @@ export function SynthList({
   channels: Channel[]
 }): JSX.Element {
   const [, setRefreshIndex] = React.useState<Record<string, number>>({}) // May want to change this to a simple incrementor
-  // FIXME: This needs to be reactive somehow; this is already reactive..? Ah nvm, only main BPM causes refresh but not internal
 
   const [selectedSynthID, setSelectedSynthID] = React.useState<string>(
     synths.length ? synths[0].id : '',

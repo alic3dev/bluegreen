@@ -27,7 +27,7 @@ export function ChannelList({
     }),
   )
 
-  removeChannel.name // FIXME: Remove this - Just to satisfy TS for a bit
+  removeChannel.name // FIXME: Remove this - Add remove channel button
 
   React.useEffect((): undefined | (() => void) => {
     if (Object.values(openChannels).indexOf(true) === -1) return
