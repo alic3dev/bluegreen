@@ -14,7 +14,6 @@ export function KitList({
   // FIXME: Need async support for load states
 
   const [, setRefreshIndex] = React.useState<Record<string, number>>({}) // May want to change this to a simple incrementor
-  // FIXME: This needs to be reactive somehow; this is already reactive..? Ah nvm, only main BPM causes refresh but not internal
 
   const [selectedKitID, setSelectedKitID] = React.useState<string>(
     kits.length ? kits[0].id : '',
