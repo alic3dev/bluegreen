@@ -53,13 +53,14 @@ export function ChannelList({
 
         if (!channelGainDOM) continue
 
-        const buffer: Uint8Array = channel.pollAnalyser()
+        const buffer: Uint8Array | undefined = channel.pollAnalyser()
 
-        const perc: number =
-          buffer.reduce(
-            (a: number, b: number): number => a + Math.abs(b - 128),
-            0,
-          ) / buffer.length
+        const perc: number = buffer
+          ? buffer.reduce(
+              (a: number, b: number): number => a + Math.abs(b - 128),
+              0,
+            ) / buffer.length
+          : 0
 
         channelGainDOM.style.width = `${perc}%`
         channelGainDOM.style.background = `linear-gradient(to right, #121212, rgb(${

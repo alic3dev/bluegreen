@@ -132,24 +132,22 @@ export function SynthList({
               <input
                 type="checkbox"
                 name="bpm-sync"
-                checked={selectedSynth.getBPMSync()}
+                defaultChecked={selectedSynth.BPMSync.getSync()}
                 onChange={(
                   event: React.ChangeEvent<HTMLInputElement>,
                 ): void => {
-                  selectedSynth.setBPMSync(event.target.value === 'on')
-
-                  // FIXME: Somethings wrong here
+                  selectedSynth.BPMSync.setSync(event.currentTarget.checked)
 
                   refreshSynth(selectedSynth.id)
                 }}
               />
             </label>
-            <label>
+            {/* <label>
               BPM{' '}
               <input
                 type="number"
                 name="bpm"
-                value={selectedSynth.getBPM()}
+                value={selectedSynth.BPMSync.getBPM()}
                 min={1}
                 onChange={(
                   event: React.ChangeEvent<HTMLInputElement>,
@@ -159,7 +157,7 @@ export function SynthList({
                   refreshSynth(selectedSynth.id)
                 }}
               />
-            </label>
+            </label> */}
 
             <label>
               Curve

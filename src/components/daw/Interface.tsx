@@ -338,11 +338,15 @@ export function Interface({ project }: { project: Project }): JSX.Element {
 
   React.useEffect((): void => {
     for (const synth of synths) {
-      if (synth.getBPMSync()) {
-        synth.setBPM(project.bpm)
-      }
+      synth.BPMSync.setBPM(project.bpm)
     }
   }, [synths, project.bpm])
+
+  React.useEffect((): void => {
+    for (const channel of channels) {
+      channel.BPMSync.setBPM(project.bpm)
+    }
+  }, [channels, project.bpm])
 
   /*
   React.useEffect(() => {
