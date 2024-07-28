@@ -435,22 +435,39 @@ export function Interface({ project }: { project: Project }): JSX.Element {
     ])
   }, [generateChannel])
 
-  const removeChannel = React.useCallback((id: string): void => {
-    setChannels((prevChannels: Channel[]): Channel[] => {
-      const channelIndex: number = prevChannels.findIndex(
-        (channel: Channel): boolean => channel.id === id,
-      )
+  const removeChannel = React.useCallback(
+    (id: string): void => {
+      setChannels((prevChannels: Channel[]): Channel[] => {
+        const channelIndex: number = prevChannels.findIndex(
+          (channel: Channel): boolean => channel.id === id,
+        )
 
-      if (channelIndex === -1) return prevChannels
+        if (channelIndex === -1) return prevChannels
 
-      return [
-        ...prevChannels.slice(0, channelIndex),
-        ...prevChannels.slice(channelIndex + 1),
-      ]
+        for (const synth of synths) {
+          const synthChannel = synth.getChannel()
 
-      // FIXME: Will need to update anything dependant on this channel; switch them to the Main channel?
-    })
-  }, [])
+          if (synthChannel?.id === id) {
+            synth.setChannel(channels[0])
+          }
+        }
+
+        for (const kit of kits) {
+          const kitChannel = kit.getChannel()
+
+          if (kitChannel?.id === id) {
+            kit.setChannel(channels[0])
+          }
+        }
+
+        return [
+          ...prevChannels.slice(0, channelIndex),
+          ...prevChannels.slice(channelIndex + 1),
+        ]
+      })
+    },
+    [synths, kits, channels],
+  )
 
   React.useEffect((): undefined | (() => void) => {
     if (playing) {
