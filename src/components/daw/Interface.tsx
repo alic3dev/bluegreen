@@ -65,7 +65,7 @@ const getDefaultAudioRef = (): AudioRef => {
 
 const defaultSamples: Record<string, string> = {
   kick: '/kits/SwuM Drum Kit/Kicks/Vinyl Kick 3.wav',
-  snare: '/kits/SwuM Drum Kit/Snare/Vinyl snare 5.wav',
+  snare: '/kits/SwuM Drum Kit/Snare/Vinyl snare 6.wav',
   hat: '/kits/SwuM Drum Kit/HiHats/Vinyl Hihat 9.wav',
   clap: '/kits/SwuM Drum Kit/Claps/Clap 1.wav',
 }
