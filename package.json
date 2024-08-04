@@ -1,14 +1,20 @@
 {
   "name": "bluegreen",
   "description": "Audio things.",
-  "version": "0.0.1",
-  "type": "module",
+  "version": "0.1.0",
   "author": {
-    "email": "alic3dev@gmail.com",
     "name": "alic3dev",
+    "email": "alice@alic3.dev",
     "url": "https://alic3.dev"
   },
+  "repository": "github:alic3dev/bluegreen",
+  "bugs": {
+    "url": "https://github.com/alic3dev/bluegreen/issues",
+    "email": "bug@alic3.dev"
+  },
+  "homepage": "https://bluegreen.alic3.dev",
   "license": "ISC",
+  "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
