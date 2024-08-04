@@ -2,6 +2,8 @@ import type { Channel, Oscillator, Synth } from 'zer0'
 
 import React from 'react'
 
+import { EffectChainList } from './EffectChainList'
+
 import styles from './SynthList.module.scss'
 
 export function SynthList({
@@ -294,6 +296,8 @@ export function SynthList({
                 ),
               )}
             </div>
+
+            <EffectChainList effectChain={selectedSynth.effectChain} />
           </div>
         </div>
       )}
