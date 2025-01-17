@@ -15,7 +15,7 @@ function createNoteTable(
 ) {
   const noteTable: Octave[] = []
 
-  for (let i = startingOctave; i <= endingOctave; i++) {
+  for (let i: number = startingOctave; i <= endingOctave; i++) {
     noteTable.push({
       C: Math.pow(2, (-57 + i * 12) / 12) * frequency,
       'C#': Math.pow(2, (-56 + i * 12) / 12) * frequency,
@@ -61,24 +61,24 @@ export function EyeGen({ tones }: { tones?: boolean }) {
     fade: 255,
   })
 
-  const getRandomNoteInScale = React.useCallback(() => {
+  const getRandomNoteInScale = React.useCallback((): number => {
     return noteTable[Math.floor(Math.random() * 2 + 2)][
       scaleInKey[Math.floor(Math.random() * scaleInKey.length)]
     ]
   }, [noteTable, scaleInKey])
 
-  const start = React.useCallback(() => {
+  const start = React.useCallback((): void => {
     if (!audioContext.current) audioContext.current = new AudioContext()
 
     if (!analyser.current) {
-      analyser.current = audioContext.current.createAnalyser()
+      analyser.current = new AnalyserNode(audioContext.current)
       analyser.current.fftSize = 2048
       analyser.current.connect(audioContext.current.destination)
 
-      const bufferLength = analyser.current.frequencyBinCount
+      const bufferLength: number = analyser.current.frequencyBinCount
       audioDataRef.current = new Uint8Array(bufferLength)
 
-      setInterval(() => {
+      setInterval((): void => {
         if (!analyser.current || !audioDataRef.current) return
 
         analyser.current.getByteTimeDomainData(audioDataRef.current)
@@ -86,24 +86,24 @@ export function EyeGen({ tones }: { tones?: boolean }) {
     }
 
     if (!gainNode.current) {
-      gainNode.current = audioContext.current.createGain()
+      gainNode.current = new GainNode(audioContext.current)
 
       if (tones) {
         gainNode.current.connect(analyser.current)
       } else {
-        const delay = audioContext.current.createDelay()
-        delay.delayTime.value = 60 / 90 / 16
-
-        const delayTwo = audioContext.current.createDelay()
-        delayTwo.delayTime.value = 60 / 90 / 32
-
-        const delayGain = audioContext.current.createGain()
-        delayGain.gain.value = 0.3
+        const delay: DelayNode = new DelayNode(audioContext.current, {
+          delayTime: 60 / 90 / 16,
+        })
+        const delayTwo: DelayNode = new DelayNode(audioContext.current, {
+          delayTime: 60 / 90 / 32,
+        })
+        const delayGain: GainNode = new GainNode(audioContext.current, {
+          gain: 0.3,
+        })
 
         delay.connect(delayTwo)
         delayTwo.connect(delayGain)
         delayGain.connect(delay)
-
         gainNode.current.connect(delay)
         delay.connect(analyser.current)
       }
@@ -116,31 +116,36 @@ export function EyeGen({ tones }: { tones?: boolean }) {
     )
 
     if (!oscillators.current.length) {
-      for (let i = 0; i < (tones ? 12 : 3); i++) {
-        const newOscillator: OscillatorNode =
-          audioContext.current.createOscillator()
+      for (let i: number = 0; i < (tones ? 12 : 3); i++) {
+        const oscillatorOptions: OscillatorOptions = {
+          type: 'sine',
+          frequency: 0,
+          detune: 0,
+        }
+
+        if (!tones) {
+          if (i === 1) {
+            oscillatorOptions.type = 'triangle'
+          }
+
+          oscillatorOptions.detune = Math.random() * 4.4
+        }
+
+        const newOscillator: OscillatorNode = new OscillatorNode(
+          audioContext.current,
+          oscillatorOptions,
+        )
 
         if (tones) {
-          newOscillator.type = 'sine'
-          newOscillator.frequency.value = 0 //440
-
-          const oscGain = audioContext.current.createGain()
-          oscGain.gain.value = 0
+          const oscGain: GainNode = new GainNode(audioContext.current, {
+            gain: 0,
+          })
 
           oscillatorGains.current.push(oscGain)
 
           newOscillator.connect(oscGain)
           oscGain.connect(gainNode.current)
         } else {
-          newOscillator.type = i === 0 ? 'sine' : i === 1 ? 'triangle' : 'sine'
-
-          newOscillator.detune.value = Math.random() * 4.4
-
-          newOscillator.frequency.value =
-            noteTable[Math.floor(Math.random() * 2 + 2)][
-              scaleInKey[Math.floor(Math.random() * scaleInKey.length)]
-            ]
-
           newOscillator.connect(gainNode.current)
         }
 
@@ -179,7 +184,7 @@ export function EyeGen({ tones }: { tones?: boolean }) {
   React.useEffect((): (() => void) | void => {
     if (tones) return
 
-    const intervalHandler = window.setInterval(() => {
+    const intervalHandler = window.setInterval((): void => {
       if (!oscillators.current.length) return
 
       if (Math.random() * 4 > 1) return
@@ -198,7 +203,7 @@ export function EyeGen({ tones }: { tones?: boolean }) {
           )
         }
       } else {
-        const freq = getRandomNoteInScale()
+        const freq: number = getRandomNoteInScale()
 
         for (const oscillator of oscillators.current) {
           oscillator.frequency.value = freq
@@ -219,7 +224,6 @@ export function EyeGen({ tones }: { tones?: boolean }) {
     return (): void => {
       audioContext.current?.suspend()
 
-      // eslint-disable-next-line react-hooks/exhaustive-deps
       for (const oscillator of oscillators.current) {
         oscillator.stop()
       }
@@ -260,34 +264,32 @@ export function EyeGen({ tones }: { tones?: boolean }) {
                   const gainValues: number[] = []
                   const types: OscillatorType[] = []
 
-                  const inputs =
+                  const inputs: NodeListOf<HTMLInputElement> =
                     event.currentTarget.querySelectorAll('input.freq')
-                  for (const input of inputs) {
-                    values.push(parseFloat((input as HTMLInputElement).value))
-                  }
-
-                  const fade = event.currentTarget.querySelector('input.fade')
-                  if (fade) {
-                    drawOptions.current.fade = parseInt(
-                      (fade as HTMLInputElement).value,
-                    )
-                  }
-
-                  const gains =
+                  const fade: HTMLInputElement | null =
+                    event.currentTarget.querySelector('input.fade')
+                  const gains: NodeListOf<HTMLInputElement> =
                     event.currentTarget.querySelectorAll('input.gain')
-                  for (const gainInput of gains) {
-                    gainValues.push(
-                      parseInt((gainInput as HTMLInputElement).value),
-                    )
-                  }
-                  console.log(gainValues)
+                  const selects: NodeListOf<HTMLSelectElement> =
+                    event.currentTarget.querySelectorAll('select')
 
-                  const selects = event.currentTarget.querySelectorAll('select')
+                  for (const input of inputs) {
+                    values.push(parseFloat(input.value))
+                  }
+
+                  if (fade) {
+                    drawOptions.current.fade = parseInt(fade.value)
+                  }
+
+                  for (const gainInput of gains) {
+                    gainValues.push(parseInt(gainInput.value))
+                  }
+
                   for (const select of selects) {
                     types.push(select.value as OscillatorType)
                   }
 
-                  for (let i = 0; i < oscillators.current.length; i++) {
+                  for (let i: number = 0; i < oscillators.current.length; i++) {
                     oscillators.current[i].frequency.value = values[i] || 0
                     oscillators.current[i].type = types[i] || 'sine'
 

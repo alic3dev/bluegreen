@@ -1,21 +1,23 @@
-import type { AlphaColor, Color, Labels, Variants } from '@catppuccin/palette'
+import type { Colors, ColorName } from '@catppuccin/palette'
 
 import React from 'react'
 
-import palette from '@catppuccin/palette'
+import * as palette from '@catppuccin/palette'
 
-export type ColorScheme = Labels<string, string>
+export type ColorScheme = Colors<string>
 
 interface IntermediaryColorSchemeExtraction {
-  label: string
+  label: ColorName
   hex: string
 }
 
-const defaultColorScheme: ColorScheme = Object.keys(palette.variants.latte)
+const defaultColorScheme: ColorScheme = Object.keys(
+  palette.flavors.latte.colors,
+)
   .map((label: string): IntermediaryColorSchemeExtraction => {
     return {
-      label,
-      hex: palette.variants.latte[label as keyof Labels<Color, AlphaColor>].hex,
+      label: label as ColorName,
+      hex: palette.flavors.latte.colors[label as ColorName].hex,
     }
   })
   .reduce<Partial<ColorScheme>>(
@@ -23,7 +25,7 @@ const defaultColorScheme: ColorScheme = Object.keys(palette.variants.latte)
       prev: Partial<ColorScheme>,
       cur: IntermediaryColorSchemeExtraction,
     ): Partial<ColorScheme> => {
-      prev[cur.label as keyof Labels<Color, AlphaColor>] = cur.hex
+      prev[cur.label] = cur.hex
 
       return prev
     },
@@ -40,9 +42,10 @@ function generateColorScheme(): ColorScheme {
 
   const colorScheme: ColorScheme = { ...defaultColorScheme }
 
-  for (const label in palette.labels) {
-    colorScheme[label as keyof Labels<Variants<Color>, Variants<Color>>] =
-      styles.getPropertyValue(`--color-${label}`)
+  for (const label in palette.flavors) {
+    colorScheme[label as ColorName] = styles.getPropertyValue(
+      `--color-${label}`,
+    )
   }
 
   return colorScheme

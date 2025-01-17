@@ -1,6 +1,9 @@
+import type { Channel } from 'zer0'
+
 import React from 'react'
-import { Channel } from 'zer0'
 import { RxCaretDown } from 'react-icons/rx'
+
+import { EffectChainList } from './EffectChainList'
 
 import styles from './ChannelList.module.scss'
 
@@ -24,7 +27,8 @@ export function ChannelList({
     }),
   )
 
-  removeChannel.name // FIXME: Remove this - Just to satisfy TS for a bit
+  // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+  removeChannel.name // FIXME: Remove this - Add remove channel button
 
   React.useEffect((): undefined | (() => void) => {
     if (Object.values(openChannels).indexOf(true) === -1) return
@@ -53,13 +57,14 @@ export function ChannelList({
 
         if (!channelGainDOM) continue
 
-        const buffer: Uint8Array = channel.pollAnalyser()
+        const buffer: Uint8Array | undefined = channel.pollAnalyser()
 
-        const perc: number =
-          buffer.reduce(
-            (a: number, b: number): number => a + Math.abs(b - 128),
-            0,
-          ) / buffer.length
+        const perc: number = buffer
+          ? buffer.reduce(
+              (a: number, b: number): number => a + Math.abs(b - 128),
+              0,
+            ) / buffer.length
+          : 0
 
         channelGainDOM.style.width = `${perc}%`
         channelGainDOM.style.background = `linear-gradient(to right, #121212, rgb(${
@@ -139,6 +144,8 @@ export function ChannelList({
               <div className={styles['gain-display-wrapper']}>
                 <div className={styles['gain-display']} />
               </div>
+
+              <EffectChainList effectChain={channel.effectChain} />
             </div>
           </div>
         ),

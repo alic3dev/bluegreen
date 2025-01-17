@@ -1,6 +1,6 @@
-@import url('https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap');
+@use '@catppuccin/palette/css/catppuccin';
 
-@import '@catppuccin/palette/style';
+@import url('https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap');
 
 @mixin set-color($flavor, $color) {
   --color-#{$color}: var(--ctp-#{$flavor}-#{$color});

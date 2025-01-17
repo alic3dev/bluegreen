@@ -29,7 +29,6 @@ export function TapBpm({
     })
 
     return (): void => {
-      // eslint-disable-next-line react-hooks/exhaustive-deps
       clearTimeout(pulseTimeout.current.value)
       unregisterStep()
     }

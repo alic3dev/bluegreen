@@ -14,7 +14,6 @@ export function KitList({
   // FIXME: Need async support for load states
 
   const [, setRefreshIndex] = React.useState<Record<string, number>>({}) // May want to change this to a simple incrementor
-  // FIXME: This needs to be reactive somehow; this is already reactive..? Ah nvm, only main BPM causes refresh but not internal
 
   const [selectedKitID, setSelectedKitID] = React.useState<string>(
     kits.length ? kits[0].id : '',
@@ -39,32 +38,6 @@ export function KitList({
     )
   }, [])
 
-  // const [loadingKits, setLoadingKits] = React.useState<Record<string, boolean>>(
-  //   (): Record<string, boolean> => {
-  //     const res: Record<string, boolean> = {};
-
-  //       for (const kit of kits) {
-  //         res[kit.id] = !kit.isReadySync;
-  //       }
-
-  //       return res;
-  //   },
-  // )
-
-  // React.useEffect(() => {
-  //   setLoadingKits(
-  //     (prevLoadingKits: Record<string, boolean>): Record<string, boolean> => {
-  //       const res: Record<string, boolean> = {};
-
-  //       for (const kit of kits) {
-  //         res[kit.id] = prevLoadingKits[kit.id] ?? true;
-  //       }
-
-  //       return res;
-  //     },
-  //   )
-  // }, [kits])
-
   const urlChangeTimeoutLookupRef = React.useRef<Record<string, number>>({})
   const getOnUrlChange =
     (kit: SampleKit, sampleKey: string) =>
@@ -86,19 +59,28 @@ export function KitList({
       )
     }
 
-  const loadAndRefresh = (kit: SampleKit): string => {
-    kit.onReady((): void => {
-      window.setTimeout((): void => refreshKit(kit.id), 0)
-    })
+  const loadAndRefresh = React.useCallback(
+    (kit: SampleKit): string => {
+      kit.onReady((): void => {
+        window.setTimeout((): void => refreshKit(kit.id), 0)
+      })
 
-    return styles.loading
-  }
+      return styles.loading
+    },
+    [refreshKit],
+  )
 
   React.useEffect((): void => {
     if (kits.length === 1) {
       setSelectedKitID(kits[0].id)
     }
-  }, [kits])
+
+    for (const kit of kits) {
+      if (!kit.isReadySync()) {
+        loadAndRefresh(kit)
+      }
+    }
+  }, [kits, loadAndRefresh])
 
   return (
     <div className={styles['kit-list']}>
@@ -119,7 +101,7 @@ export function KitList({
 
       <select
         className={styles['tabbed-selector']}
-        value={selectedKit ? selectedKit.channel?.id : ''}
+        value={selectedKit ? selectedKit.getChannel()?.id : ''}
         onChange={(event: React.ChangeEvent<HTMLSelectElement>): void => {
           if (!selectedKit) return
 
@@ -150,7 +132,7 @@ export function KitList({
         <div
           key={selectedKit.id}
           className={`${styles['tabbed-content']} ${
-            selectedKit.isReadySync() ? '' : loadAndRefresh(selectedKit)
+            selectedKit.isReadySync() ? '' : styles.loading
           }`}
         >
           <div className={styles['tabbed-controls']}>

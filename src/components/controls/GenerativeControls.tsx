@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { ChangeEvent } from 'react'
 
 import { CiFloppyDisk, CiFolderOn, CiPlay1, CiStop1 } from 'react-icons/ci'
 
@@ -34,7 +34,7 @@ export function GenerativeControls({
   }, [canvasRef])
 
   const onFile = React.useCallback(
-    (event: InputEvent): void => {
+    (event: ChangeEvent<HTMLInputElement>): void => {
       if (!canvasRef.current) return
 
       const ctx: CanvasRenderingContext2D | null =
@@ -44,12 +44,12 @@ export function GenerativeControls({
 
       const file: File = (event.target as HTMLInputElement).files![0]
 
-      const url = URL.createObjectURL(file)
-      const img = new Image()
+      const url: string = URL.createObjectURL(file)
+      const img: HTMLImageElement = new Image()
 
       img.onload = function _tempImgOnload(): void {
-        URL.revokeObjectURL(this.src)
-        canvasRef.current.getContext('2d').drawImage(this, 0, 0)
+        ctx.drawImage(img, 0, 0)
+        URL.revokeObjectURL(img.src)
       }
 
       img.src = url

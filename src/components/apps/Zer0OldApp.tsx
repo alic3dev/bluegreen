@@ -30,16 +30,13 @@ export function Zer0App(): React.ReactNode {
     if (!hasStartedRef.current) {
       const audioContext: AudioContext = new AudioContext()
 
-      const synthGain = audioContext.createGain()
-      synthGain.gain.value = 0.2
+      const synthGain: GainNode = new GainNode(audioContext, { gain: 0.2 })
+      const sampleKitGain: GainNode = new GainNode(audioContext, { gain: 0.6 })
+
       synthGain.connect(audioContext.destination)
-
-      synthRef.current = new Synth({ audioContext, output: synthGain })
-
-      const sampleKitGain = audioContext.createGain()
-      sampleKitGain.gain.value = 0.6
       sampleKitGain.connect(audioContext.destination)
 
+      synthRef.current = new Synth({ audioContext, output: synthGain })
       sampleKitRef.current = new SampleKit({
         audioContext,
         samples: {

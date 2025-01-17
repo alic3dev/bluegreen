@@ -131,7 +131,6 @@ function Zer0Daw(): React.ReactNode {
         JSON.stringify({ autoSave: settings.autoSave }),
       )
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [settings.autoSave])
 
   React.useEffect((): void => {

@@ -23,9 +23,11 @@ export function Beat({
     ({
       note,
       polyphony,
+      subNoteIndex,
     }: {
       note: number[]
       polyphony: number
+      subNoteIndex: number
     }): React.KeyboardEventHandler<HTMLInputElement> =>
     (event: React.KeyboardEvent<HTMLInputElement>): void => {
       if (event.key === '/') {
@@ -53,11 +55,12 @@ export function Beat({
             }),
           )
 
-          // FIXME: Should remove currently selected cell not last
-          newBars[barIndex].notes[beatIndex][polyphony] = note.slice(
-            0,
-            note.length > 1 ? note.length - 1 : 1,
-          )
+          if (note.length > 1) {
+            newBars[barIndex].notes[beatIndex][polyphony] = [
+              ...note.slice(0, subNoteIndex),
+              ...note.slice(subNoteIndex + 1),
+            ]
+          }
 
           return newBars
         })
@@ -97,6 +100,8 @@ export function Beat({
       })
     }
 
+  // FIXME: Value sometimes sets to -1 when adding or removing subnotes
+
   return (
     <div
       className={`${styles.beat} ${
@@ -121,7 +126,11 @@ export function Beat({
                 max={frequencies.length - 1}
                 value={subNote}
                 autoComplete="off"
-                onKeyDown={getOnSubNoteKeyDown({ note, polyphony })}
+                onKeyDown={getOnSubNoteKeyDown({
+                  note,
+                  polyphony,
+                  subNoteIndex,
+                })}
                 onChange={getOnSubNoteChange({ note, polyphony, subNoteIndex })}
               />
             ),

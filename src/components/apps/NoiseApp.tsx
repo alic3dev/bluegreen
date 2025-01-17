@@ -32,43 +32,29 @@ const getDefaultAudioRef = (): AudioRef => {
   const channel = new Channel({ audioContext: context })
   channel.gain.gain.value = 0.666
 
-  const dc = context.createDynamicsCompressor()
+  const dc: DynamicsCompressorNode = new DynamicsCompressorNode(context)
+  const bf: BiquadFilterNode = new BiquadFilterNode(context, {
+    type: 'lowpass',
+    gain: 0.25,
+    Q: 2,
+  })
+
   dc.connect(channel.gain)
   channel.gain.connect(dc)
-
-  const bf = context.createBiquadFilter()
-  bf.type = 'lowpass'
-  bf.gain.value = 0.25
-  bf.Q.value = 2
   bf.connect(channel.destination)
 
-  const delay = context.createDelay()
-  delay.delayTime.value = 1 / 19
+  const delay: DelayNode = new DelayNode(context, { delayTime: 1 / 19 })
+  const delayGain: GainNode = new GainNode(context, { gain: 2 / 3 })
+  const stereoPanner: StereoPannerNode = new StereoPannerNode(context)
+  const gain: GainNode = new GainNode(context, { gain: 2 / 3 })
 
-  const delayGain = context.createGain()
-  delayGain.gain.value = 2 / 3
   delayGain.connect(delay)
   delay.connect(delayGain)
   delay.connect(bf)
-
-  const stereoPanner: StereoPannerNode = context.createStereoPanner()
   stereoPanner.connect(delay)
-
-  const gain: GainNode = context.createGain()
-  gain.gain.value = 2 / 3
   gain.connect(stereoPanner)
   gain.connect(channel.destination)
   gain.connect(gain)
-
-  // const infGain: GainNode = context.createGain()
-  // infGain.gain.value = 0.72
-  // // infGain.connect(infGain)
-  // infGain.connect(gain)
-
-  // const samp = new Sample(context, '/kits/SwuM Drum Kit/Fx/drip.wav', infGain)
-  // samp.onReady(() => {
-  //   samp.play()
-  // })
 
   return (defaultAudioRef = {
     context,
@@ -126,7 +112,8 @@ export function NoiseApp(): React.ReactNode {
       ctx.fillStyle = colorScheme.base
       ctx.fillRect(0, 0, VIDEO_RESOLUTION.x, VIDEO_RESOLUTION.y)
 
-      const analyserData: Uint8Array = audioRef.current.channel.pollAnalyser()
+      const analyserData: Uint8Array | undefined =
+        audioRef.current.channel.pollAnalyser()
 
       ctx.moveTo(0, VIDEO_RESOLUTION.y / 2)
       ctx.beginPath()
@@ -138,40 +125,42 @@ export function NoiseApp(): React.ReactNode {
 
       let ySum: number = VIDEO_RESOLUTION.y / 2
 
-      for (let i = 1; i < analyserData.length; i++) {
-        const points: { x: number; y: number } = {
-          x: (i / analyserData.length) * VIDEO_RESOLUTION.x,
-          y: (analyserData[i] / 255) * VIDEO_RESOLUTION.y,
+      if (analyserData) {
+        for (let i = 1; i < analyserData.length; i++) {
+          const points: { x: number; y: number } = {
+            x: (i / analyserData.length) * VIDEO_RESOLUTION.x,
+            y: (analyserData[i] / 255) * VIDEO_RESOLUTION.y,
+          }
+
+          ctx.lineTo(points.x, points.y)
+
+          ySum += points.y
+
+          // ctx.quadraticCurveTo(
+          //   (lastPoints.x + points.x) / 2,
+          //   (lastPoints.y + points.y) / 2,
+          //   points.x,
+          //   points.y,
+          // )
+
+          // lastPoints.x = points.x
+          // lastPoints.y = points.y
         }
 
-        ctx.lineTo(points.x, points.y)
+        const yAvg: number = Math.round(ySum / analyserData.length)
 
-        ySum += points.y
+        if (yAvg === 111 || yAvg === 333 || yAvg === 666 || yAvg === 999) {
+          ctx.strokeStyle = colorScheme.red
+        } else if (yAvg === 777) {
+          ctx.strokeStyle = colorScheme.yellow
+        } else if (oddFrame) {
+          ctx.strokeStyle = colorScheme.green
+        } else {
+          ctx.strokeStyle = colorScheme.blue
+        }
 
-        // ctx.quadraticCurveTo(
-        //   (lastPoints.x + points.x) / 2,
-        //   (lastPoints.y + points.y) / 2,
-        //   points.x,
-        //   points.y,
-        // )
-
-        // lastPoints.x = points.x
-        // lastPoints.y = points.y
+        ctx.stroke()
       }
-
-      const yAvg: number = Math.round(ySum / analyserData.length)
-
-      if (yAvg === 111 || yAvg === 333 || yAvg === 666 || yAvg === 999) {
-        ctx.strokeStyle = colorScheme.red
-      } else if (yAvg === 777) {
-        ctx.strokeStyle = colorScheme.yellow
-      } else if (oddFrame) {
-        ctx.strokeStyle = colorScheme.green
-      } else {
-        ctx.strokeStyle = colorScheme.blue
-      }
-
-      ctx.stroke()
 
       analyserVisualizationHandle = window.requestAnimationFrame(
         analyserVisualizationFrame,
