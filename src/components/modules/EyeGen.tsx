@@ -224,7 +224,6 @@ export function EyeGen({ tones }: { tones?: boolean }) {
     return (): void => {
       audioContext.current?.suspend()
 
-      // eslint-disable-next-line react-hooks/exhaustive-deps
       for (const oscillator of oscillators.current) {
         oscillator.stop()
       }

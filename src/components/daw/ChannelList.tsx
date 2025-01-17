@@ -27,6 +27,7 @@ export function ChannelList({
     }),
   )
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-expressions
   removeChannel.name // FIXME: Remove this - Add remove channel button
 
   React.useEffect((): undefined | (() => void) => {
