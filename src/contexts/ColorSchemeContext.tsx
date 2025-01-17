@@ -42,7 +42,7 @@ function generateColorScheme(): ColorScheme {
 
   const colorScheme: ColorScheme = { ...defaultColorScheme }
 
-  for (const label in palette.flavors) {
+  for (const label in palette.flavors.latte.colors) {
     colorScheme[label as ColorName] = styles.getPropertyValue(
       `--color-${label}`,
     )

@@ -34,7 +34,7 @@
   writing-mode: vertical-rl;
 
   color: var(--color-text);
-  text-shadow: 0.25em 2em rgba(var(--color-red-raw), 0.4);
+  text-shadow: 0.25em 2em rgba(var(--color-red-rgb) / 0.4);
   opacity: 0.25;
 
   overflow: hidden;
