@@ -1,7 +1,15 @@
+import type { UUID } from 'crypto'
+
 import type { SynthPresetValues, SampleKitPresetValues } from 'zer0'
 
 import type { TrackInfo } from './SharedTypes'
 import type { TrackOptions } from './Track'
+
+import {
+  LOCAL_STORAGE_KEY_PROJECT_CHANNELS_PREFIX,
+  LOCAL_STORAGE_KEY_PROJECT_PREFIX,
+  LOCAL_STORAGE_KEY_SELECTED_PROJECT,
+} from '../../utils/constants'
 
 import type {
   BaseProject,
@@ -34,11 +42,6 @@ import {
 } from '../layout/Dialogs'
 import { Tabbed } from '../layout/Tabbed'
 
-import {
-  LOCAL_STORAGE_KEY_PROJECT_CHANNELS_PREFIX,
-  LOCAL_STORAGE_KEY_SELECTED_PROJECT,
-} from '../../utils/constants'
-
 import styles from './Interface.module.scss'
 
 interface AudioRef {
@@ -46,7 +49,7 @@ interface AudioRef {
 }
 
 interface ChannelPreset {
-  id: string
+  id: UUID
   name: string
   gain: number
 }
@@ -471,7 +474,7 @@ export function Interface({ project }: { project: Project }): JSX.Element {
 
   React.useEffect((): undefined | (() => void) => {
     if (playing) {
-      let stepTimeout: number
+      let stepTimeout: NodeJS.Timeout
 
       const step = (): void => {
         Object.values(trackInfoRef.current.registeredSteps).forEach(
@@ -514,7 +517,6 @@ export function Interface({ project }: { project: Project }): JSX.Element {
 
               // TODO: ('implement me!!@!') in a better way
             }}
-            // dangerous
           >
             <p>Are you sure you want to make a new project?</p>
             <p className="small">(All unsaved changes will be lost.)</p>
@@ -560,9 +562,99 @@ export function Interface({ project }: { project: Project }): JSX.Element {
         ])
       },
       save: (): void => {
-        alert(`
-        // TODO: Implement me
-      `)
+        const selectedProjectId: string | null = window.localStorage.getItem(
+          LOCAL_STORAGE_KEY_SELECTED_PROJECT,
+        )
+
+        if (!selectedProjectId) {
+          alert("Can't determine selected project")
+          return
+        }
+
+        const savedProjectJSON: string | null = window.localStorage.getItem(
+          `${LOCAL_STORAGE_KEY_PROJECT_PREFIX}${selectedProjectId}`,
+        )
+
+        if (!savedProjectJSON) {
+          alert("Can't find saved project")
+          return
+        }
+
+        const savedProjectChannelsJSON: string | null =
+          window.localStorage.getItem(
+            `${LOCAL_STORAGE_KEY_PROJECT_CHANNELS_PREFIX}${selectedProjectId}`,
+          )
+
+        if (!savedProjectChannelsJSON) {
+          alert("Can't find saved project channels")
+          return
+        }
+
+        let savedProject: {
+          [param: string]: unknown
+          name: string
+          tracks: {
+            [param: string]: unknown
+            synthId: UUID | undefined
+            kitId: UUID | undefined
+          }[]
+        }
+
+        try {
+          savedProject = JSON.parse(savedProjectJSON)
+        } catch {
+          alert("Couldn't parse saved project")
+          return
+        }
+
+        const savedSynths: string[] = []
+        const savedSampleKits: string[] = []
+
+        for (const track of savedProject.tracks) {
+          if (track.synthId) {
+            const synthJSON: string | null = window.localStorage.getItem(
+              `${Synth.localStorageKeyPrefix}${track.synthId}`,
+            )
+
+            if (!synthJSON) {
+              alert("Couldn't find saved synth")
+              return
+            }
+
+            savedSynths.push(synthJSON)
+          } else if (track.kitId) {
+            const sampleKitJSON: string | null = window.localStorage.getItem(
+              `${SampleKit.localStorageKeyPrefix}${track.kitId}`,
+            )
+
+            if (!sampleKitJSON) {
+              alert("Couldn't find saved kit")
+              return
+            }
+
+            savedSampleKits.push(sampleKitJSON)
+          }
+        }
+
+        const export_data: Blob = new Blob(
+          [
+            JSON.stringify({
+              project: savedProjectJSON,
+              channels: savedProjectChannelsJSON,
+              synths: savedSynths,
+              sample_kits: savedSampleKits,
+            }),
+          ],
+          { type: 'application/json' },
+        )
+
+        const export_data_object_url: string =
+          window.URL.createObjectURL(export_data)
+
+        const data_anchor: HTMLAnchorElement = document.createElement('a')
+        data_anchor.setAttribute('download', `${savedProject.name}.json`)
+        data_anchor.href = export_data_object_url
+        data_anchor.click()
       },
       settings: (): void => {
         const newSettingsDialog: JSX.Element = (
